@@ -22,14 +22,22 @@ int main(int argc, char* args[])
 		std::cout << i << ". " << SDL_GetVideoDriver(i) << endl;
 	}
 
-	VgaTerminal term = VgaTerminal("VgaTerminal", 0, -1, 0);
+	//VgaTerminal term = VgaTerminal("VgaTerminal", 0, -1, 0);
+	VgaTerminal term = VgaTerminal("VgaTerminal",720*2,400*2, 0, -1, 0);
+	if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2") == SDL_FALSE) {
+		cerr << "SetHint failed" << endl;
+	}
+
 	SDL_Event event;
 	bool quit = false;
 
-	term.Write("Hello World!", 10, 0);
+	//term.Write("Hello World!", 10, 0);
+	for (int i = 0; i < 256; i++) {
+		term.write((char)i, i, 255 - i);
+	}
 	term.render();
 	SDL_Delay(500);
-	term.WriteXY(40, 12, "Again!", 9, 0);
+	term.writeXY(40, 12, "Again!", 9, 0);
 	term.render();
 	SDL_Delay(500);
 	term.gotoXY(40, 24);
@@ -55,7 +63,7 @@ int main(int argc, char* args[])
 				term.render();
 			}
 			else {
-				term.Write(keyname, 7, 0);
+				term.write(keyname, 7, 0);
 				term.render();
 			}
 

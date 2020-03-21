@@ -12,7 +12,7 @@ constexpr auto VGA_TERMNIAL_NUM_CHARS = VGA_FONT_CHARS;
 template<typename T> 
 constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3f); }
 
-const VgaTerminal::videoMode_t VgaTerminal::mode = {
+const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(0x003), // mode
         static_cast <uint16_t>(720),  // sw (tw * cw) [redundant]
         static_cast <uint16_t>(400),  // sh (th * ch) [redundant]
@@ -23,11 +23,21 @@ const VgaTerminal::videoMode_t VgaTerminal::mode = {
 };
 
 VgaTerminal::VgaTerminal(const std::string title, const int winFlags, const int drvIndex, const int renFlags) : 
-    Window(title, mode.sw, mode.sh, winFlags, drvIndex, renFlags)
+    VgaTerminal(title, mode3.sw, mode3.sh, winFlags, drvIndex, renFlags)
 {
-	p.ncolors = VGA_TERMINAL_NUM_COLORS;
+}
+
+VgaTerminal::VgaTerminal(const std::string title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags) :
+    Window(title, width, height, winFlags, drvIndex, renFlags)
+{
+    mode = mode3;
+    if (SDL_RenderSetLogicalSize(getRenderer(), mode.sw, mode.sh) < 0) {
+        throw std::runtime_error("unable to set logical rendering");
+    }
+
+    p.ncolors = VGA_TERMINAL_NUM_COLORS;
     pCol = std::make_unique<SDL_Color[]>(VGA_TERMINAL_NUM_COLORS);
-	p.colors = pCol.get();
+    p.colors = pCol.get();
     for (int i = 0; i < VGA_TERMINAL_NUM_COLORS; i++)
     {
         p.colors[i].r = RESIZE_VGA_PALETTE(palette3[i][0]);
@@ -44,7 +54,7 @@ VgaTerminal::VgaTerminal(const std::string title, const int winFlags, const int 
 
 void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c)
 {
-    register uint16_t offs = c << 4;
+    register uint16_t offs = static_cast<uint8_t>(c) << 4;
     for (register uint8_t y = 0; y < mode.ch; y++)
     {
         register uint16_t yw = y * mode.cw;
@@ -70,7 +80,7 @@ void VgaTerminal::gotoXY(const uint8_t x, const uint8_t y)
     }
 }
 
-void VgaTerminal::Write(const char c, const uint8_t col, const uint8_t bgCol)
+void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol)
 {
     register int pos = _curX + _curY * mode.tw;
     _pGrid[pos].c = c;
@@ -80,18 +90,18 @@ void VgaTerminal::Write(const char c, const uint8_t col, const uint8_t bgCol)
     incrementCursorPosition();
 }
 
-void VgaTerminal::Write(const std::string str, const uint8_t col, const uint8_t bgCol)
+void VgaTerminal::write(const std::string str, const uint8_t col, const uint8_t bgCol)
 {
     register size_t sz = str.size();
     for (register size_t i = 0; i < sz; i++) {
-        Write(str.at(i), col, bgCol);
+        write(str.at(i), col, bgCol);
     }
 }
 
-void VgaTerminal::WriteXY(const uint8_t x, const uint8_t y, const std::string str, const uint8_t col, const uint8_t bgCol)
+void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string str, const uint8_t col, const uint8_t bgCol)
 {
     gotoXY(x, y);
-    Write(str, col, bgCol);
+    write(str, col, bgCol);
 }
 
 void VgaTerminal::render()
@@ -128,12 +138,12 @@ void VgaTerminal::clearGrid()
 
 void VgaTerminal::incrementCursorPosition()
 {
-    _curX++;
-    if (_curX >= mode.tw)
+    //_curX++;
+    if (++_curX >= mode.tw)
     {
         _curX = 0;
-        _curY++;
-        if (_curY >= mode.th)
+        //_curY++;
+        if (++_curY >= mode.th)
         {
             _curY = mode.th - 1;
             scrollDownGrid();
@@ -141,10 +151,6 @@ void VgaTerminal::incrementCursorPosition()
     }
 }
 
-/*
- * TODO: Too slow redrawing all screen...
-   TODO: consider using a texture? (buffer)
-*/
 void VgaTerminal::scrollDownGrid()
 {
     for (int j = 1; j < mode.th; j++) {
@@ -167,7 +173,7 @@ void VgaTerminal::scrollDownGrid()
     
     int j2 = (mode.th - 1) * mode.tw;
     for (int i = 0; i < mode.tw; i++) {
-        _pGrid[i + j2] = defaultNullChar;
+        _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;
         //_pGrid[i2].c = 0;
         //_pGrid[i2].col = 0;
         //_pGrid[i2].bgCol = _bgCol;
