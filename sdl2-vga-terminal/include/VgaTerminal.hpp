@@ -30,13 +30,13 @@ public:
     } terminalChar_t;
 
     VgaTerminal() = delete;
-    VgaTerminal(const std::string title, const int winFlags, const int drvIndex, const int renFlags);
-    VgaTerminal(const std::string title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
+    VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
+    VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     
     void gotoXY(const uint8_t x, const uint8_t y);
     void write(const char c, const uint8_t col, const uint8_t bgCol);
-    void write(const std::string str, const uint8_t col, const uint8_t bgCol);
-    void writeXY(const uint8_t x, const uint8_t y, const std::string str, const uint8_t col, const uint8_t bgCol);
+    void write(const std::string &str, const uint8_t col, const uint8_t bgCol);
+    void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol);
     void render();
     void clearGrid();
 

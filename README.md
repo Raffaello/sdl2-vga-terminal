@@ -11,3 +11,16 @@ It should be on 16 colors in the classic way, but can support more thanks to SDL
 It is just a matter of fonts and a terminal grid for displaying texts.
 
 
+## Compiling
+
+Use `vcpkg` and install `SDL2`.
+
+## Usage
+
+SDL2 Video sub-system has to be initialized before using `VgaTerminal` class.
+
+After that there are just few method to use.
+
+## TODO
+
+SDL_Surface 

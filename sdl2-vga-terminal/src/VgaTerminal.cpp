@@ -22,12 +22,12 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(16)     // ch
 };
 
-VgaTerminal::VgaTerminal(const std::string title, const int winFlags, const int drvIndex, const int renFlags) : 
+VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) : 
     VgaTerminal(title, mode3.sw, mode3.sh, winFlags, drvIndex, renFlags)
 {
 }
 
-VgaTerminal::VgaTerminal(const std::string title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags) :
+VgaTerminal::VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags) :
     Window(title, width, height, winFlags, drvIndex, renFlags)
 {
     mode = mode3;
@@ -90,7 +90,7 @@ void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol)
     incrementCursorPosition();
 }
 
-void VgaTerminal::write(const std::string str, const uint8_t col, const uint8_t bgCol)
+void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t bgCol)
 {
     register size_t sz = str.size();
     for (register size_t i = 0; i < sz; i++) {
@@ -98,7 +98,7 @@ void VgaTerminal::write(const std::string str, const uint8_t col, const uint8_t 
     }
 }
 
-void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string str, const uint8_t col, const uint8_t bgCol)
+void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol)
 {
     gotoXY(x, y);
     write(str, col, bgCol);

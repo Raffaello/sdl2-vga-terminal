@@ -1,7 +1,7 @@
 #include <Window.hpp>
 #include <stdexcept>
 
-Window::Window(const std::string title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
+Window::Window(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
 {
 	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO) {
 		throw std::runtime_error("video wasn't inited");
