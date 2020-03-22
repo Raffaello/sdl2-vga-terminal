@@ -1,20 +1,21 @@
 #include <gtest/gtest.h>
 #include <VgaTerminal.hpp>
 
-TEST(Failure, CannotInit) {
+TEST(VgaTerminal, CannotInit) {
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
 }
 
-TEST(Snapshot, HelloWorld) {
+TEST(VgaTerminal, HelloWorld) {
 	SDL_Init(SDL_INIT_VIDEO);
-	VgaTerminal term = VgaTerminal("Snapshot Test", 0, -1, 0);
-	auto render = term.getRenderer();
-	SDL_Quit();
-	ASSERT_EQ(1, 2);
-}
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, 0, -1, 0);
+	
+	std::string title = SDL_GetWindowTitle(term.getWindow());
+	ASSERT_EQ(title, termTitle);
 
-TEST(VgaTerminal, aa) {
-	ASSERT_TRUE(true);
+	//term.getRenderer();
+	//term.render
+	SDL_Quit();
 }
 
 int main(int argc, char** argv) {

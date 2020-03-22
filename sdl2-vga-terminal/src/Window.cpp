@@ -26,19 +26,26 @@ Window::Window(const std::string &title, const int width, const int height, cons
 	renderPresent();
 }
 
+SDL_Window* Window::getWindow() const
+{
+	return _pWindow;
+}
 
+ SDL_Renderer* Window::getRenderer() const {
+	return _pRenderer;
+}
 
-inline void Window::setRendererDrawColor(const uint8_t r, const  uint8_t g, const  uint8_t b, const  uint8_t a) const
+void Window::setRendererDrawColor(const uint8_t r, const  uint8_t g, const  uint8_t b, const  uint8_t a) const
 {
 	SDL_SetRenderDrawColor(_pRenderer, r, g, b, a);
 }
 
-inline void Window::renderClear() const
+void Window::renderClear() const
 {
 	SDL_RenderClear(_pRenderer);
 }
 
-inline void Window::renderPresent() const
+void Window::renderPresent() const
 {
 	SDL_RenderPresent(_pRenderer);
 }
