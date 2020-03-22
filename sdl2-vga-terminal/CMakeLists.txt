@@ -1,19 +1,25 @@
-﻿# CMakeList.txt : CMake project for sdl2-vga-terminal, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.8)
 
 set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
+## Shared code among exe and tests
+add_library(vga-terminal OBJECT)
+target_sources(vga-terminal PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+)
+
+target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
 
 # Add source to this project's executable.
-add_executable (sdl2-vga-terminal "sdl2-vga-terminal.cpp" "sdl2-vga-terminal.h" ${SOURCES})
+add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
+target_link_libraries(${PROJECT_NAME} vga-terminal)
+target_include_directories(${PROJECT_NAME} PRIVATE .)
+#target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
 
-# TODO: Add tests and install targets if needed.
-target_link_libraries(sdl2-vga-terminal SDL2::SDL2 SDL2::SDL2main)
-add_subdirectory("src")
+# tests
 add_subdirectory("test")

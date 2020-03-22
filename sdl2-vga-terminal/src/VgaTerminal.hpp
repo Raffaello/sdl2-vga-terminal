@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Window.hpp>
-#include <vgafonts.h>
-#include <vgapalette.h>
 #include <memory>
 #include <string>
 

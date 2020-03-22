@@ -7,7 +7,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif()
 
-project ("sdl2-vga-terminal")
+project ("sdl2-vga-terminal" VERSION 0.1 DESCRIPTION "Vga Terminal on SDL2")
 
 # Include sub-projects.
 add_subdirectory ("sdl2-vga-terminal")

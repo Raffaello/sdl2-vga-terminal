@@ -18,9 +18,3 @@ Use `vcpkg` and install `SDL2`.
 ## Usage
 
 SDL2 Video sub-system has to be initialized before using `VgaTerminal` class.
-
-After that there are just few method to use.
-
-## TODO
-
-SDL_Surface 

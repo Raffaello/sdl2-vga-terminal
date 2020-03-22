@@ -3,6 +3,8 @@
 #include <SDL2/SDL_assert.h>
 #include <bitset>
 #include <stdexcept>
+#include <vgafonts.h>
+#include <vgapalette.h>
 
 // TODO: find a better parametrized way to choose among the 3 palettes.
 constexpr auto VGA_TERMINAL_NUM_COLORS = PALETTE_3_COLORS;
@@ -54,15 +56,15 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
 void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c)
 {
-    register uint16_t offs = static_cast<uint8_t>(c) << 4;
+    register const uint16_t offs = static_cast<uint8_t>(c) << 4;
+    register const uint8_t lsz = 8;
     for (register uint8_t y = 0; y < mode.ch; y++)
     {
-        register uint16_t yw = y * mode.cw;
+        register const uint16_t yw = y * mode.cw;
         // TODO: vgafont16 should be parametrized
-        std::bitset<8> line(vgafont16[offs + y]);
-        register uint8_t lsz = line.size();
+        const std::bitset<lsz> line(vgafont16[offs + y]);
         for (register uint8_t x = 0; x < lsz; x++) {
-            uint8_t col_ = line[x] == 1 ? col : bgCol;
+            const uint8_t col_ = line[x] == 1 ? col : bgCol;
             // TODO: Decouple specific SDL implementation.
             SDL_SetRenderDrawColor(getRenderer(), p.colors[col_].r, p.colors[col_].g, p.colors[col_].b, p.colors[col_].a);
             SDL_RenderDrawPoint(getRenderer(), dst.x + lsz - x, dst.y + y);
