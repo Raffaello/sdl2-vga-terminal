@@ -93,7 +93,7 @@ int main(int argc, char* args[])
 				term.render();
 			}
 			else {
-				term.write(keyname, 7, 0);
+				term.write(keyname, 1, 10);
 				term.render();
 			}
 

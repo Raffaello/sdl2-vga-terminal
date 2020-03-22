@@ -69,6 +69,9 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
             SDL_SetRenderDrawColor(getRenderer(), p.colors[col_].r, p.colors[col_].g, p.colors[col_].b, p.colors[col_].a);
             SDL_RenderDrawPoint(getRenderer(), dst.x + lsz - x, dst.y + y);
         }
+
+        SDL_SetRenderDrawColor(getRenderer(), p.colors[bgCol].r, p.colors[bgCol].g, p.colors[bgCol].b, p.colors[bgCol].a);
+        SDL_RenderDrawPoint(getRenderer(), dst.x, dst.y + y);
     }
 }
 
@@ -80,6 +83,26 @@ void VgaTerminal::gotoXY(const uint8_t x, const uint8_t y)
     } else {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: outside the grid. Ignoring.", typeid(*this).name(), __func__);
     }
+}
+
+void VgaTerminal::gotoXY(const position_t &position)
+{
+    gotoXY(position.first, position.second);
+}
+
+VgaTerminal::position_t VgaTerminal::getXY() const
+{
+    return position_t(_curX, _curY);
+}
+
+uint8_t VgaTerminal::getX() const
+{
+    return _curX;
+}
+
+uint8_t VgaTerminal::getY() const
+{
+    return _curY;
 }
 
 void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol)
@@ -104,6 +127,14 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
 {
     gotoXY(x, y);
     write(str, col, bgCol);
+}
+
+VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const
+{
+    return (x >= mode.tw || y >= mode.th)
+        ? defaultNullChar
+        : _pGrid[static_cast<size_t>(y) * mode.tw + x]
+    ;
 }
 
 void VgaTerminal::render()
@@ -140,11 +171,9 @@ void VgaTerminal::clearGrid()
 
 void VgaTerminal::incrementCursorPosition()
 {
-    //_curX++;
     if (++_curX >= mode.tw)
     {
         _curX = 0;
-        //_curY++;
         if (++_curY >= mode.th)
         {
             _curY = mode.th - 1;
