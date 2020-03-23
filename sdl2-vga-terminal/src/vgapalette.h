@@ -7,6 +7,8 @@
 
 #pragma once
 
+/* N.B: The color format is stored as BGR */
+
 #include <stdint.h>
 
 #ifdef __cplusplus

@@ -14,7 +14,7 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(0x003), // mode
         static_cast <uint8_t>(80),    // tw
         static_cast <uint8_t>(25),    // th
-        static_cast <uint8_t>(9),     // cw
+        static_cast <uint8_t>(8),     // cw
         static_cast <uint8_t>(VGA_FONT_SIZE_16),    // ch
         //static_cast <uint8_t>(16)     // fs
         vgafont16,
@@ -48,9 +48,9 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     p.colors = pCol.get();
     for (int i = 0, i3 = 0; i < p.ncolors; i++, i3+=3)
     {
-        p.colors[i].r = RESIZE_VGA_PALETTE(palette3[i3 + 0]);
-        p.colors[i].g = RESIZE_VGA_PALETTE(palette3[i3 + 1]);
-        p.colors[i].b = RESIZE_VGA_PALETTE(palette3[i3 + 2]);
+        p.colors[i].r = RESIZE_VGA_PALETTE(mode.palette[i3 + 2]);
+        p.colors[i].g = RESIZE_VGA_PALETTE(mode.palette[i3 + 1]);
+        p.colors[i].b = RESIZE_VGA_PALETTE(mode.palette[i3 + 0]);
         p.colors[i].a = 255;
     }
 
@@ -78,9 +78,6 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
             SDL_SetRenderDrawColor(getRenderer(), col__.r, col__.g, col__.b, col__.a);
             SDL_RenderDrawPoint(getRenderer(), dstx - x, dsty);
         }
-     
-        SDL_SetRenderDrawColor(getRenderer(), bgCol_.r, bgCol_.g, bgCol_.b, bgCol_.a);
-        SDL_RenderDrawPoint(getRenderer(), dst.x, dsty);
         // end *** render line ***
     }
 }
@@ -149,15 +146,19 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
     ;
 }
 
-void VgaTerminal::render()
+void VgaTerminal::render(const bool force)
 {
+    if (!force && (SDL_GetWindowFlags(getWindow()) & SDL_WINDOW_HIDDEN) == SDL_WINDOW_HIDDEN) {
+        return;
+    }
+
     for (register int j = 0; j < mode.th; j++) {
         register int j2 = j * mode.tw;
         register int jch = j * mode.ch;
         
         for (register int i = 0; i < mode.tw; i++) {
             register int i2 = j2 + i;
-            if (_pGrid[i2].rendered) {
+            if (!force && _pGrid[i2].rendered) {
                 continue;
             }
             

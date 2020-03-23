@@ -21,7 +21,7 @@ public:
         //uint8_t  fs;   // font size 
         uint8_t* font;
         int  numColors;
-        uint8_t* palette;
+        uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
     } videoMode_t;
 
     typedef struct terminalChar_t
@@ -56,7 +56,7 @@ public:
    */
     terminalChar_t at(const uint8_t x, const uint8_t y) const;
 
-    void render();
+    void render(const bool force = false);
     void clearGrid();
 
 private:

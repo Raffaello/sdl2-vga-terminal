@@ -4,6 +4,7 @@ set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2-image CONFIG REQUIRED)
 
 ## Shared code among exe and tests
 add_library(vga-terminal OBJECT)

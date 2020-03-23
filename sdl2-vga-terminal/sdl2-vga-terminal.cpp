@@ -1,4 +1,4 @@
-๏ปฟ// sdl2-vga-terminal.cpp : Defines the entry point for the application.
+// sdl2-vga-terminal.cpp : Defines the entry point for the application.
 //
 
 #include "sdl2-vga-terminal.h"
@@ -51,8 +51,8 @@ int main(int argc, char* args[])
 		}
 	}
 
+	// --- end SDL2 system init and info
 	
-	//VgaTerminal term = VgaTerminal("VgaTerminal", 0, -1, 0);
 	VgaTerminal term = VgaTerminal("VgaTerminal",720,400, 0, -1, 0);
 	if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2") == SDL_FALSE) {
 		cerr << "SetHint failed" << endl;
@@ -61,7 +61,6 @@ int main(int argc, char* args[])
 	SDL_Event event;
 	bool quit = false;
 
-	//term.Write("Hello World!", 10, 0);
 	for (int i = 0; i < 256; i++) {
 		term.write((char)i, i, 255 - i);
 	}
@@ -70,6 +69,14 @@ int main(int argc, char* args[])
 	term.writeXY(40, 12, "Again!", 9, 0);
 	term.render();
 	SDL_Delay(500);
+	term.writeXY(10, 15, "ษอออออออออป",12 ,3);
+	term.writeXY(10, 16, "บ         บ",12 ,3);
+	term.writeXY(10, 17, "ศอออออออออผ",12 ,3);
+	term.gotoXY(12, 16); term.write(3, 1, 15);
+	term.gotoXY(14, 16); term.write(4, 15, 1);
+	term.gotoXY(16, 16); term.write(5, 0, 15);
+	term.gotoXY(18, 16); term.write(6, 15, 0);
+	term.render();
 	term.gotoXY(40, 24);
 	while (!quit) {
 		SDL_WaitEvent(&event);
