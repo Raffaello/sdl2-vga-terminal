@@ -53,7 +53,7 @@ int main(int argc, char* args[])
 
 	
 	//VgaTerminal term = VgaTerminal("VgaTerminal", 0, -1, 0);
-	VgaTerminal term = VgaTerminal("VgaTerminal",720*2,400*2, 0, -1, 0);
+	VgaTerminal term = VgaTerminal("VgaTerminal",720,400, 0, -1, 0);
 	if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2") == SDL_FALSE) {
 		cerr << "SetHint failed" << endl;
 	}

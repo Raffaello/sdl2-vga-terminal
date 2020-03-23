@@ -3,6 +3,7 @@
 #include <Window.hpp>
 #include <memory>
 #include <string>
+#include <bitset>
 
 class VgaTerminal : public Window
 {
@@ -10,14 +11,18 @@ class VgaTerminal : public Window
 public:
     typedef struct videoMode_t
     {
-        uint8_t  mode;
-        uint16_t sw;
-        uint16_t sh;
-        uint8_t  tw;
-        uint8_t  th;
-        uint8_t  cw;
-        uint8_t  ch;
-    } VideoMode;
+        uint8_t  mode; // video mode (only mode 3 available at the moment)
+        //uint16_t sw;   // screen   width
+        //uint16_t sh;   //          height
+        uint8_t  tw;   // terminal width
+        uint8_t  th;   //          hieght
+        uint8_t  cw;   // char     width
+        uint8_t  ch;   //          height  | font size
+        //uint8_t  fs;   // font size 
+        uint8_t* font;
+        int  numColors;
+        uint8_t* palette;
+    } videoMode_t;
 
     typedef struct terminalChar_t
     {
@@ -25,6 +30,7 @@ public:
         uint8_t col;
         uint8_t bgCol;
         bool rendered;
+        bool operator==(const terminalChar_t& o) const;
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
@@ -65,4 +71,6 @@ private:
     void incrementCursorPosition();
     void scrollDownGrid();
     void renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c);
+    //void renderChar(const SDL_Point& dst, const terminalChar_t &tc);
+    //void renderLine(const std::bitset<8>& line, const SDL_Color& col_, const SDL_Color& bgCol_, const int dstx, const int y);
 };

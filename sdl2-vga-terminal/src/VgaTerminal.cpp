@@ -1,31 +1,37 @@
 #include <VgaTerminal.hpp>
 #include <typeinfo>
 #include <SDL2/SDL_assert.h>
-#include <bitset>
 #include <stdexcept>
 #include <vgafonts.h>
 #include <vgapalette.h>
 
-// TODO: find a better parametrized way to choose among the 3 palettes.
-constexpr auto VGA_TERMINAL_NUM_COLORS = PALETTE_3_COLORS;
-// TODO: find a better parametrized way to choose among the vga fonts too.
-constexpr auto VGA_TERMNIAL_NUM_CHARS = VGA_FONT_CHARS;
+constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
 template<typename T> 
 constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3f); }
 
 const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(0x003), // mode
-        static_cast <uint16_t>(720),  // sw (tw * cw) [redundant]
-        static_cast <uint16_t>(400),  // sh (th * ch) [redundant]
         static_cast <uint8_t>(80),    // tw
         static_cast <uint8_t>(25),    // th
         static_cast <uint8_t>(9),     // cw
-        static_cast <uint8_t>(16)     // ch
+        static_cast <uint8_t>(VGA_FONT_SIZE_16),    // ch
+        //static_cast <uint8_t>(16)     // fs
+        vgafont16,
+        PALETTE_3_COLORS,
+        palette3,
 };
 
+bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
+{
+    return rendered == o.rendered
+        && c == o.c
+        && col == o.col
+        && bgCol == o.bgCol;
+}
+
 VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) : 
-    VgaTerminal(title, mode3.sw, mode3.sh, winFlags, drvIndex, renFlags)
+    VgaTerminal(title, mode3.tw * mode3.cw, mode3.th * mode3.ch, winFlags, drvIndex, renFlags)
 {
 }
 
@@ -33,18 +39,18 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     Window(title, width, height, winFlags, drvIndex, renFlags)
 {
     mode = mode3;
-    if (SDL_RenderSetLogicalSize(getRenderer(), mode.sw, mode.sh) < 0) {
+    if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
         throw std::runtime_error("unable to set logical rendering");
     }
 
-    p.ncolors = VGA_TERMINAL_NUM_COLORS;
-    pCol = std::make_unique<SDL_Color[]>(VGA_TERMINAL_NUM_COLORS);
+    p.ncolors = mode.numColors;
+    pCol = std::make_unique<SDL_Color[]>(p.ncolors);
     p.colors = pCol.get();
-    for (int i = 0; i < VGA_TERMINAL_NUM_COLORS; i++)
+    for (int i = 0, i3 = 0; i < p.ncolors; i++, i3+=3)
     {
-        p.colors[i].r = RESIZE_VGA_PALETTE(palette3[i][0]);
-        p.colors[i].g = RESIZE_VGA_PALETTE(palette3[i][1]);
-        p.colors[i].b = RESIZE_VGA_PALETTE(palette3[i][2]);
+        p.colors[i].r = RESIZE_VGA_PALETTE(palette3[i3 + 0]);
+        p.colors[i].g = RESIZE_VGA_PALETTE(palette3[i3 + 1]);
+        p.colors[i].b = RESIZE_VGA_PALETTE(palette3[i3 + 2]);
         p.colors[i].a = 255;
     }
 
@@ -56,24 +62,29 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
 void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c)
 {
-    register const uint16_t offs = static_cast<uint8_t>(c) << 4;
+    register const uint16_t offs = static_cast<uint8_t>(c) * mode.ch;
     register const uint8_t lsz = 8;
+    register const int dstx = dst.x + lsz;
+    const SDL_Color col_ = p.colors[col];
+    const SDL_Color bgCol_ = p.colors[bgCol];
     for (register uint8_t y = 0; y < mode.ch; y++)
     {
-        register const uint16_t yw = y * mode.cw;
-        // TODO: vgafont16 should be parametrized
-        const std::bitset<lsz> line(vgafont16[offs + y]);
+        const std::bitset<lsz> line(mode.font[offs + y]);
+        register const int dsty = dst.y + y;
+       
+        // *** render line ***
         for (register uint8_t x = 0; x < lsz; x++) {
-            const uint8_t col_ = line[x] == 1 ? col : bgCol;
-            // TODO: Decouple specific SDL implementation.
-            SDL_SetRenderDrawColor(getRenderer(), p.colors[col_].r, p.colors[col_].g, p.colors[col_].b, p.colors[col_].a);
-            SDL_RenderDrawPoint(getRenderer(), dst.x + lsz - x, dst.y + y);
+            const SDL_Color col__ = line[x] == 1 ? col_ : bgCol_;
+            SDL_SetRenderDrawColor(getRenderer(), col__.r, col__.g, col__.b, col__.a);
+            SDL_RenderDrawPoint(getRenderer(), dstx - x, dsty);
         }
-
-        SDL_SetRenderDrawColor(getRenderer(), p.colors[bgCol].r, p.colors[bgCol].g, p.colors[bgCol].b, p.colors[bgCol].a);
-        SDL_RenderDrawPoint(getRenderer(), dst.x, dst.y + y);
+     
+        SDL_SetRenderDrawColor(getRenderer(), bgCol_.r, bgCol_.g, bgCol_.b, bgCol_.a);
+        SDL_RenderDrawPoint(getRenderer(), dst.x, dsty);
+        // end *** render line ***
     }
 }
+
 
 void VgaTerminal::gotoXY(const uint8_t x, const uint8_t y)
 {
@@ -107,11 +118,12 @@ uint8_t VgaTerminal::getY() const
 
 void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol)
 {
-    register int pos = _curX + _curY * mode.tw;
+    int pos = _curX + _curY * mode.tw;
     _pGrid[pos].c = c;
     _pGrid[pos].col = col;
     _pGrid[pos].bgCol = bgCol; 
     _pGrid[pos].rendered = false;
+    //_pGrid[pos] = {static_cast<uint8_t>(c), col, bgCol, false};
     incrementCursorPosition();
 }
 
@@ -141,12 +153,15 @@ void VgaTerminal::render()
 {
     for (register int j = 0; j < mode.th; j++) {
         register int j2 = j * mode.tw;
+        register int jch = j * mode.ch;
+        
         for (register int i = 0; i < mode.tw; i++) {
             register int i2 = j2 + i;
             if (_pGrid[i2].rendered) {
                 continue;
             }
-            SDL_Point p = { i * mode.cw, j * mode.ch };
+            
+            SDL_Point p = { i * mode.cw, jch };
             renderChar(p, _pGrid[i2].col, _pGrid[i2].bgCol, _pGrid[i2].c);
             _pGrid[i2].rendered = true;
         }
@@ -158,6 +173,7 @@ void VgaTerminal::render()
 void VgaTerminal::clearGrid()
 {
     // TODO: can just use memcpy to repeatealy copy the null char in the grid?
+    //       only if is all zeros.
     for (int j = 0; j < mode.th; j++) {
         int j2 = j * mode.tw;
         for (int i = 0; i < mode.tw; i++) {
@@ -190,10 +206,7 @@ void VgaTerminal::scrollDownGrid()
         for (int i = 0; i < mode.tw; i++) {
             register int i2 = i + j2;
             register int ii2 = i + jj2;
-            if (_pGrid[i2].rendered
-                && _pGrid[ii2].c == _pGrid[i2].c
-                &&_pGrid[ii2].bgCol == _pGrid[i2].bgCol  
-                && _pGrid[ii2].col == _pGrid[i2].col) {
+            if (_pGrid[i2].rendered && _pGrid[ii2] == _pGrid[i2]) {
                 continue;
             }
 
@@ -205,9 +218,7 @@ void VgaTerminal::scrollDownGrid()
     int j2 = (mode.th - 1) * mode.tw;
     for (int i = 0; i < mode.tw; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;
-        //_pGrid[i2].c = 0;
-        //_pGrid[i2].col = 0;
-        //_pGrid[i2].bgCol = _bgCol;
-        //_pGrid[i2].rendered = false;
     }
 }
+
+

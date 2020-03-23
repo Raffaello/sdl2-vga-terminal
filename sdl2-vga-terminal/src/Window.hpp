@@ -20,6 +20,6 @@ public:
 	
 	virtual ~Window();
 private:
-	SDL_Window* _pWindow;
-	SDL_Renderer* _pRenderer;
+	SDL_Window* _pWindow = nullptr;
+	SDL_Renderer* _pRenderer = nullptr;
 };

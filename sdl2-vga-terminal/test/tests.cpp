@@ -33,7 +33,7 @@ TEST(VgaTerminal, HelloWorld_Text) {
 TEST(VgaTerminal, ScrollDown) {
 	SDL_Init(SDL_INIT_VIDEO);
 	std::string termTitle = "Hello Test";
-	VgaTerminal term = VgaTerminal(termTitle, 0, -1, 0);
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
 	term.writeXY(VgaTerminal::mode3.tw - 1, VgaTerminal::mode3.th - 1, termTitle, 7, 1);
 	uint8_t termTitleLength = static_cast<uint8_t>(termTitle.size());
