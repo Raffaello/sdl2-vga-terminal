@@ -37,7 +37,7 @@ This screenshot is also used in the snapshot test.
 
 using `GTest` framework.
 
-There is a technique, snapshot testing to verify some expectation, due to some required raster image to compare with,
+There is a technique, snapshot testing, to verify some expectation, due to some required raster image to compare with,
 there is a `boolean` option `TEST_DUMP_SNAPSHOT`, that will run the test suit for generating the expected result.
 It could be a little bit risky, but it is a way to have generated expected results for the test suite.
 
@@ -51,9 +51,13 @@ but doesn't really matter can be used any name, it all depends how the test is w
 
 ## TODO 
 
+Some must and ides:
+
+- CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 - decouple vga modes
+- DAC Palette changing
+- Cursor display
 - doxygen / document the code
-- use streams ?
+- use streams 
 - read
 
-- try to send OS command and display back.
