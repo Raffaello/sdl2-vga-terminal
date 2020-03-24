@@ -4,8 +4,6 @@ set (CMAKE_CXX_STANDARD 14)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-find_package(SDL2-image CONFIG REQUIRED)
-
 ## Shared code among exe and tests
 add_library(vga-terminal OBJECT)
 target_sources(vga-terminal PRIVATE 
@@ -14,8 +12,12 @@ target_sources(vga-terminal PRIVATE
 )
 
 target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
 
+if (MSVC)
+    target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
+elseif (UNIX)
+    target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
+endif()
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
 target_link_libraries(${PROJECT_NAME} vga-terminal)

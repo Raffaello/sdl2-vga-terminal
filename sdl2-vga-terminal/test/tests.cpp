@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 
 std::string generateSnapshotFilename() {
-	std::string snapshotFilename = ::testing::UnitTest::GetInstance()->current_test_info()->test_suite_name();
+	std::string snapshotFilename = ::testing::UnitTest::GetInstance()->current_test_info()->test_case_name();
 	snapshotFilename += '.';
 	snapshotFilename += ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	snapshotFilename += ".png";
