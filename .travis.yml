@@ -1,6 +1,9 @@
 language: cpp
 sudo: required
 dist: bionic
+branches:
+  only:
+  - master
 compiler:
     - gcc
 os:
@@ -18,7 +21,7 @@ install:
     - cd ${TRAVIS_BUILD_DIR}
 
 before_script:    
-    - cd ${TRIVIS_BUILD_DIR} && mkdir build && cd build
+    - cd ${TRIVIS_BUILD_DIR} && mkdir -p build && cd build
     - cmake ..
 script:
     - cd ${TRAVIS_BUILD_DIR}
