@@ -13,8 +13,14 @@ install:
     - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
-    - mkdir build && cd build
+    - sudo apt-get install libsdl2-dev libsdl2-image-dev libgtest-dev
+    - cd /usr/src/gtest
+    - sudo cmake CMakeLists.txt
+    - sudo make
+    - sudo cp *.a /usr/lib
+    - cd ${TRIVIS_BUILD_DIR} && mkdir build && cd build
     - cmake ..
 script:
-    - make
-    #- make test
+    - cd ${TRAVIS_BUILD_DIR}
+    - cmake --build build
+    - ctest
