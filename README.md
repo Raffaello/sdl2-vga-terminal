@@ -1,5 +1,10 @@
 # SDL2 VGA Terminal 
 
+| Linux x64 (GCC) | Windows x64
+|-------------------------------------
+|![travis](https://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=masterhttps://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=master) | 
+
+
 It is an emulation of the VGA terminal using SDL2.
 
 the VGA fonts are related to a `vgabios` project (http://savannah.nongnu.org/projects/vgabios/).
