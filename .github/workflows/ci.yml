@@ -20,7 +20,13 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
     - name: download dependencies
-      run: sudo apt-get install libsdl2-dev libsdl2-image-dev libgtest-dev
+      run: |
+        sudo apt-get install libsdl2-dev libsdl2-image-dev libgtest-dev
+        cd /usr/src/gtest
+        sudo cmake CMakeLists.txt
+        sudo make
+        #copy or symlink libgtest.a and libgtest_main.a to your /usr/lib folder
+        sudo cp *.a /usr/lib
     - name: cmake configure
       run: mkdir build && cd build && cmake ..
     - name: make
@@ -28,14 +34,14 @@ jobs:
     - name: test
       run: cd build && ctest
   
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: cmake configure
-        run: mkdir build && cd build && cmake ..
-      - name: make
-        run:  cmake --build build
-      - name: test
-        run: cd build && ctest 
+  #build-windows:
+  #  runs-on: windows-latest
+  #  steps:
+  #    - uses: actions/checkout@v2
+  #    - name: cmake configure
+  #      run: mkdir build && cd build && cmake ..
+  #    - name: make
+  #      run:  cmake --build build
+  #    - name: test
+  #      run: cd build && ctest 
         
