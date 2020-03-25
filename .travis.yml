@@ -21,9 +21,9 @@ install:
     - cd ${TRAVIS_BUILD_DIR}
 
 before_script:    
-    - cd ${TRIVIS_BUILD_DIR} && mkdir -p build && cd build
-    - cmake ..
+    - cd ${TRIVIS_BUILD_DIR} && mkdir build
+    - cd ${TRIVIS_BUILD_DIR}/build && cmake ..
 script:
-    - cd ${TRAVIS_BUILD_DIR}
+    - cd ${TRAVIS_BUILD_DIR} && ll
     - cmake --build build
     - ctest
