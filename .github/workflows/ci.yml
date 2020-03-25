@@ -19,6 +19,8 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    - name: download dependencies
+      run: sudo apt-get install libsdl2-dev libsdl2-image-dev gtest
     - name: cmake configure
       run: mkdir build && cd build && cmake ..
     - name: make
