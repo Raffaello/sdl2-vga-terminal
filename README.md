@@ -1,7 +1,7 @@
 # SDL2 VGA Terminal 
 
-| Linux x64 (GCC) | Windows x64
-|-------------------------------------
+| Linux x64 (GCC) | Windows x64 |
+|-----------------|-------------|
 |![travis](https://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=masterhttps://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=master) | 
 
 
