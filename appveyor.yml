@@ -36,5 +36,5 @@ build_script:
     - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
 
 test_script:
-    - cmake
+    - cmake .
     - ctest
