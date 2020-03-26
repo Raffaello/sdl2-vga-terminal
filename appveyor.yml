@@ -50,9 +50,7 @@ build_script:
     - mkdir out
     - cd out
     - cmake -G "Visual Studio 16 2019" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-    - cd %APPVEYOR_BUILD_FOLDER%
-
 
 test_script:
-    - cmake --build out
+    - cmake --build .
     - ctest
