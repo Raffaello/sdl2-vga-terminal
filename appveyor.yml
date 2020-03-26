@@ -29,8 +29,8 @@ for:
         INIT_VS: vcvars64.bat
         BUILD_CMAKE: x64
   
-matrix:
-  fast_finish: true
+#matrix:
+#  fast_finish: true
 
 install:
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
