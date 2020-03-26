@@ -1,29 +1,32 @@
 language: cpp
 sudo: required
+os: linux
 dist: bionic
 branches:
   only:
   - master
 compiler:
     - gcc
-os:
-    - linux
 install:
     #- DEPS_DIR=${TRAVIS_BUILD_DIR}/deps
     #- mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
     #- travis_retry wget --no-check-certificate https://cmake.org/files/v3.8/cmake-3.8.2-Linux-x86_64.tar.gz
     - sudo apt-get install cmake
     - sudo apt-get install libsdl2-dev libsdl2-image-dev libgtest-dev
-    - cd /usr/src/gtest
+    - pushd /usr/src/gtest
     - sudo cmake CMakeLists.txt
     - sudo make
-    - sudo cp *.a /usr/lib
-    - cd ${TRAVIS_BUILD_DIR}
+    #- sudo cp *.a /usr/lib
+    - find / -name  GTestConfig.cmake
+    - 
+    - sudo make install
+    - popd
 
 before_script:    
-    - cd ${TRIVIS_BUILD_DIR} && mkdir build
-    - cd ${TRIVIS_BUILD_DIR}/build && cmake ..
+    - mkdir out
+    - pushd out
+    - cmake ..
+    - popd
 script:
-    - cd ${TRAVIS_BUILD_DIR} && ll
-    - cmake --build build
+    - cmake --build out
     - ctest
