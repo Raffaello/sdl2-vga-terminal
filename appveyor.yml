@@ -48,9 +48,10 @@ cache: c:\tools\vcpkg\installed\
 
 build_script:
     - mkdir out
-    - pushd out
+    - cd out
     - cmake -G "Visual Studio 16 2019" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-    - popd
+    - cd %APPVEYOR_BUILD_FOLDER%
+
 
 test_script:
     - cmake --build out
