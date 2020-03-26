@@ -1,5 +1,9 @@
 # SDL2 VGA Terminal 
 
+| Windows |
+|---------|
+|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal)|
+
 It is an emulation of the VGA terminal using SDL2.
 
 the VGA fonts are related to a `vgabios` project (http://savannah.nongnu.org/projects/vgabios/).
