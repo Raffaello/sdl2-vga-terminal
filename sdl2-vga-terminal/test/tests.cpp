@@ -49,16 +49,6 @@ TEST(VgaTerminal, ScrollDown) {
 #endif
 
 int main(int argc, char** argv) {
-#ifdef TEST_DUMP_SNAPSHOT
-	std::cout 
-		<< "******************************************************************************************************" << std::endl
-		<< "*** WARNING !!! : DUMPING SCREENSHOT, IF IT IS NOT INTENDED REMOVE THE DEFINE 'TEST_DUMP_SNAPSHOT' ***" << std::endl 
-		<< "***               AND RECOMPILE AGAIN.                                                             ***" << std::endl
-		<< "*** WARNING !!! : THE FILE ARE AVAILABLE IN THE SUB-DIRECTORY 'snapshot' AND WILL BE REUSED FOR    ***" << std::endl
-		<< "***               VERIFYING WHEN NOT DUMPING                                                       ***" << std::endl
-		<< "******************************************************************************************************"
-		<< std::endl;
-#endif
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
