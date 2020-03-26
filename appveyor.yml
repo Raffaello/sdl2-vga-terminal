@@ -13,18 +13,21 @@ platform:
   - x64
 
 configuration:
-  - Release
   - Debug
+  - Release
+
+environment:
+    INIT_VS: vcvars32.bat
+    BUILD_CMAKE: Win32
 
 for:
--
-    platform: x86
-    environment:
-        INIT_VS: vcvars32.bat
--
-    platform: x64
+ -
+    platform:
+        only:
+            - platform: x64
     environment:
         INIT_VS: vcvars64.bat
+        BUILD_CMAKE: x64
   
 matrix:
   fast_finish: true
@@ -44,8 +47,8 @@ before_build:
 cache: c:\tools\vcpkg\installed\
 
 build_script:
-    - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% .
+    - cmake -G "Visual Studio 16 2019" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
 
 test_script:
-    - cmake --build out
+    - cmake --build out -config=%CONFIGURATION%
     - ctest
