@@ -10,22 +10,25 @@ compiler:
 cache:
     directories:
         - /home/travis/vcpkg/
-env:
-    - CONFIGURATION=Release
-    - CONFIGURATION=Debug
-    - PLATFORM=m32
-    - PLATFORM=m64
-    - VCPKG_PLAT=x86
-    - VCPKG_PLAT=x64
 
 jobs:
-    exclude:
-        - env:
-            - VCPKG_PLAT=x86
-            - PLATFORM=m64
-        - env:
-            - VCPKG_PLAT=x64
-            - PLATFORM=m32
+    include:
+    - env:
+        - CONFIGURATION=Debug
+        - PLATFORM=m32
+        - VCPKG_PLAT=x86
+    - env:
+        - CONFIGURATION=Release
+        - PLATFORM=m32
+        - VCPKG_PLAT=x86
+    - env:
+        - CONFIGURATION=Debug
+        - PLATFORM=m64
+        - VCPKG_PLAT=x64
+    - env:
+        - CONFIGURATION=Release
+        - PLATFORM=m64
+        - VCPKG_PLAT=x64
 
 install:
     - pushd /home/travis
