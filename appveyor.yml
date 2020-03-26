@@ -44,7 +44,7 @@ before_build:
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-cache: c:\tools\vcpkg\installed\
+cache: c:\tools\vcpkg\
 
 build_script:
     - mkdir out
