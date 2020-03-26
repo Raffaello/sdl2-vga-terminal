@@ -13,8 +13,8 @@ cache:
 env:
     - CONFIGURATION=Release
     - CONFIGURATION=Debug
-    - PLATFORM=x86
-    - PLATFORM=x64
+    - PLATFORM=m32
+    - PLATFORM=m64
 
 install:
     - sudo apt-get upgrade
@@ -23,14 +23,14 @@ install:
     - git clone https://github.com/Microsoft/vcpkg.git
     - cd vcpkg
     - ./bootstrap-vcpkg.sh
-    - ./vcpkg install sdl2 sdl2-image gtest --triplet x64-linux
+    - ./vcpkg install sdl2 sdl2-image gtest --triplet ${CONFIGURATION}-linux
     - ./vcpkg integrate install
     - popd
 
 before_script:    
     - mkdir out
     - cd out
-    - cmake -A ${PLATFORM} -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - cmake -DCMAKE_C_FLAGS=-${PLATFORM} -DCMAKE_CXX_FLAGS=-${PLATFORM} -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 script:
     - cmake --build .
     - ctest -V
