@@ -1,0 +1,57 @@
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+skip_branch_with_pr: false
+
+image: Visual Studio 2019
+
+platform:
+  - x86
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+environment:
+    INIT_VS: vcvars32.bat
+    BUILD_CMAKE: Win32
+
+for:
+ -
+    matrix:
+        only:
+            - platform: x64
+    environment:
+        INIT_VS: vcvars64.bat
+        BUILD_CMAKE: x64
+  
+#matrix:
+#  fast_finish: true
+
+install:
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    
+before_build:
+    - cd C:\tools\vcpkg
+    - git pull
+    - .\bootstrap-vcpkg.bat
+    - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - vcpkg integrate install
+    - cd %APPVEYOR_BUILD_FOLDER%
+
+
+cache: c:\tools\vcpkg\
+
+build_script:
+    - mkdir out
+    - cd out
+    - cmake -G "Visual Studio 16 2019" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+
+test_script:
+    - cmake --build .
+    - ctest -V
+

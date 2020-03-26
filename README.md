@@ -1,9 +1,8 @@
 # SDL2 VGA Terminal 
 
-| Linux x64 (GCC) | Windows x64 |
-|-----------------|-------------|
-|![travis](https://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=masterhttps://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=master) | 
-
+| Windows (x86, x64)| Linux x64 (GCC) |
+|-------------------|-----------------|
+| [![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal) | ![travis](https://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=masterhttps://travis-ci.com/Raffaello/sdl2-vga-terminal.svg?branch=master) | 
 
 It is an emulation of the VGA terminal using SDL2.
 
