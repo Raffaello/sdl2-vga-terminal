@@ -6,7 +6,7 @@ branches:
 
 skip_branch_with_pr: false
 
-image: Script
+image: Visual Studio 2019
 
 platform:
   - x86
@@ -32,7 +32,9 @@ install:
 
 cache: c:\tools\vcpkg\installed\
 
-test_script:
+build_script:
     - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
+
+test_script:
     - cmake
     - ctest
