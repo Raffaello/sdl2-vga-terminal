@@ -2,11 +2,11 @@ cmake_minimum_required (VERSION 3.8)
 
 find_package(GTest CONFIG REQUIRED)
 
-if (MSVC)
-    find_package(sdl2-image CONFIG REQUIRED)
-elseif(UNIX)
+if(USE_PACKAGE_LIBS AND UNIX)
     include(FindPkgConfig)
     PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+else()
+    find_package(SDL2-image CONFIG REQUIRED)
 endif()
 
 add_executable(runUnitTests "tests.cpp")
@@ -21,11 +21,11 @@ else()
     add_test(UnitTestsInMain runUnitTests)
 endif()
 
-if (MSVC)
-    set(TEST_LIBS vga-terminal GTest::gtest SDL2::SDL2_image)
-elseif (UNIX)
+if(USE_PACKAGE_LIBS AND UNIX)
     set(TEST_LIBS vga-terminal GTest::gtest GTest::gmock ${SDL2IMAGE_LIBRARIES})
-endif() 
+else()
+    set(TEST_LIBS vga-terminal GTest::gtest SDL2::SDL2_image)
+endif()
 
 target_link_libraries(runUnitTests PRIVATE ${TEST_LIBS})
 

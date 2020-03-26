@@ -13,11 +13,14 @@ target_sources(vga-terminal PRIVATE
 
 target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-if (MSVC)
-    target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
-elseif (UNIX)
+option(USE_PACKAGE_LIBS "using precompiled libs from os (only Linux/Unix)" OFF)
+
+if(USE_PACKAGE_LIBS AND UNIX)
     target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
+else()
+    target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
 endif()
+
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
 target_link_libraries(${PROJECT_NAME} vga-terminal)
