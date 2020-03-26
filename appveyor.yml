@@ -32,7 +32,7 @@ install:
 
 cache: c:\tools\vcpkg\installed\
 
-script:
+test_script:
     - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
     - cmake
     - ctest
