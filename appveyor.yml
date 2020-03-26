@@ -20,18 +20,17 @@ for:
 -
     platform: x86
     environment:
-        INIT_VS: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat
+        INIT_VS: vcvars32.bat
 -
     platform: x64
     environment:
-        INIT_VS: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
-
+        INIT_VS: vcvars64.bat
   
 matrix:
   fast_finish: true
 
 install:
-    - call %INIT_VS%
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
     
 before_build:
     - cd C:\tools\vcpkg
