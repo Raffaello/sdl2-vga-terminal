@@ -17,7 +17,8 @@ env:
     - PLATFORM=x64
 
 install:
-    - sudo apt-get install cmake libsdl2-dev libsdl2-image-dev #libgtest-dev
+    - sudo apt-get upgrade
+    - sudo apt-get -y install cmake libsdl2-dev libsdl2-image-dev
     - pushd /home/travis
     - git clone https://github.com/Microsoft/vcpkg.git
     - cd vcpkg
@@ -28,9 +29,8 @@ install:
 
 before_script:    
     - mkdir out
-    - pushd out
-    - cmake ..
-    - popd
+    - cd out
+    - cmake -A ${PLATFORM} -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 script:
-    - cmake -A ${PLATFORM} -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..--build out
-    - ctest
+    - cmake --build .
+    - ctest -V
