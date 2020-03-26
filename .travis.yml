@@ -22,7 +22,7 @@ install:
     - git clone https://github.com/Microsoft/vcpkg.git
     - cd vcpkg
     - ./bootstrap-vcpkg.sh
-    - ./vcpkg install sdl2 sdl2-image gtest --triplet:x64-linux
+    - ./vcpkg install sdl2 sdl2-image gtest --triplet x64-linux
     - ./vcpkg integrate install
     - popd
 
