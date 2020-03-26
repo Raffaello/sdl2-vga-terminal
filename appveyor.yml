@@ -18,11 +18,11 @@ configuration:
 
 for:
 -
-    configuration: x86
+    platform: x86
     environment:
         INIT_VS: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat
 -
-    configuration: x64
+    platform: x64
     environment:
         INIT_VS: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat
 
