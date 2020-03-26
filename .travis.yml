@@ -11,38 +11,23 @@ cache:
     directories:
         - /home/travis/vcpkg/
 
-jobs:
-    include:
-    - env:
-        - CONFIGURATION=Debug
-        - PLATFORM=m32
-        - VCPKG_PLAT=x86
-    - env:
-        - CONFIGURATION=Release
-        - PLATFORM=m32
-        - VCPKG_PLAT=x86
-    - env:
-        - CONFIGURATION=Debug
-        - PLATFORM=m64
-        - VCPKG_PLAT=x64
-    - env:
-        - CONFIGURATION=Release
-        - PLATFORM=m64
-        - VCPKG_PLAT=x64
+env:
+    - CONFIGURATION=Debug
+    - CONFIGURATION=Release
 
 install:
     - pushd /home/travis
     - git clone https://github.com/Microsoft/vcpkg.git
     - cd vcpkg
     - ./bootstrap-vcpkg.sh
-    - ./vcpkg install sdl2 sdl2-image gtest --triplet ${VCPKG_PLAT}-linux
+    - ./vcpkg install sdl2 sdl2-image gtest
     - ./vcpkg integrate install
     - popd
 
 before_script:    
     - mkdir out
     - cd out
-    - cmake -DCMAKE_C_FLAGS=-${PLATFORM} -DCMAKE_CXX_FLAGS=-${PLATFORM} -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/travis/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 script:
     - cmake --build .
     - ctest -V
