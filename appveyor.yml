@@ -22,7 +22,7 @@ environment:
 
 for:
  -
-    platform:
+    matrix:
         only:
             - platform: x64
     environment:
