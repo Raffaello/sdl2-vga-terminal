@@ -9,5 +9,6 @@ endif()
 
 project ("sdl2-vga-terminal" VERSION 0.1 DESCRIPTION "Vga Terminal on SDL2")
 
+enable_testing()
 # Include sub-projects.
 add_subdirectory ("sdl2-vga-terminal")
