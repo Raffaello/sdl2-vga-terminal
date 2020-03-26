@@ -16,10 +16,24 @@ configuration:
   - Release
   - Debug
 
+matrix:
+  fast_finish: true
 
-init:
-    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+for:
+-
+    matrix:
+        only:
+            - configuration: x64
+    init:
+        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+-
+    matrix:
+        only:
+            - configuration: x86
+    init:
+        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
 
+           
 install:
     - cd C:\tools\vcpkg
     - git pull
@@ -33,7 +47,7 @@ install:
 cache: c:\tools\vcpkg\installed\
 
 build_script:
-    - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
+    - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake . -DCMAKE_BUILD_TYPE=%CONFIGURATION%
 
 test_script:
     - cmake .
