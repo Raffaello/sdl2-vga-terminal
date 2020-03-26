@@ -16,21 +16,23 @@ configuration:
   - Release
   - Debug
 
+for:
+-
+    configuration: x86
+    environment:
+        INIT_VS: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
+-
+    configuration: x64
+    environment:
+        INIT_VS: "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+  
 matrix:
   fast_finish: true
 
 install:
-    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-
-for:
--
-    matrix:
-        only:
-            - configuration: x86
-    install:
-        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
-
-           
+    - call %INIT_VS%
+    
 before_build:
     - cd C:\tools\vcpkg
     - git pull
