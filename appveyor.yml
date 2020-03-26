@@ -55,4 +55,4 @@ build_script:
 
 test_script:
     - cmake --build out
-    - ctest
+    - ctest -V
