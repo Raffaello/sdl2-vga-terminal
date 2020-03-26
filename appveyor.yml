@@ -6,7 +6,7 @@ branches:
 
 skip_branch_with_pr: false
 
-image: Visual Studio 2019
+image: Script
 
 platform:
   - x86
