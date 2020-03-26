@@ -1,0 +1,38 @@
+# branches to build
+branches:
+  # whitelist
+  only:
+    - master
+
+skip_branch_with_pr: false
+
+image: Visual Studio 2019
+
+platform:
+  - x86
+  - x64
+
+configuration:
+  - Release
+  - Debug
+
+
+init:
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+
+install:
+    - cd C:\tools\vcpkg
+    - git pull
+    - .\bootstrap-vcpkg.bat
+    - vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
+    - vcpkg install sdl2 sdl2-image gtest --triplet x86-windows
+    - vcpkg integrate install
+    - cd %APPVEYOR_BUILD_FOLDER%
+
+
+cache: c:\tools\vcpkg\installed\
+
+script:
+    - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake .
+    - cmake
+    - ctest
