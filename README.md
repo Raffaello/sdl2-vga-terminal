@@ -1,6 +1,6 @@
 # SDL2 VGA Terminal 
 
-| Windows |
+| Windows (x86, x64)|
 |---------|
 |[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal)|
 
