@@ -24,22 +24,21 @@ for:
     matrix:
         only:
             - configuration: x64
-    init:
+    install:
         - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
 -
     matrix:
         only:
             - configuration: x86
-    init:
+    install:
         - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
 
            
-install:
+before_build:
     - cd C:\tools\vcpkg
     - git pull
     - .\bootstrap-vcpkg.bat
-    - vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
-    - vcpkg install sdl2 sdl2-image gtest --triplet x86-windows
+    - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
     - vcpkg integrate install
     - cd %APPVEYOR_BUILD_FOLDER%
 
@@ -50,5 +49,5 @@ build_script:
     - cmake -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake . -DCMAKE_BUILD_TYPE=%CONFIGURATION%
 
 test_script:
-    - cmake .
+    - cmake --build out
     - ctest
