@@ -2,8 +2,7 @@
 
 | Windows (x86, x64)|
 |---------|
-|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true
-](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal)|
+|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)|
 
 It is an emulation of the VGA terminal using SDL2.
 
