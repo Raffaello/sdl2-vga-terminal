@@ -7,7 +7,7 @@ using namespace std;
 
 int main(int argc, char* args[])
 {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize SDL: %s", SDL_GetError());
 		return 1;
 	}
@@ -64,6 +64,7 @@ int main(int argc, char* args[])
 	for (int i = 0; i < 256; i++) {
 		term.write((char)i, i, 255 - i);
 	}
+
 	term.render();
 	SDL_Delay(500);
 	term.writeXY(40, 12, "Again!", 9, 0);
@@ -78,17 +79,49 @@ int main(int argc, char* args[])
 	term.gotoXY(18, 16); term.write(6, 15, 0);
 	term.render();
 	term.gotoXY(40, 24);
+	term.render();
+	string keyname;
 	while (!quit) {
+		
 		SDL_WaitEvent(&event);
+		//if (!SDL_PollEvent(&event)) {
+			//continue;
+		//}
+
 		switch (event.type) {
+		case SDL_USEREVENT:
+			SDL_UserEvent userevent = event.user;
+			if (userevent.code == 0) {
+				cout << "cursor!" << endl;
+			}
+			break;
 		case SDL_QUIT:
 			quit = true;
-		break;
+			break;
+		case SDL_KEYDOWN:
+			keyname = SDL_GetKeyName(event.key.keysym.sym);
+			if (keyname == "F11") {
+				term.toggleFullscreenDesktop();
+				term.render(true);
+			}
+			else if (keyname == "Left") {
+				term.gotoXY(term.getX() - 1, term.getY());
+			}
+			else if (keyname == "Right") {
+				term.gotoXY(term.getX() + 1, term.getY());
+			}
+			else if (keyname == "Up") {
+				term.gotoXY(term.getX(), term.getY() - 1);
+			}
+			else if (keyname == "Down") {
+				term.gotoXY(term.getX(), term.getY() + 1);
+			}
+			break;
 		case SDL_KEYUP:
 			/* Print the hardware scancode first */
 			printf("Scancode: 0x%02X", event.key.keysym.scancode);
 			/* Print the name of the key */
-			string keyname = SDL_GetKeyName(event.key.keysym.sym);
+			keyname = SDL_GetKeyName(event.key.keysym.sym);
 			printf(", Name: %s", keyname.c_str());
 			cout << endl;
 			if (keyname == "Escape") {
@@ -97,15 +130,15 @@ int main(int argc, char* args[])
 			else if (keyname == "C") {
 				cout << "clearing..." << endl;
 				term.clearGrid();
-				term.render();
 			}
 			else {
 				term.write(keyname, 1, 10);
-				term.render();
 			}
 
-		break;
+			break;
 		}
+		
+		term.render();
 	}
 
 	SDL_Quit();

@@ -30,7 +30,20 @@ bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
         && bgCol == o.bgCol;
 }
 
-VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) : 
+VgaTerminal::~VgaTerminal()
+{
+    if (NULL != _cursorTimer) {
+        SDL_RemoveTimer(_cursorTimer);
+    }
+}
+
+VgaTerminal::VgaTerminal(const VgaTerminal& t) : Window(t)
+{
+    
+    throw std::runtime_error("not implemented");
+}
+
+VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
     VgaTerminal(title, mode3.tw * mode3.cw, mode3.th * mode3.ch, winFlags, drvIndex, renFlags)
 {
 }
@@ -57,6 +70,10 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     _pGrid = std::make_unique<terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
     if (!_pGrid) {
         throw std::runtime_error("unable to alloc _pGrid");
+    }
+
+    if(SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) {
+        SDL_AddTimer(cursor_time, _timerCallBack, this);
     }
 }
 
@@ -120,7 +137,6 @@ void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol)
     _pGrid[pos].col = col;
     _pGrid[pos].bgCol = bgCol; 
     _pGrid[pos].rendered = false;
-    //_pGrid[pos] = {static_cast<uint8_t>(c), col, bgCol, false};
     incrementCursorPosition();
 }
 
@@ -151,6 +167,9 @@ void VgaTerminal::render(const bool force)
     if (!force && (SDL_GetWindowFlags(getWindow()) & SDL_WINDOW_HIDDEN) == SDL_WINDOW_HIDDEN) {
         return;
     }
+    // force to render the cursor everytime
+    int icur = static_cast<int>(_curY) * mode.tw + _curX;
+    _pGrid[icur].rendered = false;
 
     for (register int j = 0; j < mode.th; j++) {
         register int j2 = j * mode.tw;
@@ -158,13 +177,38 @@ void VgaTerminal::render(const bool force)
         
         for (register int i = 0; i < mode.tw; i++) {
             register int i2 = j2 + i;
+
             if (!force && _pGrid[i2].rendered) {
                 continue;
             }
-            
+        
             SDL_Point p = { i * mode.cw, jch };
-            renderChar(p, _pGrid[i2].col, _pGrid[i2].bgCol, _pGrid[i2].c);
-            _pGrid[i2].rendered = true;
+            uint8_t col, bgCol, c;
+            c = _pGrid[i2].c;
+            col = _pGrid[i2].col;
+            bgCol = _pGrid[i2].bgCol;
+
+            if ((_curY == j) && (_curX == i)) {
+                // cursor position
+                if (showCursor && _cursonOn)
+                {
+                    // invert col and bgCol
+                    if (c != 0) {
+                        col = _pGrid[i2].bgCol;
+                        bgCol = _pGrid[i2].col;
+                    } else {
+                        // only the cursor
+                        bgCol = 0;
+                        col = cur_col;
+                        c = cur_shape;
+                    }
+                } 
+            }
+            else {
+                _pGrid[i2].rendered = true;
+            }
+
+            renderChar(p, col, bgCol, c);
         }
     }
 

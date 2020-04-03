@@ -17,9 +17,14 @@ public:
 	void setRendererDrawColor(const uint8_t r,const uint8_t g, const  uint8_t b, const  uint8_t a) const;
 	void renderClear() const;
 	void renderPresent() const;
-	
+	inline void toggleFullscreenDesktop() { 
+		_bFullScreenDesktop = !_bFullScreenDesktop;
+		SDL_SetWindowFullscreen(getWindow(), _bFullScreenDesktop ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+	}
+
 	virtual ~Window();
 private:
 	SDL_Window* _pWindow = nullptr;
 	SDL_Renderer* _pRenderer = nullptr;
+	bool _bFullScreenDesktop = false;
 };

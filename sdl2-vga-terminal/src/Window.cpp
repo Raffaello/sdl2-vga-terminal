@@ -7,6 +7,13 @@ Window::Window(const std::string &title, const int width, const int height, cons
 		throw std::runtime_error("video wasn't inited");
 	}
 
+	if ((winFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
+		_bFullScreenDesktop = true;
+	}
+	else {
+		_bFullScreenDesktop = false;
+	}
+
 	_pWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, winFlags);
 
 	if (!_pWindow) {
