@@ -22,9 +22,12 @@ public:
 		SDL_SetWindowFullscreen(getWindow(), _bFullScreenDesktop ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
 	}
 
+	inline uint32_t getWindowId() const { return _windowId; }
+
 	virtual ~Window();
 private:
 	SDL_Window* _pWindow = nullptr;
 	SDL_Renderer* _pRenderer = nullptr;
 	bool _bFullScreenDesktop = false;
+	uint32_t _windowId;
 };

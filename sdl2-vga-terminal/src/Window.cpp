@@ -27,6 +27,8 @@ Window::Window(const std::string &title, const int width, const int height, cons
 		std::string str = SDL_GetError();
 		throw std::runtime_error("Cannot create Renderer: " + str);
 	}
+
+	_windowId = SDL_GetWindowID(getWindow());
 	
 	setRendererDrawColor(0, 0, 0, 255);
 	renderClear();

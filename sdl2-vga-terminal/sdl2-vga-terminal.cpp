@@ -52,8 +52,12 @@ int main(int argc, char* args[])
 	}
 
 	// --- end SDL2 system init and info
-	
-	VgaTerminal term = VgaTerminal("VgaTerminal",720,400, 0, -1, 0);
+	VgaTerminal term2 = VgaTerminal("T2 test", 640, 400, 0, -1, 0);
+	term2.write("events: understand which windows is focused...", 10, 0);
+	term2.render();
+	SDL_Delay(1000);
+
+	VgaTerminal term1 = VgaTerminal("VgaTerminal",720,400, 0, -1, 0);
 	if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2") == SDL_FALSE) {
 		cerr << "SetHint failed" << endl;
 	}
@@ -62,31 +66,40 @@ int main(int argc, char* args[])
 	bool quit = false;
 
 	for (int i = 0; i < 256; i++) {
-		term.write((char)i, i, 255 - i);
+		term1.write((char)i, i, 255 - i);
 	}
 
-	term.render();
+	term1.render();
 	SDL_Delay(500);
-	term.writeXY(40, 12, "Again!", 9, 0);
-	term.render();
+	term1.writeXY(40, 12, "Again!", 9, 0);
+	term1.render();
 	SDL_Delay(500);
-	term.writeXY(10, 15, "ษอออออออออป",12 ,3);
-	term.writeXY(10, 16, "บ         บ",12 ,3);
-	term.writeXY(10, 17, "ศอออออออออผ",12 ,3);
-	term.gotoXY(12, 16); term.write(3, 1, 15);
-	term.gotoXY(14, 16); term.write(4, 15, 1);
-	term.gotoXY(16, 16); term.write(5, 0, 15);
-	term.gotoXY(18, 16); term.write(6, 15, 0);
-	term.render();
-	term.gotoXY(40, 24);
-	term.render();
+	term1.writeXY(10, 15, "ษอออออออออป",12 ,3);
+	term1.writeXY(10, 16, "บ         บ",12 ,3);
+	term1.writeXY(10, 17, "ศอออออออออผ",12 ,3);
+	term1.gotoXY(12, 16); term1.write(3, 1, 15);
+	term1.gotoXY(14, 16); term1.write(4, 15, 1);
+	term1.gotoXY(16, 16); term1.write(5, 0, 15);
+	term1.gotoXY(18, 16); term1.write(6, 15, 0);
+	term1.render();
+	term1.gotoXY(40, 24);
+	term1.render();
 	string keyname;
 	while (!quit) {
 		
 		SDL_WaitEvent(&event);
-		//if (!SDL_PollEvent(&event)) {
-			//continue;
-		//}
+		VgaTerminal* term;
+		if (event.window.windowID == term1.getWindowId()) {
+			term = &term1;
+		}
+		else if (event.window.windowID == term2.getWindowId()) {
+			term = &term2;
+		}
+		else {
+			term1.render();
+			term2.render();
+			continue;
+		}
 
 		switch (event.type) {
 		case SDL_USEREVENT:
@@ -101,20 +114,20 @@ int main(int argc, char* args[])
 		case SDL_KEYDOWN:
 			keyname = SDL_GetKeyName(event.key.keysym.sym);
 			if (keyname == "F11") {
-				term.toggleFullscreenDesktop();
-				term.render(true);
+				term->toggleFullscreenDesktop();
+				term->render(true);
 			}
 			else if (keyname == "Left") {
-				term.gotoXY(term.getX() - 1, term.getY());
+				term->gotoXY(term->getX() - 1, term->getY());
 			}
 			else if (keyname == "Right") {
-				term.gotoXY(term.getX() + 1, term.getY());
+				term->gotoXY(term->getX() + 1, term->getY());
 			}
 			else if (keyname == "Up") {
-				term.gotoXY(term.getX(), term.getY() - 1);
+				term->gotoXY(term->getX(), term->getY() - 1);
 			}
 			else if (keyname == "Down") {
-				term.gotoXY(term.getX(), term.getY() + 1);
+				term->gotoXY(term->getX(), term->getY() + 1);
 			}
 			break;
 		case SDL_KEYUP:
@@ -129,16 +142,17 @@ int main(int argc, char* args[])
 			}
 			else if (keyname == "C") {
 				cout << "clearing..." << endl;
-				term.clearGrid();
+				term->clearGrid();
 			}
 			else {
-				term.write(keyname, 1, 10);
+				term->write(keyname, 1, 10);
 			}
 
 			break;
 		}
 		
-		term.render();
+		term1.render();
+		term2.render();
 	}
 
 	SDL_Quit();
