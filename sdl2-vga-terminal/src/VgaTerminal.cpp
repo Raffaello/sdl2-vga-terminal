@@ -77,7 +77,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
     if(SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) {
         if (SDL_AddTimer(cursor_time, _timerCallBack, this) == 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[% s] % s: unable to install cursor callback.", typeid(*this).name(), __func__);
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
     }
 }
@@ -97,6 +97,8 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
         // *** render line ***
         for (uint8_t x = 0; x < lsz; x++) {
             const SDL_Color col__ = line[x] == 1 ? col_ : bgCol_;
+            // without buffer cannot be multithreding
+            // 1 char at time due to the set color
             SDL_SetRenderDrawColor(getRenderer(), col__.r, col__.g, col__.b, col__.a);
             SDL_RenderDrawPoint(getRenderer(), dstx - x, dsty);
         }
@@ -106,10 +108,9 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
 
 void VgaTerminal::gotoXY(const uint8_t x, const uint8_t y) noexcept
 {
-    if ((x < _viewPortX + _viewPortWidth) && (y < _viewPortY + _viewPortHeight) &&
-        (x >= _viewPortX) && (y >= _viewPortY)) {
-        _curX = x;
-        _curY = y;
+    if ((x < _viewPortWidth) && (y < _viewPortHeight)) {
+        _curX = _viewPortX + x;
+        _curY = _viewPortY + y;
     } else {
         SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: outside the grid. Ignoring.", typeid(*this).name(), __func__);
     }
@@ -311,7 +312,12 @@ void VgaTerminal::setViewPort(const position_t& viewport, const uint8_t width, c
 void VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept
 {
     if ((x+width > mode.tw) || (y+height > mode.th)) {
-        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[% s] % s: viewport larger than terminal.", typeid(*this).name(), __func__);
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport larger than terminal.", typeid(*this).name(), __func__);
+        return;
+    }
+
+    if ((width == 0) || (height == 0)) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport too small.", typeid(*this).name(), __func__);
         return;
     }
 

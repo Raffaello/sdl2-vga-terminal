@@ -57,9 +57,11 @@ but doesn't really matter can be used any name, it all depends how the test is w
 
 Some must and ides:
 
+- viewport tests
+- add a relative 'at' method within the viewport?
 - clear with bgCol, and only viewport.
 - register event handler (Windows)
-- complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
+- complete the cursor functionality (When typ ing show the cursor not blinking (reset timer?)
 - CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 - decouple vga modes
 - DAC Palette changing
@@ -67,4 +69,7 @@ Some must and ides:
 - doxygen / document the code
 - use streams 
 - read
+- unicode VGA font
+
+- some functions can be optimized using SDL_Surface functions/SDL functions
 

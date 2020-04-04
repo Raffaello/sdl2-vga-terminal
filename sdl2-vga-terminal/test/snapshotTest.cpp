@@ -30,6 +30,7 @@ TEST(VgaTerminal, Snapshot) {
 	IMG_Init(IMG_INIT_PNG);
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, 0, -1, 0);
+	term.showCursor = false;
 	std::string snapshotFilename = generateSnapshotFilename();
 
 	for (int i = 0; i < 256; i++) {

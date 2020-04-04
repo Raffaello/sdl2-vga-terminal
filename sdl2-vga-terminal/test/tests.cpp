@@ -46,6 +46,98 @@ TEST(VgaTerminal, ScrollDown) {
 	
 	SDL_Quit();
 }
+
+TEST(VgaTerminal, SetViewportNull)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+
+	testing::internal::CaptureStderr();
+	auto r = term.getViewport();
+	term.setViewPort(0, 0, 0, 0);
+	std::string output = testing::internal::GetCapturedStderr();
+	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	
+	auto e = term.getViewport();
+	EXPECT_EQ(r.x, e.x);
+	EXPECT_EQ(r.y, e.y);
+	EXPECT_EQ(r.w, e.w);
+	EXPECT_EQ(r.h, e.h);
+
+	term.setViewPort(r);
+	e = term.getViewport();
+	EXPECT_EQ(r.x, e.x);
+	EXPECT_EQ(r.y, e.y);
+	EXPECT_EQ(r.w, e.w);
+	EXPECT_EQ(r.h, e.h);
+
+	testing::internal::CaptureStderr();
+	term.setViewPort(0, 0, 1, 0);
+	output = testing::internal::GetCapturedStderr();
+	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	e = term.getViewport();
+	EXPECT_EQ(r.x, e.x);
+	EXPECT_EQ(r.y, e.y);
+	EXPECT_EQ(r.w, e.w);
+	EXPECT_EQ(r.h, e.h);
+
+	testing::internal::CaptureStderr();
+	term.setViewPort(0, 0, 0, 1);
+	output = testing::internal::GetCapturedStderr();
+	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	e = term.getViewport();
+	EXPECT_EQ(r.x, e.x);
+	EXPECT_EQ(r.y, e.y);
+	EXPECT_EQ(r.w, e.w);
+	EXPECT_EQ(r.h, e.h);
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, SetViewport1)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+
+	auto r = term.getViewport();
+	term.setViewPort(0, 0, 1, 1);
+	auto e = term.getViewport();
+	EXPECT_EQ(0, e.x);
+	EXPECT_EQ(0, e.y);
+	EXPECT_EQ(1, e.w);
+	EXPECT_EQ(1, e.h);
+	term.write("X", 15, 0);
+	auto tc = term.at(0, 0);
+	EXPECT_EQ(0, tc.c);
+	EXPECT_EQ(0, tc.col);
+	EXPECT_EQ(0, tc.bgCol);
+
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, SetViewport2)
+{
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+
+	auto r = term.getViewport();
+	term.setViewPort(10, 10, 10, 10);
+	auto e = term.getViewport();
+	EXPECT_EQ(10, e.x);
+	EXPECT_EQ(10, e.y);
+	EXPECT_EQ(10, e.w);
+	EXPECT_EQ(10, e.h);
+
+	term.writeXY(5, 5, "Test", 15, 0);
+	auto tc = term.at(10 + 5, 10 + 5);
+	EXPECT_EQ('T', tc.c);
+	EXPECT_EQ(15, tc.col);
+	EXPECT_EQ(0, tc.bgCol);
+
+	SDL_Quit();
+}
 #endif
 
 int main(int argc, char** argv) {
