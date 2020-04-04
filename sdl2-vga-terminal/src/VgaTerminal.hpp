@@ -54,14 +54,18 @@ public:
     void write(const char c, const uint8_t col, const uint8_t bgCol);
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol);
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol);
-   /*
-   return defaultNullChar if outside the terminal
-   */
     terminalChar_t at(const uint8_t x, const uint8_t y) const;
 
     void render(const bool force = false);
     void clearGrid();
+    void moveCursorLeft() noexcept;
+    void moveCursorRight() noexcept;
+    void moveCursorUp() noexcept;
+    void moveCursorDown() noexcept;
     
+    uint8_t curDefaultCol = 7;
+    bool showCursor = true;
+
 private:
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette p;
@@ -70,33 +74,15 @@ private:
     uint8_t _curY = 0;
     std::unique_ptr<terminalChar_t[]> _pGrid;
     terminalChar_t defaultNullChar = { 0, 0, 0, false };
-    
-    // TODO make them parameters.
-    uint8_t cur_col = 7;
-    bool showCursor = true;
-    uint8_t cur_shape = 219;
+   
     bool _cursonOn = true;
+    SDL_TimerID _cursorTimer = 0;
+    
+    // these should beparameters?
+    uint8_t cur_shape = 219;
     uint32_t cursor_time = 1000;
-    SDL_TimerID _cursorTimer = NULL;
 
-    // try to fix the static one. only 1 windows is possible in this mode.
-    static uint32_t _timerCallBack(uint32_t interval, void* param) {
-        VgaTerminal* that = (VgaTerminal*)param;
-        that->_cursonOn = !that->_cursonOn;
-        SDL_Event event;
-        SDL_UserEvent userevent;
-
-        userevent.type = SDL_USEREVENT;
-        userevent.code = 0;
-        userevent.data1 = NULL;
-        userevent.data2 = NULL;
-
-        event.type = SDL_USEREVENT;
-        event.user = userevent;
-
-        SDL_PushEvent(&event);
-        return interval;
-    }
+    static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void incrementCursorPosition();
     void scrollDownGrid();

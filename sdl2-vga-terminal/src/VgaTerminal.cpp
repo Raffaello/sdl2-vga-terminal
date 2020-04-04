@@ -73,7 +73,9 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
 
     if(SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) {
-        SDL_AddTimer(cursor_time, _timerCallBack, this);
+        if (SDL_AddTimer(cursor_time, _timerCallBack, this) == 0) {
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[% s] % s: unable to install cursor callback.", typeid(*this).name(), __func__);
+        }
     }
 }
 
@@ -98,7 +100,6 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
         // end *** render line ***
     }
 }
-
 
 void VgaTerminal::gotoXY(const uint8_t x, const uint8_t y)
 {
@@ -154,6 +155,13 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
     write(str, col, bgCol);
 }
 
+/**
+ * @brief 
+ * 
+ * @param x 
+ * @param y 
+ * @return VgaTerminal::terminalChar_t defaultNullChar if out of screen
+ */
 VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const
 {
     return (x >= mode.tw || y >= mode.th)
@@ -164,9 +172,22 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
 
 void VgaTerminal::render(const bool force)
 {
+    // TODO:
+    // for performances this if should not be done
+    // and slice the for loop without the curX,Y pos
+    // like: (j =0; j< _curY), (j=_curY+1; j<mode.th) => the i loop as usual
+    //       j=curY, (i=0; <_curX),/(i=_curX+1; i<mode.tw)
+    //       j=curY, i=curX
+    //
+    //       at that point the loops is a general function accepting the 4 vaues for the range
+    //       special case only for the cursor, 
+    //       and can just ignore the rendered flag
+    //
+
     if (!force && (SDL_GetWindowFlags(getWindow()) & SDL_WINDOW_HIDDEN) == SDL_WINDOW_HIDDEN) {
         return;
     }
+
     // force to render the cursor everytime
     int icur = static_cast<int>(_curY) * mode.tw + _curX;
     _pGrid[icur].rendered = false;
@@ -188,21 +209,21 @@ void VgaTerminal::render(const bool force)
             col = _pGrid[i2].col;
             bgCol = _pGrid[i2].bgCol;
 
-            if ((_curY == j) && (_curX == i)) {
-                // cursor position
-                if (showCursor && _cursonOn)
-                {
+            // cursor position
+            if ((_curY == j) && (_curX == i)
+                && (showCursor && _cursonOn)) {
+                
+                if (c != 0) {
                     // invert col and bgCol
-                    if (c != 0) {
-                        col = _pGrid[i2].bgCol;
-                        bgCol = _pGrid[i2].col;
-                    } else {
-                        // only the cursor
-                        bgCol = 0;
-                        col = cur_col;
-                        c = cur_shape;
-                    }
-                } 
+                    col = _pGrid[i2].bgCol;
+                    bgCol = _pGrid[i2].col;
+                }
+                else {
+                    // only the cursor
+                    bgCol = 0;
+                    col = curDefaultCol;
+                    c = cur_shape;
+                }
             }
             else {
                 _pGrid[i2].rendered = true;
@@ -230,6 +251,72 @@ void VgaTerminal::clearGrid()
     gotoXY(0, 0);
 }
 
+void VgaTerminal::moveCursorLeft() noexcept
+{
+    if (_curX > 0) {
+        //gotoXY(_curX - 1, _curY);
+        --_curX;
+    }
+    else if(_curY > 0) {
+        --_curY;
+        _curX = mode.tw - 1;
+    }
+    else {
+        // alredy in 0,0 ... what should i do? :)
+    }
+    
+}
+
+void VgaTerminal::moveCursorRight() noexcept
+{
+    if (_curX < mode.tw - 1) {
+        ++_curX;
+    }
+    else if (_curY < mode.th - 1) {
+        _curY++;
+        _curX = 0;
+    }
+    else {
+        //already at the max
+    }
+}
+
+void VgaTerminal::moveCursorUp() noexcept
+{
+    if (_curY > 0) {
+        --_curY;
+    }
+    else {
+        // no scroll yet
+    }
+}
+
+void VgaTerminal::moveCursorDown() noexcept
+{
+    if (_curY < mode.th - 1) {
+        ++_curY;
+    }
+}
+
+uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
+{
+    SDL_Event event;
+    SDL_UserEvent userevent;
+    VgaTerminal* that = (VgaTerminal*)param;
+    
+    that->_cursonOn = !that->_cursonOn;
+    userevent.type = SDL_USEREVENT;
+    userevent.code = 0;
+    userevent.data1 = NULL;
+    userevent.data2 = NULL;
+
+    event.type = SDL_USEREVENT;
+    event.user = userevent;
+
+    SDL_PushEvent(&event);
+    return interval;
+}
+
 void VgaTerminal::incrementCursorPosition()
 {
     if (++_curX >= mode.tw)
@@ -245,12 +332,14 @@ void VgaTerminal::incrementCursorPosition()
 
 void VgaTerminal::scrollDownGrid()
 {
-    for (int j = 1; j < mode.th; j++) {
-        register int j2 = j * mode.tw;
-        register int jj2 = j2 - mode.tw;
-        for (int i = 0; i < mode.tw; i++) {
-            register int i2 = i + j2;
-            register int ii2 = i + jj2;
+    for (register int j = 1, j2 = mode.tw, jj2 = 0;
+        j < mode.th;
+        j++, j2 += mode.tw, jj2 += mode.tw)
+    {
+        for (register int i = 0, i2 = j2, ii2 = jj2;
+            i < mode.tw;
+            i++, i2++, ii2++)
+        {
             if (_pGrid[i2].rendered && _pGrid[ii2] == _pGrid[i2]) {
                 continue;
             }
@@ -260,8 +349,9 @@ void VgaTerminal::scrollDownGrid()
         }
     }
     
-    int j2 = (mode.th - 1) * mode.tw;
-    for (int i = 0; i < mode.tw; i++) {
+    // clear line
+    register int j2 = (mode.th - 1) * mode.tw;
+    for (register int i = 0; i < mode.tw; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;
     }
 }

@@ -2,4 +2,4 @@
 /.vs/
 /CmakeSettings.json
 /build
-
+.vscode/

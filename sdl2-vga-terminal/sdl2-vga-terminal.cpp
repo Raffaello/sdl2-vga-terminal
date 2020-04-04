@@ -118,16 +118,17 @@ int main(int argc, char* args[])
 				term->render(true);
 			}
 			else if (keyname == "Left") {
-				term->gotoXY(term->getX() - 1, term->getY());
+				term->moveCursorLeft();
 			}
 			else if (keyname == "Right") {
-				term->gotoXY(term->getX() + 1, term->getY());
+				term->moveCursorRight();
 			}
 			else if (keyname == "Up") {
-				term->gotoXY(term->getX(), term->getY() - 1);
+				term->moveCursorUp();
 			}
 			else if (keyname == "Down") {
-				term->gotoXY(term->getX(), term->getY() + 1);
+				term->moveCursorDown()
+					;
 			}
 			break;
 		case SDL_KEYUP:

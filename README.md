@@ -57,6 +57,9 @@ but doesn't really matter can be used any name, it all depends how the test is w
 
 Some must and ides:
 
+- SetViwport (VgaTerminal)
+- register event handler (Windows)
+- complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
 - CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 - decouple vga modes
 - DAC Palette changing
