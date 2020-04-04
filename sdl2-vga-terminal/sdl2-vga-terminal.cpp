@@ -54,6 +54,17 @@ int main(int argc, char* args[])
 	// --- end SDL2 system init and info
 	VgaTerminal term2 = VgaTerminal("T2 test", 640, 400, 0, -1, 0);
 	term2.write("events: understand which windows is focused...", 10, 0);
+	term2.writeXY(10, 1, "**** Viewporting ****", 10, 0);
+	term2.writeXY(10, 2, "*                   *", 10, 0);
+	term2.writeXY(10, 3, "*                   *", 10, 0);
+	term2.writeXY(10, 4, "*                   *", 10, 0);
+	term2.writeXY(10, 5, "*                   *", 10, 0);
+	term2.writeXY(10, 6, "*                   *", 10, 0);
+	term2.writeXY(10, 7, "*********************", 10, 0);
+
+
+	term2.setViewPort(11, 2, 19, 5);
+	term2.write("Hello ViewPort !!!", 3, 12);
 	term2.render();
 	SDL_Delay(1000);
 
@@ -143,7 +154,7 @@ int main(int argc, char* args[])
 			}
 			else if (keyname == "C") {
 				cout << "clearing..." << endl;
-				term->clearGrid();
+				term->clear();
 			}
 			else {
 				term->write(keyname, 1, 10);

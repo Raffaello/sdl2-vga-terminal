@@ -5,6 +5,7 @@
 #include <string>
 #include <bitset>
 
+
 class VgaTerminal : public Window
 {
 
@@ -24,6 +25,8 @@ public:
         uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
     } videoMode_t;
 
+    // TODO keep only the 3 uint8_t here,
+    //      create a private one that embed this one and the other 2 bools.
     typedef struct terminalChar_t
     {
         uint8_t c;
@@ -38,30 +41,37 @@ public:
     static const videoMode_t mode3;
 
     VgaTerminal() = delete;
-    // declared otherwise not compiling... not implemented
+    // declared otherwise not compiling... not implemented TODO: clear it,
     VgaTerminal(const VgaTerminal& t);
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     virtual ~VgaTerminal();
 
-    void gotoXY(const uint8_t x, const uint8_t y);
-    void gotoXY(const position_t &position);
+    void gotoXY(const uint8_t x, const uint8_t y) noexcept;
+    void gotoXY(const position_t &position) noexcept;
+  
+    position_t getXY() const noexcept;
+    uint8_t getX() const noexcept;
+    uint8_t getY() const noexcept;
     
-    position_t getXY() const;
-    uint8_t getX() const;
-    uint8_t getY() const;
-    
-    void write(const char c, const uint8_t col, const uint8_t bgCol);
-    void write(const std::string &str, const uint8_t col, const uint8_t bgCol);
-    void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol);
-    terminalChar_t at(const uint8_t x, const uint8_t y) const;
+    void write(const char c, const uint8_t col, const uint8_t bgCol) noexcept;
+    void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
+    void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
+    terminalChar_t at(const uint8_t x, const uint8_t y) const noexcept;
 
     void render(const bool force = false);
-    void clearGrid();
+    void clear() noexcept;
+  
+
     void moveCursorLeft() noexcept;
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
+    
+    void setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
+    void setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
+    void setViewPort(const SDL_Rect& r) noexcept;
+    SDL_Rect getViewport() const noexcept;
     
     uint8_t curDefaultCol = 7;
     bool showCursor = true;
@@ -74,7 +84,11 @@ private:
     uint8_t _curY = 0;
     std::unique_ptr<terminalChar_t[]> _pGrid;
     terminalChar_t defaultNullChar = { 0, 0, 0, false };
-   
+    uint8_t _viewPortX;
+    uint8_t _viewPortWidth;
+    uint8_t _viewPortY;
+    uint8_t _viewPortHeight;
+
     bool _cursonOn = true;
     SDL_TimerID _cursorTimer = 0;
     
@@ -84,7 +98,7 @@ private:
 
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
-    void incrementCursorPosition();
-    void scrollDownGrid();
+    void incrementCursorPosition() noexcept;
+    void scrollDownGrid() noexcept;
     void renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c);
 };
