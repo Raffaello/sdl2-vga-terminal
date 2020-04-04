@@ -3,6 +3,7 @@
 
 #include "sdl2-vga-terminal.h"
 
+
 using namespace std;
 
 int main(int argc, char* args[])
@@ -95,10 +96,39 @@ int main(int argc, char* args[])
 	term1.render();
 	term1.gotoXY(40, 24);
 	term1.render();
+	
+	Window::handler_t f = [](SDL_Event& event, Window* w) {
+		VgaTerminal* term = reinterpret_cast<VgaTerminal*>(w);
+		switch (event.type) {
+		case SDL_KEYDOWN:
+			string keyname = SDL_GetKeyName(event.key.keysym.sym);
+			if (keyname == "Left") {
+				term->moveCursorLeft();
+			}
+			else if (keyname == "Right") {
+				term->moveCursorRight();
+			}
+			else if (keyname == "Up") {
+				term->moveCursorUp();
+			}
+			else if (keyname == "Down") {
+				term->moveCursorDown();
+			}
+		break;
+		}
+
+		return true;
+	};
+
+	term2.handler = f;
+	
 	string keyname;
 	while (!quit) {
 		
 		SDL_WaitEvent(&event);
+		term2.handleEvent(event);
+		term1.handleEvent(event);
+
 		VgaTerminal* term;
 		if (event.window.windowID == term1.getWindowId()) {
 			term = &term1;
@@ -127,19 +157,6 @@ int main(int argc, char* args[])
 			if (keyname == "F11") {
 				term->toggleFullscreenDesktop();
 				term->render(true);
-			}
-			else if (keyname == "Left") {
-				term->moveCursorLeft();
-			}
-			else if (keyname == "Right") {
-				term->moveCursorRight();
-			}
-			else if (keyname == "Up") {
-				term->moveCursorUp();
-			}
-			else if (keyname == "Down") {
-				term->moveCursorDown()
-					;
 			}
 			break;
 		case SDL_KEYUP:

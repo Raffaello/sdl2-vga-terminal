@@ -138,6 +138,48 @@ TEST(VgaTerminal, SetViewport2)
 
 	SDL_Quit();
 }
+
+TEST(VgaTerminal, moveCursorCircle) {
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+
+	term.gotoXY(10, 10);
+	term.moveCursorLeft();
+	EXPECT_EQ(9, term.getX());
+	EXPECT_EQ(10, term.getY());
+	term.moveCursorDown();
+	EXPECT_EQ(9, term.getX());
+	EXPECT_EQ(11, term.getY());
+	term.moveCursorRight();
+	EXPECT_EQ(10, term.getX());
+	EXPECT_EQ(11, term.getY());
+	term.moveCursorUp();
+	EXPECT_EQ(10, term.getX());
+	EXPECT_EQ(10, term.getY());
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, moveCursorBorder) {
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+
+	term.gotoXY(79, 23);
+	term.moveCursorRight();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(24, term.getY());
+	term.moveCursorDown();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(24, term.getY());
+	term.moveCursorLeft();
+	EXPECT_EQ(79, term.getX());
+	EXPECT_EQ(23, term.getY());
+	term.moveCursorUp();
+	EXPECT_EQ(79, term.getX());
+	EXPECT_EQ(22, term.getY());
+	SDL_Quit();
+}
 #endif
 
 int main(int argc, char** argv) {

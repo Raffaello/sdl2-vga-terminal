@@ -61,7 +61,7 @@ Some must and ides:
 - add a relative 'at' method within the viewport?
 - clear with bgCol, and only viewport.
 - register event handler (Windows)
-- complete the cursor functionality (When typ ing show the cursor not blinking (reset timer?)
+- complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
 - CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 - decouple vga modes
 - DAC Palette changing

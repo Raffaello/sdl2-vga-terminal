@@ -23,6 +23,10 @@ public:
 	}
 
 	inline uint32_t getWindowId() const { return _windowId; }
+	
+	typedef std::function<bool(SDL_Event&, Window*)> handler_t;
+	handler_t handler = nullptr;
+	bool handleEvent(SDL_Event& event);
 
 	virtual ~Window();
 private:
@@ -30,4 +34,6 @@ private:
 	SDL_Renderer* _pRenderer = nullptr;
 	bool _bFullScreenDesktop = false;
 	uint32_t _windowId;
+
+	
 };

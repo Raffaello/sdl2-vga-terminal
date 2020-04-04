@@ -59,6 +59,16 @@ void Window::renderPresent() const
 	SDL_RenderPresent(_pRenderer);
 }
 
+bool Window::handleEvent(SDL_Event& event)
+{
+	if (event.window.windowID != getWindowId() || handler == nullptr) {
+		return false;
+	}
+
+	
+	return std::invoke(handler, event, this);
+}
+
 Window::~Window()
 {
 	if (_pRenderer != nullptr) {

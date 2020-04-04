@@ -288,7 +288,7 @@ void VgaTerminal::moveCursorRight() noexcept
 
 void VgaTerminal::moveCursorUp() noexcept
 {
-    if (_curY > _viewPortX) {
+    if (_curY > _viewPortY) {
         --_curY;
     }
     else {
