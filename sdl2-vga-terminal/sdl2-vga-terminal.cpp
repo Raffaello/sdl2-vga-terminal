@@ -18,10 +18,12 @@ int main(int argc, char* args[])
 {
 	cout << add(10, 1) << endl;
 	cin.ignore();
-	bool t = __FUnloadDelayLoadedDLL2("vga-terminal.dll");
-
+#ifdef WIN32
+	bool t = __FUnloadDelayLoadedDLL2("vga-terminal-libd.dll");
 	cout << "unloaded? :" << t << endl;
 	cin.ignore();
+#endif // WIN32
+	
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize SDL: %s", SDL_GetError());
 		return 1;

@@ -67,8 +67,12 @@ PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
     #$<INSTALL_INTERFACE:include>
 )
 
-#if(MSVC)
-#add_definitions(-DCMAKE_EXE_LINKER_FLAGS=" /DELAYLOAD:vga-terminal.dll")
-#endif()
+if(MSVC)
+add_compile_options("/link /DELAYLOAD:vga-terminal-libd.dll")
+add_definitions(-DCMAKE_EXE_LINKER_FLAGS=" /DELAYLOAD:vga-terminal-libd.dll /DELAY:UNLOAD")
+add_link_options(" /DELAYLOAD:vga-terminal-libd.dll /DELAY:UNLOAD")
+#set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_FLAGS " /DELAYLOAD:vga-terminal-libd.dll /DELAY:UNLOAD")
+target_link_options(${PROJECT_NAME} PUBLIC "/DELAYLOAD:vga-terminal-libd.dll" "/DELAY:UNLOAD")
+endif()
 # tests
 add_subdirectory("test")
