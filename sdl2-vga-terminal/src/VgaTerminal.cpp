@@ -264,7 +264,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     }
     else if(_curY > _viewPortY) {
         --_curY;
-        _curX = mode.tw - 1;
+        _curX =_viewPortX + _viewPortWidth - 1;
     }
     else {
         // alredy in 0,0 ... what should i do? :)
@@ -279,7 +279,7 @@ void VgaTerminal::moveCursorRight() noexcept
     }
     else if (_curY < _viewPortY + _viewPortHeight - 1) {
         _curY++;
-        _curX = 0;
+        _curX = _viewPortX;
     }
     else {
         //already at the max

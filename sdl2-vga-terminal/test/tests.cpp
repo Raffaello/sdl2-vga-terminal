@@ -180,6 +180,22 @@ TEST(VgaTerminal, moveCursorBorder) {
 	EXPECT_EQ(22, term.getY());
 	SDL_Quit();
 }
+
+TEST(VgaTerminal, ViewportMoveCursorBorder) {
+	SDL_Init(SDL_INIT_VIDEO);
+	std::string termTitle = "Hello Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+	term.setViewPort(10, 10, 10, 10);
+	term.gotoXY(9, 2);
+	term.moveCursorRight();
+	EXPECT_EQ(10, term.getX());
+	EXPECT_EQ(13, term.getY());
+	term.moveCursorLeft();
+	EXPECT_EQ(19, term.getX());
+	EXPECT_EQ(12, term.getY());
+	
+	SDL_Quit();
+}
 #endif
 
 int main(int argc, char** argv) {
