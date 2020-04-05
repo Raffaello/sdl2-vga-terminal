@@ -5,6 +5,7 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 ## Shared code among exe and tests
+
 add_library(vga-terminal OBJECT)
 target_sources(vga-terminal PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -18,11 +19,56 @@ if (MSVC)
 elseif (UNIX)
     target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
 endif()
+
+
+
+# SO lib
+include(GenerateExportHeader)
+add_library(vga-terminal-lib SHARED)
+#add_dependencies(vga-terminal-lib vga-terminal)
+generate_export_header(
+    vga-terminal-lib
+    #BASE_NAME vga-terminal-lib
+    EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
+    EXPORT_FILE_NAME vga-terminal-export.h
+    #STATIC_DEFINE vga-terminal-lib_BUILD_AS_STATIC
+)
+install(
+    TARGETS vga-terminal-lib DESTINATION bin
+    PUBLIC_HEADER DESTINATION inc
+)
+install(FILES 
+   "${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h"
+    $<TARGET_FILE_DIR:vga-terminal-lib>/vga-terminal-export.h DESTINATION inc #${INCLUDE_INSTALL_DIR}
+)
+
+target_include_directories(vga-terminal-lib PUBLIC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/include" 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal-lib>>
+)
+
+target_sources(vga-terminal-lib PRIVATE
+    #$<TARGET_OBJECTS:vga-terminal> 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.c
+)
+#target_link_libraries(vga-terminal-lib vga-terminal)
+
+
 # Add source to this project's executable.
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
-target_link_libraries(${PROJECT_NAME} vga-terminal)
-target_include_directories(${PROJECT_NAME} PRIVATE .)
-#target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+add_dependencies(${PROJECT_NAME} vga-terminal vga-terminal-lib) 
+target_link_libraries(${PROJECT_NAME} vga-terminal vga-terminal-lib)
+target_include_directories(${PROJECT_NAME} 
+#PRIVATE .
+PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+# The location of the headers before installation 
+    $<BUILD_INTERFACE: $<TARGET_FILE_DIR:vga-terminal-lib>>
+    # The location of the headers after installation
+    #$<INSTALL_INTERFACE:include>
+)
 
+#if(MSVC)
+#add_definitions(-DCMAKE_EXE_LINKER_FLAGS=" /DELAYLOAD:vga-terminal.dll")
+#endif()
 # tests
 add_subdirectory("test")

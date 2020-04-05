@@ -4,7 +4,7 @@
 |---------|
 |![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)|
 
-It is an emulation of the VGA terminal using SDL2.
+It is an just VGA font terminal using SDL2.
 
 the VGA fonts are related to a `vgabios` project (http://savannah.nongnu.org/projects/vgabios/).
 
@@ -49,7 +49,7 @@ The test suite take advantages of the option and will be compiled accordingly ba
 
 please note if you are dumping the snapshot, you have to copy back to the `test/snapshot` directory to make the usable.
 
-The filename generate are based on the test that are running, ideally: `[Test-suite.Test-name].png`
+The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
 but doesn't really matter can be used any name, it all depends how the test is written of course.
 
@@ -57,10 +57,7 @@ but doesn't really matter can be used any name, it all depends how the test is w
 
 Some must and ides:
 
-- viewport tests
-- add a relative 'at' method within the viewport?
 - clear with bgCol, and only viewport.
-- register event handler (Windows)
 - complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
 - CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 - decouple vga modes
@@ -72,4 +69,3 @@ Some must and ides:
 - unicode VGA font
 
 - some functions can be optimized using SDL_Surface functions/SDL functions
-
