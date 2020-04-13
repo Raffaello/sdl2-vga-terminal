@@ -34,6 +34,14 @@ for:
 
 install:
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    ################################################################################
+    # Install Ninja
+    ############################################################################
+    - set NINJA_URL="https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip"
+    - appveyor DownloadFile %NINJA_URL% -FileName ninja.zip
+    - 7z x ninja.zip -oC:\projects\deps\ninja > nul
+    - set PATH=C:\projects\deps\ninja;%PATH%
+    - ninja --version
     
 before_build:
     - cd C:\tools\vcpkg
@@ -44,7 +52,9 @@ before_build:
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-cache: c:\tools\vcpkg\
+cache: 
+    - C:\tools\vcpkg\
+    - C:\projects\deps\ninja
 
 build_script:
     - mkdir out
