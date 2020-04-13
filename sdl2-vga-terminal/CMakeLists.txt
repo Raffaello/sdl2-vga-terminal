@@ -32,20 +32,31 @@ generate_export_header(
     STATIC_DEFINE vga-terminal-lib_BUILD_AS_STATIC
 )
 install(
-    TARGETS vga-terminal-lib DESTINATION lib
+    TARGETS vga-terminal-lib 
+    EXPORT vga-terminal-lib-config
+    DESTINATION lib
     PUBLIC_HEADER DESTINATION inc
 )
+#export(TARGETS vga-terminal-lib
+#    FILE ${CMAKE_BINARY_DIR}/vga-terminal.cmake
+#)
+
 install(FILES 
-   "${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h"
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
     $<TARGET_FILE_DIR:vga-terminal-lib>/vga-terminal-export.h 
     DESTINATION inc #${INCLUDE_INSTALL_DIR}
 )
+
+#install(EXPORT
+#    vga-terminal-lib-config DESTINATION cmake
+#)
 target_include_directories(vga-terminal-lib PUBLIC 
-    "${CMAKE_CURRENT_SOURCE_DIR}/include" 
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal-lib>>
+    $<INSTALL_INTERFACE:include>
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_sources(vga-terminal-lib PRIVATE
-    $<TARGET_OBJECTS:vga-terminal> 
+    #$<TARGET_OBJECTS:vga-terminal> 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
 target_link_libraries(vga-terminal-lib vga-terminal)
@@ -61,16 +72,16 @@ target_link_libraries(${PROJECT_NAME} vga-terminal)
 add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.cpp")
 #add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
 target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
-target_include_directories(${PROJECT_NAME}-so
-   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-# The location of the headers before installation 
+#target_include_directories(${PROJECT_NAME}-so
+   #PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+    # The location of the headers before installation 
     #$<BUILD_INTERFACE: $<TARGET_FILE_DIR:vga-terminal-lib>>
     # The location of the headers after installation
     #$<INSTALL_INTERFACE:include>
-)
+#)
 
 if(MSVC)
-    target_link_options(${PROJECT_NAME}-so PUBLIC "/DELAYLOAD:$<TARGET_FILE:vga-terminal-lib>" "/DELAY:UNLOAD")
+    target_link_options(${PROJECT_NAME}-so PUBLIC "/INCREMENTAL" "/DELAYLOAD:$<TARGET_FILE:vga-terminal-lib>" "/DELAY:UNLOAD")
 endif()
 
 # tests

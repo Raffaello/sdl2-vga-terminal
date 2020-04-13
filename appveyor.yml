@@ -57,4 +57,4 @@ build_script:
 test_script:
     - cmake --build .
     - ctest -V
-
+    - cmake -P cmake_install.cmake
