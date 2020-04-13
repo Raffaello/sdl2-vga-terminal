@@ -47,7 +47,6 @@ before_build:
 
 cache: 
     - C:\tools\vcpkg\
-    - C:\projects\deps\ninja
 
 build_script:
     - mkdir out
