@@ -74,11 +74,14 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     if (!_pGrid) {
         throw std::runtime_error("unable to alloc _pGrid");
     }
-
-    if(SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) {
+    
+    if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
         if (SDL_AddTimer(cursor_time, _timerCallBack, this) == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
+    }
+    else {
+        SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "[% s] % s: TIMER or EVENTS not inited.", typeid(*this).name(), __func__);
     }
 }
 
@@ -264,7 +267,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     }
     else if(_curY > _viewPortY) {
         --_curY;
-        _curX = mode.tw - 1;
+        _curX =_viewPortX + _viewPortWidth - 1;
     }
     else {
         // alredy in 0,0 ... what should i do? :)
@@ -279,7 +282,7 @@ void VgaTerminal::moveCursorRight() noexcept
     }
     else if (_curY < _viewPortY + _viewPortHeight - 1) {
         _curY++;
-        _curX = 0;
+        _curX = _viewPortX;
     }
     else {
         //already at the max
