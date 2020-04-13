@@ -46,7 +46,7 @@ target_include_directories(vga-terminal-lib PUBLIC
 )
 target_sources(vga-terminal-lib PRIVATE
     $<TARGET_OBJECTS:vga-terminal> 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
 target_link_libraries(vga-terminal-lib vga-terminal)
 
@@ -68,11 +68,8 @@ target_include_directories(${PROJECT_NAME}-so
 )
 
 if(MSVC)
-
-#add_compile_options("/link /DELAYLOAD:vga-terminal-libd.dll")
-#add_definitions(-DCMAKE_EXE_LINKER_FLAGS=" /DELAYLOAD:vga-terminal-libd.dll /DELAY:UNLOAD")
-#set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_FLAGS " /DELAYLOAD:vga-terminal-libd.dll /DELAY:UNLOAD")
-target_link_options(${PROJECT_NAME}-so PUBLIC "/DELAYLOAD:$<TARGET_FILE:${PROJECT_NAME}-so>" "/DELAY:UNLOAD")
+    target_link_options(${PROJECT_NAME}-so PUBLIC "/DELAYLOAD:$<TARGET_FILE:vga-terminal-lib>" "/DELAY:UNLOAD")
 endif()
+
 # tests
 add_subdirectory("test")
