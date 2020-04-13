@@ -65,6 +65,8 @@ target_include_directories(${PROJECT_NAME}-so
    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 # The location of the headers before installation 
     #$<BUILD_INTERFACE: $<TARGET_FILE_DIR:vga-terminal-lib>>
+    # The location of the headers after installation
+    #$<INSTALL_INTERFACE:include>
 )
 
 if(MSVC)
