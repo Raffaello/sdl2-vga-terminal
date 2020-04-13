@@ -57,7 +57,9 @@ but doesn't really matter can be used any name, it all depends how the test is w
 
 Some must and ides:
 
-- viewport tests
+- add test to checking the WasInit subsystem working as expected.
+
+- fix glitches on linux.
 - add a relative 'at' method within the viewport?
 - clear with bgCol, and only viewport.
 - register event handler (Windows)
