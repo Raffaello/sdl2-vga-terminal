@@ -5,16 +5,16 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    #- Visual Studio 2019
+    - Visual Studio 2019
     - Ubuntu
 
 platform:
-  #- x86
+  - x86
   - x64
 
 configuration:
   - Debug
-  #- Release
+  - Release
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
@@ -33,7 +33,6 @@ for:
 
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-    #- sh: sudo apt-get -y --purge remove ninja-build
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -42,32 +41,24 @@ install:
 
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh: cd /home/appveyor/vcpkg
+    - sh : cd /home/appveyor/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
-    - sh: ./bootstrap-vcpkg.sh
+    - sh : ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
-    - sh: vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
+    - sh : vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
     - vcpkg integrate install
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
-    - sh: cd $APPVEYOR_BUILD_FOLDER
-    - sh: ninja --version
-    - sh: ls /home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake
+    - sh : cd $APPVEYOR_BUILD_FOLDER
 
 cache: C:\tools\vcpkg\
 
 build_script:
     - mkdir out
     - cd out
-    
-    - sh: ls /home/appveyor/vcpkg/scripts/buildsystems/
-    - sh: ls /home/appveyor/vcpkg/scripts/
-    - sh: ls /home/appveyor/vcpkg/
-    - sh: ls /home/appveyor/
+    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
-
-    - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=-DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
 test_script:
     - cmake --build .
