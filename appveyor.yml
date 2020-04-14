@@ -40,7 +40,7 @@ install:
     
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh: cd /home/appveyor/ && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
+    - sh: cd /home/appveyor/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh: ./bootstrap-vcpkg.bat
