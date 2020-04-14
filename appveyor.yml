@@ -43,7 +43,7 @@ before_build:
     - sh: cd /home/appveyor/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
-    - sh: ./bootstrap-vcpkg.bat
+    - sh: ./bootstrap-vcpkg.sh
     - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
     - vcpkg integrate install
     - cd %APPVEYOR_BUILD_FOLDER%
