@@ -1,7 +1,7 @@
-/*
- * USING THE SO/DLL in a C program example
- * The DLL/SO is linked at compile time.
- */
+/********************************************
+ * USING THE SO/DLL in a C program example  *
+ * The DLL/SO is linked at compile time.    *
+ ********************************************/
 
 #include <vga-terminal.h>
 #include <SDL2/SDL.h>
