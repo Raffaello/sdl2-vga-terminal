@@ -21,12 +21,9 @@ environment:
     #INIT_VS: vcvars64.bat
 
 for:
-#-
-#    matrix:
-#        only:
-#           - platform: x86
-#    environment:
-#        INIT_VS: vcvars32.bat
+    allow_failures:
+        - platform: x86
+          image: Ubuntu
 -
     matrix:
         only:
@@ -37,14 +34,17 @@ install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
     - cmd: if "%PLATFORM%" == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
     - ninja --version
-    
+
+init:
+    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh: cd /home/appveyor/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh: ./bootstrap-vcpkg.sh
-    - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - sh: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-linux
     - vcpkg integrate install
     - cd %APPVEYOR_BUILD_FOLDER%
 
