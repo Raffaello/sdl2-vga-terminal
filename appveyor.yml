@@ -2,7 +2,7 @@ branches:
   only:
     - master
 
-skip_branch_with_pr: false
+#skip_branch_with_pr: false
 
 image: Visual Studio 2019
 #    - Ubuntu
