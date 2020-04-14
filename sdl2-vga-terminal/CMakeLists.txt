@@ -5,7 +5,7 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-################ Shared code among exe and tests ####################
+################ Shared code among exe and tests #############################
 add_library(vga-terminal OBJECT)
 target_sources(vga-terminal PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -20,7 +20,7 @@ elseif (UNIX)
     target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
 endif()
 
-############################ Shared lib ###########################
+############################ Shared lib ######################################
 include(GenerateExportHeader)
 add_library(vga-terminal-lib SHARED)
 add_dependencies(vga-terminal-lib vga-terminal)
@@ -69,7 +69,7 @@ target_link_libraries(${PROJECT_NAME} vga-terminal)
 
 ################## C example using SO/DLL with lazy loading ##################
 add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.c")
-#add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
+add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
 target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
 if(MSVC)
     target_link_options(${PROJECT_NAME}-so PUBLIC 
