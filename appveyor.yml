@@ -20,30 +20,31 @@ configuration:
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
-    #INIT_VS: vcvars32.bat
-    #BUILD_CMAKE: Win32
 
 for:
+# VS2019 x64
 -
     matrix:
         only:
             - platform: x64
             - image: Visual Studio 2019
-    environment:
-        INIT_VS: vcvars64.bat
+    install:
+        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+        - cd C:\tools\vcpkg
+        - git pull
+        - .\bootstrap-vcpkg.bat
+    before_build:                
+        - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
+        - vcpkg integrate install
+        - cd %APPVEYOR_BUILD_FOLDER%
+    cache: 
+        - c:/tools/vcpkg
+# VS2019 x86
 -
     matrix:
         only:
             - platform: x86
             - image: Visual Studio 2019
-    environment:
-        INIT_VS: vcvars32.bat
--
-    matrix:
-        only:
-            - image: Visual Studio 2019
-    environment:
-        VCPKG_ROOT: c:/tools/vcpkg
     install:
         - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
         - cd C:\tools\vcpkg
@@ -55,7 +56,14 @@ for:
         - cd %APPVEYOR_BUILD_FOLDER%
     cache: 
         - c:/tools/vcpkg
-    
+-
+    matrix:
+        only:
+            - image: Visual Studio 2019
+    environment:
+        VCPKG_ROOT: c:/tools/vcpkg
+
+# Ubuntu 
 -
     matrix:
         only:
@@ -76,7 +84,6 @@ for:
 
 init:
     - ninja --version
-
 
 
 build_script:
