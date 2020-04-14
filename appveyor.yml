@@ -31,7 +31,7 @@ for:
     matrix:
         only:
             - image: Ubuntu
-    cache: /home/vcpkg
+    cache: /home/appveyor/vcpkg
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -40,7 +40,7 @@ install:
     
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh: ${PWD} && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
+    - sh: cd /home/appveyor/ && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh: ./bootstrap-vcpkg.bat
