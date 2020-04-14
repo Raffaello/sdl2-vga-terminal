@@ -1,12 +1,12 @@
-# branches to build
 branches:
-  # whitelist
   only:
     - master
 
 skip_branch_with_pr: false
 
-image: Visual Studio 2019
+image:
+    - Visual Studio 2019
+    #- Ubuntu
 
 platform:
   - x86
@@ -17,42 +17,48 @@ configuration:
   - Release
 
 environment:
-    INIT_VS: vcvars32.bat
-    #BUILD_CMAKE: Win32
+    VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
+
+matrix:
+    allow_failures:
+        - platform: x86
+          image: Ubuntu
 
 for:
- -
+-
     matrix:
         only:
-            - platform: x64
-    environment:
-        INIT_VS: vcvars64.bat
-        #BUILD_CMAKE: x64
-  
-#matrix:
-#  fast_finish: true
+            - image: Ubuntu
+    cache: /home/appveyor/vcpkg
+
+init:
+    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 
 install:
-    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    - cmd: if "%PLATFORM%" == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
     - ninja --version
-    
+
 before_build:
-    - cd C:\tools\vcpkg
+    - cmd: cd C:\tools\vcpkg
+    - sh : cd /home/appveyor/vcpkg
     - git pull
-    - .\bootstrap-vcpkg.bat
-    - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - cmd: .\bootstrap-vcpkg.bat
+    - sh : ./bootstrap-vcpkg.sh
+    - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - sh : vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
     - vcpkg integrate install
-    - cd %APPVEYOR_BUILD_FOLDER%
+    - cmd: cd %APPVEYOR_BUILD_FOLDER%
+    - sh : cd $APPVEYOR_BUILD_FOLDER
 
-
-cache: 
-    - C:\tools\vcpkg\
+cache: C:\tools\vcpkg\
 
 build_script:
     - mkdir out
     - cd out
-    #- cmake -G "Ninja" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-    - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$CONFIGURATION -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+
 
 test_script:
     - cmake --build .

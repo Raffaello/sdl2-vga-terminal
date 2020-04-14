@@ -124,7 +124,8 @@ int main(int argc, char* args[])
 	
 	string keyname;
 	while (!quit) {
-		
+		SDL_UserEvent userevent;
+
 		SDL_WaitEvent(&event);
 		term2.handleEvent(event);
 		term1.handleEvent(event);
@@ -144,7 +145,7 @@ int main(int argc, char* args[])
 
 		switch (event.type) {
 		case SDL_USEREVENT:
-			SDL_UserEvent userevent = event.user;
+			userevent = event.user;
 			if (userevent.code == 0) {
 				cout << "cursor!" << endl;
 			}

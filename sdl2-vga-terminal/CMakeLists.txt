@@ -13,12 +13,7 @@ target_sources(vga-terminal PRIVATE
 )
 
 target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
-if (MSVC)
-    target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
-elseif (UNIX)
-    target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
-endif()
+target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
 
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
@@ -56,9 +51,11 @@ target_include_directories(vga-terminal-lib PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_sources(vga-terminal-lib PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
-target_link_libraries(vga-terminal-lib vga-terminal)
+target_link_libraries(vga-terminal-lib SDL2::SDL2 SDL2::SDL2main)
 
 
 ############################## Main Example ##################################
