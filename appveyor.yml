@@ -1,6 +1,4 @@
-# branches to build
 branches:
-  # whitelist
   only:
     - master
 
@@ -19,77 +17,41 @@ configuration:
   - Release
 
 environment:
+    INIT_VS: vcvars32.bat
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
 
 for:
-# VS2019 x64
--
+ -
     matrix:
         only:
             - platform: x64
-            - image: Visual Studio 2019
-    install:
-        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
-        - cd C:\tools\vcpkg
-        - git pull
-        - .\bootstrap-vcpkg.bat
-    before_build:                
-        - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
-        - vcpkg integrate install
-        - cd %APPVEYOR_BUILD_FOLDER%
-    cache: 
-        - c:/tools/vcpkg
-# VS2019 x86
--
-    matrix:
-        only:
-            - platform: x86
-            - image: Visual Studio 2019
-    install:
-        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
-        - cd C:\tools\vcpkg
-        - git pull
-        - .\bootstrap-vcpkg.bat
-    before_build:                
-        - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
-        - vcpkg integrate install
-        - cd %APPVEYOR_BUILD_FOLDER%
-    cache: 
-        - c:/tools/vcpkg
--
-    matrix:
-        only:
-            - image: Visual Studio 2019
     environment:
-        VCPKG_ROOT: c:/tools/vcpkg
-
-# Ubuntu 
--
-    matrix:
-        only:
-            - image: Ubuntu
-    environment:
-        VCPKG_ROOT: /home/vcpkg
-    before_build:
-        - pwd
-        - cd /home
-        - git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
-        - pwd
-        - ./bootstrap-vcpkg.sh
-        - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-linux
-        - vcpkg integrate install
-        - cd %APPVEYOR_BUILD_FOLDER%
-    cache:
-        - /home/vcpkg
-
-init:
+        INIT_VS: vcvars64.bat
+  
+install:
+    - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
     - ninja --version
+    
+before_build:
+    - cmd: cd C:\tools\vcpkg
+    - sh: cd /home && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
+    - git pull
+    - cmd: .\bootstrap-vcpkg.bat
+    - sh: ./bootstrap-vcpkg.bat
+    - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - vcpkg integrate install
+    - cd %APPVEYOR_BUILD_FOLDER%
 
+
+cache: 
+    - cmd: C:\tools\vcpkg\
+    - sh: /home/vcpkg
 
 build_script:
     - mkdir out
     - cd out
-    - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/%VCPKG_SCRIPT%" ..
+    - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/vcpkg/%VCPKG_SCRIPT% ..
 
 test_script:
     - cmake --build .
