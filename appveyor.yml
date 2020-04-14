@@ -6,7 +6,7 @@ skip_branch_with_pr: false
 
 image:
     - Visual Studio 2019
-    - Ubuntu
+    #- Ubuntu
 
 platform:
   - x86
