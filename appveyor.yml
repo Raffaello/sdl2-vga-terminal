@@ -20,10 +20,12 @@ environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
     #INIT_VS: vcvars64.bat
 
-for:
+matrix:
     allow_failures:
         - platform: x86
           image: Ubuntu
+
+for:
 -
     matrix:
         only:
@@ -37,6 +39,7 @@ install:
 
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh: cd /home/appveyor/vcpkg
