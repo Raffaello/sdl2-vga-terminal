@@ -18,8 +18,7 @@ configuration:
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
-    APPVEYOR_SSH_KEY: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDknu/0miFWqAQLTD5KnaRHwPkKevoYVxr7lJGyv2MRkTx+wOR6AukT4x246OMKmPWOM5StDjy/Ej+FkqVdsPWplxZuo2XBz3SxVcH3GMENnZ/YHGeesi1Bs46s7f8qApt0tJ5tPggqxVBP65xilj/oQSRRau/pdKLDzJzwC+Lb5Q2Df75oRhNImQCg4FJpGEf0cecTo+czEV/H3IXz9mUvFF8wOnCHy/J0Y+LGYvsCndtvSG3Y+5GzQOa0SYPvINkuJOcd6a3e0bZThJoTyj08qsNfWcI7L4Way1/58JJddhJWQ529RYYw5Xpmj7XfplGM5Y+ukQM/XIObqQjNyyT1+/PuCCSPkFraqsyqpCywPFw9osh/Q70aQAZHk2GEzxcLB7e3nmY//TvzR+luklBNlKV2ciR3J+V1Ln5rIR+wyyPe8aVRkU+nQ14lpbA3NvmMaCZGLbudmslY++0sgsZyeMo4UaDavAztO6XECeF5/dtv+RE/P3Hoh71dJURlvMc= raffa@localhost.localdomain
- # remove
+
 matrix:
     allow_failures:
         - platform: x86
@@ -32,16 +31,9 @@ for:
             - image: Ubuntu
     cache: /home/appveyor/vcpkg
 
-
-  
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-    - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e - #remove
-
-    # remove below after
-on_finish:
-  - sh: export APPVEYOR_SSH_BLOCK=true
-  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
+    - sh: sudo apt-get -y install ninja-build
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
