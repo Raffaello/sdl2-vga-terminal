@@ -4,8 +4,7 @@ branches:
 
 skip_branch_with_pr: false
 
-image:
-    - Visual Studio 2019
+image: Visual Studio 2019
 #    - Ubuntu
 
 platform:
@@ -17,19 +16,11 @@ configuration:
   - Release
 
 environment:
-    INIT_VS: vcvars32.bat
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
 
-for:
- -
-    matrix:
-        only:
-            - platform: x64
-    environment:
-        INIT_VS: vcvars64.bat
-  
 install:
-    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    - cmd: if %PLATFORM% == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    - cmd: if %PLATFORM% == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
     - ninja --version
     
 before_build:
