@@ -18,15 +18,15 @@ configuration:
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
-    INIT_VS: vcvars64.bat
+    #INIT_VS: vcvars64.bat
 
-for:
--
-    matrix:
-        only:
-           - platform: x86
-    environment:
-        INIT_VS: vcvars32.bat
+#for:
+#-
+#    matrix:
+#        only:
+#           - platform: x86
+#    environment:
+#        INIT_VS: vcvars32.bat
 # -
 #    matrix:
 #        only:
@@ -34,9 +34,8 @@ for:
 #    cache: /home/vcpkg
 
 install:
-    - cmd: if %PLATFORM% == "x64" echo "64 bits"
-    - cmd: if %PLATFORM% == "x86" echo "32 bits"
-    - cmd: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+    - cmd: if "%PLATFORM%" == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
     - ninja --version
     
 before_build:
@@ -50,14 +49,15 @@ before_build:
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-#cache: 
-#    - C:\tools\vcpkg\
+cache: 
+    - cmd: C:\tools\vcpkg\
+    - sh: /home/vcpkg
 
 build_script:
     - mkdir out
     - cd out
     - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-#    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/vcpkg/%VCPKG_SCRIPT% ..
 
 test_script:
     - cmake --build .
