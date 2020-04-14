@@ -52,6 +52,7 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh: cd $APPVEYOR_BUILD_FOLDER
     - sh: ninja --version
+    - sh: ll /home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 cache: C:\tools\vcpkg\
 
