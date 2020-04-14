@@ -42,26 +42,26 @@ for:
     matrix:
         only:
             - image: Visual Studio 2019
-        environment:
-            - VCPKG_ROOT: c:/tools/vcpkg
-        install:
-            - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
-            - cd C:\tools\vcpkg
-            - git pull
-            - .\bootstrap-vcpkg.bat
-        before_build:                
-            - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
-            - vcpkg integrate install
-            - cd %APPVEYOR_BUILD_FOLDER%
-        cache: 
-            - c:/tools/vcpkg
+    environment:
+        VCPKG_ROOT: c:/tools/vcpkg
+    install:
+        - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+        - cd C:\tools\vcpkg
+        - git pull
+        - .\bootstrap-vcpkg.bat
+    before_build:                
+        - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
+        - vcpkg integrate install
+        - cd %APPVEYOR_BUILD_FOLDER%
+    cache: 
+        - c:/tools/vcpkg
     
 -
     matrix:
         only:
             - image: Ubuntu
     environment:
-        - VCPKG_ROOT: /home/vcpkg
+        VCPKG_ROOT: /home/vcpkg
     before_build:
         - pwd
         - cd /home
