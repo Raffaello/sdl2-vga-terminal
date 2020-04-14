@@ -33,7 +33,7 @@ for:
 
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-    - sh: sudo apt-get -y install ninja-build
+    #- sh: sudo apt-get -y --purge remove ninja-build
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -51,6 +51,7 @@ before_build:
     - vcpkg integrate install
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh: cd $APPVEYOR_BUILD_FOLDER
+    - sh: ninja --version
 
 cache: C:\tools\vcpkg\
 
