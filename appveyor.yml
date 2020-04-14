@@ -53,27 +53,31 @@ for:
             - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
             - vcpkg integrate install
             - cd %APPVEYOR_BUILD_FOLDER%
+        cache: 
+            - c:/tools/vcpkg
     
 -
     matrix:
         only:
             - image: Ubuntu
     environment:
-        - VCPKG_ROOT: ${PWD}/vcpkg
+        - VCPKG_ROOT: /home/vcpkg
     before_build:
         - pwd
+        - cd /home
         - git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
         - pwd
         - ./bootstrap-vcpkg.sh
         - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-linux
         - vcpkg integrate install
         - cd %APPVEYOR_BUILD_FOLDER%
+    cache:
+        - /home/vcpkg
 
 init:
     - ninja --version
 
-cache: 
-    - %VCPKG_ROOT%
+
 
 build_script:
     - mkdir out
