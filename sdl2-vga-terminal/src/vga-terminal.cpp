@@ -1,5 +1,5 @@
 #include <vga-terminal.h>
-#include <VgaTerminal.hpp>
+#include "VgaTerminal.hpp"
 
 VGA_Terminal* VGA_TERMINAL_init()
 {

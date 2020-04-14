@@ -1,10 +1,9 @@
-#include <VgaTerminal.hpp>
+#include "VgaTerminal.hpp"
 #include <typeinfo>
 #include <SDL2/SDL_assert.h>
 #include <stdexcept>
-#include <vgafonts.h>
-#include <vgapalette.h>
-#include <tuple>
+#include "vgafonts.h"
+#include "vgapalette.h"
 
 constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
@@ -33,7 +32,7 @@ bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
 
 VgaTerminal::~VgaTerminal()
 {
-    if (NULL != _cursorTimer) {
+    if (0 != _cursorTimer) {
         SDL_RemoveTimer(_cursorTimer);
     }
 }

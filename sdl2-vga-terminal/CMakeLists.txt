@@ -51,9 +51,11 @@ target_include_directories(vga-terminal-lib PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_sources(vga-terminal-lib PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
-target_link_libraries(vga-terminal-lib vga-terminal)
+target_link_libraries(vga-terminal-lib SDL2::SDL2 SDL2::SDL2main)
 
 
 ############################## Main Example ##################################
