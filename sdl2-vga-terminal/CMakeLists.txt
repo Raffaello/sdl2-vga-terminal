@@ -5,7 +5,7 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-## Shared code among exe and tests
+################ Shared code among exe and tests ####################
 add_library(vga-terminal OBJECT)
 target_sources(vga-terminal PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -20,7 +20,7 @@ elseif (UNIX)
     target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
 endif()
 
-# SO lib
+############################ Shared lib ###########################
 include(GenerateExportHeader)
 add_library(vga-terminal-lib SHARED)
 add_dependencies(vga-terminal-lib vga-terminal)
@@ -56,32 +56,27 @@ target_include_directories(vga-terminal-lib PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 target_sources(vga-terminal-lib PRIVATE
-    #$<TARGET_OBJECTS:vga-terminal> 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
 target_link_libraries(vga-terminal-lib vga-terminal)
 
 
-# Add source to this project's executable.
+############################## Main Example ##################################
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
 add_dependencies(${PROJECT_NAME} vga-terminal) 
 target_link_libraries(${PROJECT_NAME} vga-terminal)
 
 
-# using the DLL with lazy loading, so it can be unloaded.
+################## C example using SO/DLL with lazy loading ##################
 add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.c")
 #add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
 target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
-#target_include_directories(${PROJECT_NAME}-so
-   #PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-    # The location of the headers before installation 
-    #$<BUILD_INTERFACE: $<TARGET_FILE_DIR:vga-terminal-lib>>
-    # The location of the headers after installation
-    #$<INSTALL_INTERFACE:include>
-#)
-
 if(MSVC)
-    target_link_options(${PROJECT_NAME}-so PUBLIC "/INCREMENTAL" "/DELAYLOAD:$<TARGET_FILE_NAME:vga-terminal-lib>" "/DELAY:UNLOAD")
+    target_link_options(${PROJECT_NAME}-so PUBLIC 
+        "/INCREMENTAL" 
+        "/DELAYLOAD:$<TARGET_FILE_NAME:vga-terminal-lib>" 
+        "/DELAY:UNLOAD"
+    )
 endif()
 
 # tests
