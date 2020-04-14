@@ -5,7 +5,7 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    - Visual Studio 2019
+    #- Visual Studio 2019
     - Ubuntu
 
 platform:
@@ -40,7 +40,7 @@ install:
     
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh: cd /home && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
+    - sh: ${PWD} && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh: ./bootstrap-vcpkg.bat
