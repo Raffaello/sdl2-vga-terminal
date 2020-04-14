@@ -27,11 +27,11 @@ for:
            - platform: x86
     environment:
         INIT_VS: vcvars32.bat
- -
-    matrix:
-        only:
-            - image: Ubuntu
-    cache: /home/vcpkg
+# -
+#    matrix:
+#        only:
+#            - image: Ubuntu
+#    cache: /home/vcpkg
 
 install:
     - cmd: if %PLATFORM% == "x64" echo "64 bits"
@@ -50,8 +50,8 @@ before_build:
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-cache: 
-    - C:\tools\vcpkg\
+#cache: 
+#    - C:\tools\vcpkg\
 
 build_script:
     - mkdir out
