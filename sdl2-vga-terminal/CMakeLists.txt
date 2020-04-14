@@ -4,7 +4,8 @@ set (CMAKE_CXX_STANDARD 17)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-## Shared code among exe and tests
+
+################ Shared code among exe and tests #############################
 add_library(vga-terminal OBJECT)
 target_sources(vga-terminal PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -18,11 +19,65 @@ if (MSVC)
 elseif (UNIX)
     target_link_libraries(vga-terminal PUBLIC  ${SDL2_LIBRARIES})
 endif()
-# Add source to this project's executable.
+
+############################ Shared lib ######################################
+include(GenerateExportHeader)
+add_library(vga-terminal-lib SHARED)
+add_dependencies(vga-terminal-lib vga-terminal)
+generate_export_header(
+    vga-terminal-lib
+    BASE_NAME vga-terminal-lib
+    EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
+    EXPORT_FILE_NAME vga-terminal-export.h
+    STATIC_DEFINE vga-terminal-lib_BUILD_AS_STATIC
+)
+install(
+    TARGETS vga-terminal-lib 
+    EXPORT vga-terminal-lib-config
+    DESTINATION lib
+    PUBLIC_HEADER DESTINATION inc
+)
+#export(TARGETS vga-terminal-lib
+#    FILE ${CMAKE_BINARY_DIR}/vga-terminal.cmake
+#)
+
+install(FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
+    $<TARGET_FILE_DIR:vga-terminal-lib>/vga-terminal-export.h 
+    DESTINATION inc #${INCLUDE_INSTALL_DIR}
+)
+
+#install(EXPORT
+#    vga-terminal-lib-config DESTINATION cmake
+#)
+target_include_directories(vga-terminal-lib PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal-lib>>
+    $<INSTALL_INTERFACE:include>
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
+target_sources(vga-terminal-lib PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
+)
+target_link_libraries(vga-terminal-lib vga-terminal)
+
+
+############################## Main Example ##################################
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
+add_dependencies(${PROJECT_NAME} vga-terminal) 
 target_link_libraries(${PROJECT_NAME} vga-terminal)
-target_include_directories(${PROJECT_NAME} PRIVATE .)
-#target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_14)
+
+
+################## C example using SO/DLL with lazy loading ##################
+add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.c")
+add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
+target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
+if(MSVC)
+    target_link_options(${PROJECT_NAME}-so PUBLIC 
+        "/INCREMENTAL" 
+        "/DELAYLOAD:$<TARGET_FILE_NAME:vga-terminal-lib>" 
+        "/DELAY:UNLOAD"
+    )
+endif()
 
 # tests
 add_subdirectory("test")

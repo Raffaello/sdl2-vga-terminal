@@ -18,7 +18,7 @@ configuration:
 
 environment:
     INIT_VS: vcvars32.bat
-    BUILD_CMAKE: Win32
+    #BUILD_CMAKE: Win32
 
 for:
  -
@@ -27,13 +27,14 @@ for:
             - platform: x64
     environment:
         INIT_VS: vcvars64.bat
-        BUILD_CMAKE: x64
+        #BUILD_CMAKE: x64
   
 #matrix:
 #  fast_finish: true
 
 install:
     - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
+    - ninja --version
     
 before_build:
     - cd C:\tools\vcpkg
@@ -44,14 +45,16 @@ before_build:
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-cache: c:\tools\vcpkg\
+cache: 
+    - C:\tools\vcpkg\
 
 build_script:
     - mkdir out
     - cd out
-    - cmake -G "Visual Studio 16 2019" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    #- cmake -G "Ninja" -A %BUILD_CMAKE%  -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
 test_script:
     - cmake --build .
     - ctest -V
-
+    - cmake -P cmake_install.cmake

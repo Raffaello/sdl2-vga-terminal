@@ -1,8 +1,8 @@
 // sdl2-vga-terminal.cpp : Defines the entry point for the application.
 //
 
-#include "sdl2-vga-terminal.h"
-
+#include <iostream>
+#include <VgaTerminal.hpp>
 
 using namespace std;
 

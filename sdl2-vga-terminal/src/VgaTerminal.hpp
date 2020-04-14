@@ -41,8 +41,6 @@ public:
     static const videoMode_t mode3;
 
     VgaTerminal() = delete;
-    // declared otherwise not compiling... not implemented TODO: clear it,
-    VgaTerminal(const VgaTerminal& t);
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     virtual ~VgaTerminal();
@@ -62,7 +60,6 @@ public:
     void render(const bool force = false);
     void clear() noexcept;
   
-
     void moveCursorLeft() noexcept;
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
@@ -92,7 +89,7 @@ private:
     bool _cursonOn = true;
     SDL_TimerID _cursorTimer = 0;
     
-    // these should beparameters?
+    // these should be parameters?
     uint8_t cur_shape = 219;
     uint32_t cursor_time = 1000;
 
