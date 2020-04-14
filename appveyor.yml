@@ -23,7 +23,7 @@ environment:
     #BUILD_CMAKE: Win32
 
 for:
- -
+-
     matrix:
         only:
             - platform: x64
@@ -34,14 +34,13 @@ for:
     matrix:
         only:
             - platform: x86
-             - image: Visual Studio 2019
+            - image: Visual Studio 2019
     environment:
         INIT_VS: vcvars32.bat
 -
     matrix:
         only:
-            - image:
-                - Visual Studio 2019
+            - image: Visual Studio 2019
         environment:
             - VCPKG_ROOT: c:/tools/vcpkg
             - VCPKG: %VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
