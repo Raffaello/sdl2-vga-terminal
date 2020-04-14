@@ -9,16 +9,16 @@ image:
     - Ubuntu
 
 platform:
-  - x86
+  #- x86
   - x64
 
 configuration:
   - Debug
-  - Release
+  #- Release
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
-
+    APPVEYOR_SSH_KEY: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDknu # remove
 matrix:
     allow_failures:
         - platform: x86
@@ -31,8 +31,16 @@ for:
             - image: Ubuntu
     cache: /home/appveyor/vcpkg
 
+
+  
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+    - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e - #remove
+
+    # remove below after
+on_finish:
+  - sh: export APPVEYOR_SSH_BLOCK=true
+  - sh: curl -sflL 'https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-ssh.sh' | bash -e -
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -64,7 +72,7 @@ build_script:
 
 
     - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -G "ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=-DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=-DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
 test_script:
     - cmake --build .
