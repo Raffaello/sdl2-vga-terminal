@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.8)
 find_package(GTest CONFIG REQUIRED)
 
 if (MSVC)
-    find_package(SDL2-image CONFIG REQUIRED)
+    find_package(sdl2-image CONFIG REQUIRED)
 elseif(UNIX)
     include(FindPkgConfig)
     PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
