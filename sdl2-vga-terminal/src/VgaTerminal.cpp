@@ -32,7 +32,7 @@ bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
 
 VgaTerminal::~VgaTerminal()
 {
-    if (0 != _cursorTimer) {
+    if (_cursorTimer != 0) {
         SDL_RemoveTimer(_cursorTimer);
     }
 }
@@ -408,5 +408,4 @@ void VgaTerminal::scrollDownGrid() noexcept
         _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;
     }
 }
-
 
