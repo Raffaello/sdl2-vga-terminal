@@ -22,7 +22,7 @@ environment:
 
 for:
 -
-    matri:
+    matrix:
         only:
            - platform: x86
     environment:
