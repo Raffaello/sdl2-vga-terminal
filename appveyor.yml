@@ -19,7 +19,8 @@ configuration:
   - Release
 
 environment:
-    INIT_VS: vcvars32.bat
+    VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
+    #INIT_VS: vcvars32.bat
     #BUILD_CMAKE: Win32
 
 for:
@@ -43,7 +44,6 @@ for:
             - image: Visual Studio 2019
         environment:
             - VCPKG_ROOT: c:/tools/vcpkg
-            - VCPKG: %VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake
         install:
             - call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\%INIT_VS%"
             - cd C:\tools\vcpkg
@@ -60,7 +60,6 @@ for:
             - image: Ubuntu
     environment:
         - VCPKG_ROOT: ${PWD}/vcpkg
-        - VCPKG: %VCPKG_ROOT%/
     before_build:
         - pwd
         - git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
@@ -79,7 +78,7 @@ cache:
 build_script:
     - mkdir out
     - cd out
-    - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=%VCPKG" ..
+    - cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/%VCPKG_SCRIPT%" ..
 
 test_script:
     - cmake --build .
