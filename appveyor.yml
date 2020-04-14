@@ -25,24 +25,24 @@ install:
     
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh: cd /home && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
+ #   - sh: cd /home && git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
-    - sh: ./bootstrap-vcpkg.bat
+ #   - sh: ./bootstrap-vcpkg.bat
     - vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
     - vcpkg integrate install
     - cd %APPVEYOR_BUILD_FOLDER%
 
 
-cache: 
-    - cmd: C:\tools\vcpkg\
-    - sh: /home/vcpkg
+#cache: 
+#    - cmd: C:\tools\vcpkg\
+#    - sh: /home/vcpkg
 
 build_script:
     - mkdir out
     - cd out
     - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/vcpkg/%VCPKG_SCRIPT% ..
+#    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=/home/vcpkg/%VCPKG_SCRIPT% ..
 
 test_script:
     - cmake --build .
