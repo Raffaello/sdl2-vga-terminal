@@ -69,7 +69,7 @@ target_link_libraries(${PROJECT_NAME} vga-terminal)
 
 
 # using the DLL with lazy loading, so it can be unloaded.
-add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.cpp")
+add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.c")
 #add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
 target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
 #target_include_directories(${PROJECT_NAME}-so
@@ -81,7 +81,7 @@ target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
 #)
 
 if(MSVC)
-    target_link_options(${PROJECT_NAME}-so PUBLIC "/INCREMENTAL" "/DELAYLOAD:$<TARGET_FILE:vga-terminal-lib>" "/DELAY:UNLOAD")
+    target_link_options(${PROJECT_NAME}-so PUBLIC "/INCREMENTAL" "/DELAYLOAD:$<TARGET_FILE_NAME:vga-terminal-lib>" "/DELAY:UNLOAD")
 endif()
 
 # tests
