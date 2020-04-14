@@ -5,7 +5,7 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    - Visual Studio 2019
+    #- Visual Studio 2019
     - Ubuntu
 
 platform:
@@ -56,6 +56,13 @@ cache: C:\tools\vcpkg\
 build_script:
     - mkdir out
     - cd out
+    
+    - sh: ls /home/appveyor/vcpkg/scripts/buildsystems/
+    - sh: ls /home/appveyor/vcpkg/scripts/
+    - sh: ls /home/appveyor/vcpkg/
+    - sh: ls /home/appveyor/
+
+
     - cmd : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
     - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=-DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
