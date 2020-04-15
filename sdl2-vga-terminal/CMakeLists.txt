@@ -76,5 +76,12 @@ if(MSVC)
     )
 endif()
 
-# tests
+
+################## C example using SO/DLL run-time loading ##################
+add_executable (${PROJECT_NAME}-load-so "sdl2-vga-terminal-load-so.c")
+target_link_libraries(${PROJECT_NAME}-load-so PUBLIC SDL2::SDL2 SDL2::SDL2main)
+
+
+
+############################### tests
 add_subdirectory("test")
