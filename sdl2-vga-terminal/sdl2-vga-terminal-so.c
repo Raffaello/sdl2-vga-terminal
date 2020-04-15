@@ -35,7 +35,7 @@ int main(int argc, char* args[])
 	VGA_TERMINAL_destroy(term);
 
 #ifdef WIN32
-#if _DEBUG
+#ifndef NDEBUG
 #define PFIX "d"
 #else
 #define PFIX ""
