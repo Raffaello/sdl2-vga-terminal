@@ -35,7 +35,12 @@ int main(int argc, char* args[])
 	VGA_TERMINAL_destroy(term);
 
 #ifdef WIN32
-	int t = __FUnloadDelayLoadedDLL2("vga-terminal-libd.dll");
+#if _DEBUG
+#define PFIX "d"
+#else
+#define PFIX ""
+#endif
+	int t = __FUnloadDelayLoadedDLL2("vga-terminal-lib" PFIX ".dll");
 	printf("unloaded? : %d\n", t);
 	getchar();
 #endif // WIN32
