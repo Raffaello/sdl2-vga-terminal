@@ -15,7 +15,7 @@ else()
     add_test(UnitTestsInMain runUnitTests)
 endif()
 
-target_link_libraries(runUnitTests PRIVATE vga-terminal GTest::gtest)
+target_link_libraries(runUnitTests PRIVATE vga-terminal GTest::gtest GTest::gmock)
 
 add_custom_command(TARGET runUnitTests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runUnitTests>

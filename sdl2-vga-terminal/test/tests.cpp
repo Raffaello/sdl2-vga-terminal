@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
 
@@ -49,6 +50,9 @@ TEST(VgaTerminal, ScrollDown) {
 
 TEST(VgaTerminal, SetViewportNull)
 {
+	using ::testing::StartsWith;
+	using ::testing::EndsWith;
+
 	SDL_Init(SDL_INIT_VIDEO);
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
@@ -57,35 +61,39 @@ TEST(VgaTerminal, SetViewportNull)
 	auto r = term.getViewport();
 	term.setViewPort(0, 0, 0, 0);
 	std::string output = testing::internal::GetCapturedStderr();
-	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	EXPECT_THAT(output, StartsWith("WARN: ["));
+	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
 	
 	auto e = term.getViewport();
 	EXPECT_EQ(r.x, e.x);
 	EXPECT_EQ(r.y, e.y);
 	EXPECT_EQ(r.w, e.w);
 	EXPECT_EQ(r.h, e.h);
-
 	term.setViewPort(r);
 	e = term.getViewport();
 	EXPECT_EQ(r.x, e.x);
 	EXPECT_EQ(r.y, e.y);
 	EXPECT_EQ(r.w, e.w);
 	EXPECT_EQ(r.h, e.h);
-
+	
 	testing::internal::CaptureStderr();
 	term.setViewPort(0, 0, 1, 0);
 	output = testing::internal::GetCapturedStderr();
-	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	EXPECT_THAT(output, StartsWith("WARN: ["));
+	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
+
 	e = term.getViewport();
 	EXPECT_EQ(r.x, e.x);
 	EXPECT_EQ(r.y, e.y);
 	EXPECT_EQ(r.w, e.w);
 	EXPECT_EQ(r.h, e.h);
-
+	
 	testing::internal::CaptureStderr();
 	term.setViewPort(0, 0, 0, 1);
 	output = testing::internal::GetCapturedStderr();
-	EXPECT_EQ("WARN: [class VgaTerminal] setViewPort: viewport too small.\n", output);
+	EXPECT_THAT(output, StartsWith("WARN: ["));
+	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
+
 	e = term.getViewport();
 	EXPECT_EQ(r.x, e.x);
 	EXPECT_EQ(r.y, e.y);
@@ -200,5 +208,6 @@ TEST(VgaTerminal, ViewportMoveCursorBorder) {
 
 int main(int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
+
 	return RUN_ALL_TESTS();
 }
