@@ -38,6 +38,7 @@ jobs:
       displayName: cmake build
     - script: cd build && ctest -V
       displayName: cmake test (ctest)
+      
 - job: Windows
   pool:
     vmImage: 'windows-latest'
