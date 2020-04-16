@@ -36,5 +36,5 @@ jobs:
       displayName: "Cmake task (generator)"
     - script: cd build && cmake --build .
       displayName: cmake build
-    - script: cd build && ctest
+    - script: cd build && ctest -V
       displayName: cmake test (ctest)
