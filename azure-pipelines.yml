@@ -6,12 +6,28 @@
 trigger:
 - master
 
+variables:
+  CONFIGURATION: 'Debug'
+
 jobs:
 - job: Linux
-    pool:
-        vmImage: 'ubuntu-latest'
-    steps:
-        - script: ${PWD}
-          displayName: "current dir"
-        - task: CMake@1
-          displayName: "Cmake task"
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - script: echo ${PWD}
+      displayName: "current dir"
+    - script: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        ./bootstrap-vcpkg.sh
+        ./vcpkg install sdl2 sdl2-image gtest
+        ./vcpkg integrate install
+        cd ..
+        mkdir build
+        cd build
+
+    - task: CMake@1
+      inputs:
+        cmakeArgs: '-G "Ninja" CMAKE_BUILD_TYPE=${CONFIGURATION} DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s
+/vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+      displayName: "Cmake task"
