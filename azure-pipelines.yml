@@ -6,6 +6,9 @@
 trigger:
 - master
 
+variables:
+  CONFIGURATION: 'Debug'
+
 jobs:
 - job: Linux
   pool:
