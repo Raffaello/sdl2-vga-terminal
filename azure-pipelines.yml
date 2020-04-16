@@ -53,7 +53,7 @@ stages:
         displayName : "vcpkg configure"
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          vcpkg install sdl2 sdl2-image gtest
+          vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
           vcpkg integrate install
           cd ..
           mkdir build
