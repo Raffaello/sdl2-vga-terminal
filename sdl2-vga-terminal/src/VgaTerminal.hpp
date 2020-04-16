@@ -92,7 +92,8 @@ private:
     // these should be parameters?
     uint8_t cur_shape = 219;
     uint32_t cursor_time = 1000;
-
+ 
+    uint32_t _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void incrementCursorPosition() noexcept;

@@ -32,8 +32,8 @@ bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
 
 VgaTerminal::~VgaTerminal()
 {
-    if (_cursorTimer != 0) {
-        SDL_RemoveTimer(_cursorTimer);
+    if (_timerId != 0) {
+        SDL_RemoveTimer(_timerId);
     }
 }
 
@@ -69,7 +69,8 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
     
     if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
-        if (SDL_AddTimer(cursor_time, _timerCallBack, this) == 0) {
+        _timerId = SDL_AddTimer(cursor_time, _timerCallBack, this);
+        if (_timerId == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
     }
