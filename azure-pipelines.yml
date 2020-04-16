@@ -53,8 +53,6 @@ stages:
           vcpkg integrate install
           cd ..
           mkdir build
-      - script: ninja --version || echo "not found"
-        displayName: "check Ninja"
       - script: echo %CD%
         displayName: "check curent dir"
       - task: CMake@1
