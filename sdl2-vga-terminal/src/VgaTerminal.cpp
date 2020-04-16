@@ -45,9 +45,11 @@ VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int
 
 VgaTerminal::VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags) :
     Window(title, width, height, winFlags, drvIndex, renFlags),
-    _viewPortWidth(mode3.tw), _viewPortHeight(mode3.th), _viewPortX(0), _viewPortY(0)
+    _viewPortX(0), _viewPortY(0)
 {
     mode = mode3;
+    _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
+
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
         throw std::runtime_error("unable to set logical rendering");
     }
@@ -349,7 +351,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
 {
     SDL_Event event;
     SDL_UserEvent userevent;
-    VgaTerminal* that = (VgaTerminal*)param;
+    VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
     that->_cursonOn = !that->_cursonOn;
     userevent.type = SDL_USEREVENT;

@@ -10,7 +10,9 @@
 typedef void VGA_Terminal;
 
 #ifdef WIN32
+
 #include <Windows.h>
+
 typedef void(__cdecl* PROCWRITEXY)(VGA_Terminal*, uint8_t, uint8_t, char* str, uint8_t, uint8_t);
 typedef void(__cdecl* PROCDESTROY)(VGA_Terminal*);
 typedef void(__cdecl* PROCRENDER)(VGA_Terminal*);
@@ -18,28 +20,36 @@ typedef VGA_Terminal* (__cdecl* PROCINIT)();
 #endif
 
 #ifdef linux
+
 #include <dlfcn.h>
+
 #endif
 
 #if defined(DEBUG) || !defined(NDBEBUG)
+
 #define VGA_SO_NAME "vga-terminal-libd"
+
 #else
+
 #define VGA_SO_NAME "vga-terminal-lib"
+
 #endif
 
 #ifdef WIN32
+
 void win32()
 {
-	const char* soname = VGA_SO_NAME ".dll";
+	const char* soname = TEXT(VGA_SO_NAME ".dll");
 	HINSTANCE hinstLib;
 	PROCINIT ProcAddInit = NULL;
 	PROCDESTROY ProcAddDestroy = NULL;
 	PROCWRITEXY ProcAddWriteXY = NULL;
 	PROCRENDER ProcAddRender = NULL;
 	BOOL fFreeResult, fRunTimeLinkSuccess = FALSE;
+	
 	printf("loading library: %s\n", soname);
 
-	hinstLib = LoadLibrary(TEXT("vga-terminal-libd.dll"));
+	hinstLib = LoadLibrary(soname);
 	if (hinstLib != NULL)
 	{
 		ProcAddInit = (PROCINIT)GetProcAddress(hinstLib, "VGA_TERMINAL_init");
@@ -59,9 +69,14 @@ void win32()
 			ProcAddDestroy(term);
 		}
 		// Free the DLL module.
-
 		fFreeResult = FreeLibrary(hinstLib);
-	}
+		if (!fFreeResult) {
+			fprintf(stderr, "unable to unload library\n");
+		}
+		else {
+			printf("library unloaded.\n");
+		}
+	} 
 
 	// If unable to call the DLL function, use an alternative.
 	if (!fRunTimeLinkSuccess) {
@@ -69,7 +84,6 @@ void win32()
 
 		fprintf(stderr, "failed to load the DLL. Error %d\n", dw);
 	}
-
 }
 #endif
 

@@ -55,15 +55,15 @@ but that is just a convention.
 
 Some must and ideas:
 
--  move the examples in `examples` folder?
--  clear with bgCol, and only viewport.
--  complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
--  CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
--  decouple vga modes
--  DAC Palette changing
--  Cursor display
--  doxygen / document the code
--  use streams 
--  read
--  unicode VGA font
--  some functions can be optimized using SDL_Surface functions/SDL functions
+-   move the examples in `examples` folder?
+-   clear with bgCol, and only viewport.
+-   complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
+-   CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
+-   decouple vga modes
+-   DAC Palette changing
+-   Cursor display
+-   doxygen / document the code
+-   use streams 
+-   read
+-   unicode VGA font
+-   some functions can be optimized using SDL_Surface functions/SDL functions

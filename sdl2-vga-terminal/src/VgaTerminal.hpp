@@ -23,7 +23,7 @@ public:
         uint8_t* font;
         int  numColors;
         uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
-    } videoMode_t;
+    };
 
     // TODO keep only the 3 uint8_t here,
     //      create a private one that embed this one and the other 2 bools.
