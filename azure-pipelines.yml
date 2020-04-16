@@ -32,6 +32,6 @@ jobs:
       displayName: "check curent dir"
     - task: CMake@1
       inputs:
-        cmakeArgs: '-G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s
-/vcpkg/scripts/buildsystems/vcpkg.cmake ..'
+        cmakeArgs: '-DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s
+/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Ninja" ..'
       displayName: "Cmake task"
