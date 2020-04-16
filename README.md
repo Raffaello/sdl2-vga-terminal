@@ -8,7 +8,7 @@
 
 It is just a VGA font terminal using SDL2.
 
-the VGA fonts are related to a [vgabios](http://savannah.nongnu.org/projects/vgabios/) project.
+the VGA fonts are related to [vgabios](http://savannah.nongnu.org/projects/vgabios/) project.
 
 At the moment support only mode 3.
 
@@ -45,11 +45,11 @@ It could be a little bit risky, but it is a way to have generated expected resul
 
 The test suite take advantages of the option and will be compiled accordingly based on "dumping" or "testing".
 
-please note if you are dumping the snapshot, you have to copy back to the `test/snapshot` directory to make the usable.
+please note if you are dumping the snapshot, you have to copy back to the `test/snapshot` directory to make them usable.
 
 The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
-but doesn't really matter can be used any name, it all depends how the test is written of course.
+but that is just a convention.
 
 ## TODO 
 
