@@ -30,7 +30,7 @@ int main(int argc, char* args[])
 	while (quit--) {
 		VGA_TERMINAL_render(term);
 		SDL_Delay(1000);
-	}
+	};
 
 	VGA_TERMINAL_destroy(term);
 

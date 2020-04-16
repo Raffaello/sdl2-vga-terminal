@@ -23,7 +23,7 @@ public:
         uint8_t* font;
         int  numColors;
         uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
-    } videoMode_t;
+    };
 
     // TODO keep only the 3 uint8_t here,
     //      create a private one that embed this one and the other 2 bools.
@@ -92,7 +92,8 @@ private:
     // these should be parameters?
     uint8_t cur_shape = 219;
     uint32_t cursor_time = 1000;
-
+ 
+    uint32_t _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void incrementCursorPosition() noexcept;
