@@ -1,0 +1,17 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+jobs:
+- job: Linux
+    pool:
+        vmImage: 'ubuntu-latest'
+    steps:
+        - script: ${PWD}
+          displayName: "current dir"
+        - task: CMake@1
+          displayName: "Cmake task"
