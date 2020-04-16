@@ -8,14 +8,13 @@
 
 It is just a VGA font terminal using SDL2.
 
-the VGA fonts are related to a `vgabios` project (http://savannah.nongnu.org/projects/vgabios/).
+the VGA fonts are related to [vgabios](http://savannah.nongnu.org/projects/vgabios/) project.
 
 At the moment support only mode 3.
 
 It should be on 16 colors in the classic way, but can support more thanks to SDL2.
 
 It is just a matter of fonts and a terminal grid for displaying texts.
-
 
 ## Compiling
 
@@ -28,14 +27,11 @@ SDL2 Video sub-system has to be initialized before using `VgaTerminal` class.
 for extended ASCII chars to use as literal (eg: char 205), it is required to save the source code with 
 the codepage 437 encoding (OEM United States / Extended ASCII / DOS Terminal).
 
-
-There is a demo usage as part of this cmake compilation too.
-
+There are few examples usage as part of this cmake compilation too.
 
 ## Screenshot
 
 This screenshot is also used in the snapshot test.
-
 
 ![alt text](./sdl2-vga-terminal/test/snapshot/VgaTerminal.Snapshot.png "Title")
 
@@ -49,25 +45,25 @@ It could be a little bit risky, but it is a way to have generated expected resul
 
 The test suite take advantages of the option and will be compiled accordingly based on "dumping" or "testing".
 
-please note if you are dumping the snapshot, you have to copy back to the `test/snapshot` directory to make the usable.
+please note if you are dumping the snapshot, you have to copy back to the `test/snapshot` directory to make them usable.
 
 The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
-but doesn't really matter can be used any name, it all depends how the test is written of course.
+Just as a convention.
 
 ## TODO 
 
-Some must and ides:
+Some must and ideas:
 
-- clear with bgCol, and only viewport.
-- complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
-- CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
-- decouple vga modes
-- DAC Palette changing
-- Cursor display
-- doxygen / document the code
-- use streams 
-- read
-- unicode VGA font
-
-- some functions can be optimized using SDL_Surface functions/SDL functions
+-   move the examples in `examples` folder?
+-   clear with bgCol, and only viewport.
+-   complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
+-   CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
+-   decouple vga modes
+-   DAC Palette changing
+-   Cursor display
+-   doxygen / document the code
+-   use streams 
+-   read
+-   unicode VGA font
+-   some functions can be optimized using SDL_Surface functions/SDL functions
