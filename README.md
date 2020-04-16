@@ -49,7 +49,7 @@ please note if you are dumping the snapshot, you have to copy back to the `test/
 
 The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
-but that is just a convention.
+Just as a convention.
 
 ## TODO 
 
