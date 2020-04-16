@@ -25,7 +25,7 @@ jobs:
         cd ..
         mkdir build
         cd build
-    - script: ninja --version
+    - script: ninja --version || echo "not found"
       displayName: "check Ninja"
 
     - script: echo ${PWD}
@@ -33,5 +33,5 @@ jobs:
     - task: CMake@1
       inputs:
         cmakeArgs: '-DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s
-/vcpkg/scripts/buildsystems/vcpkg.cmake -G "Ninja" ..'
+/vcpkg/scripts/buildsystems/vcpkg.cmake ..'
       displayName: "Cmake task"
