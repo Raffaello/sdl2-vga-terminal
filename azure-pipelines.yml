@@ -16,7 +16,7 @@ stages:
       pool:
         vmImage: 'ubuntu-latest'
       steps:
-      - script: echo ${PWD}
+      - bash: echo ${PWD}
         displayName: "current dir"
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
@@ -27,6 +27,7 @@ stages:
           cd ..
           mkdir build
           cd build
+        displayName: "vcpkg configure"
       - script: ninja --version || echo "not found"
         displayName: "check Ninja"
 
@@ -49,10 +50,13 @@ stages:
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           bootstrap-vcpkg.bat
+        displayName : "vcpkg configure"
+      - script: |
           vcpkg install sdl2 sdl2-image gtest
           vcpkg integrate install
           cd ..
           mkdir build
+        displayName : "vcpkg install & integrate"
       - script: echo %CD%
         displayName: "check curent dir"
       - task: CMake@1
