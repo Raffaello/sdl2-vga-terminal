@@ -33,4 +33,8 @@ jobs:
     - task: CMake@1
       inputs:
         cmakeArgs: '-DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..'
-      displayName: "Cmake task"
+      displayName: "Cmake task (generator)"
+    - script: cd build && cmake --build .
+      displayName: cmake build
+    - script: cd build && ctest
+      displayName: cmake test (ctest)
