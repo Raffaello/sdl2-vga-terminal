@@ -10,7 +10,7 @@ class VgaTerminal : public Window
 {
 
 public:
-    typedef struct videoMode_t
+    typedef struct
     {
         uint8_t  mode; // video mode (only mode 3 available at the moment)
         //uint16_t sw;   // screen   width
@@ -23,7 +23,7 @@ public:
         uint8_t* font;
         int  numColors;
         uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
-    };
+    } videoMode_t;
 
     // TODO keep only the 3 uint8_t here,
     //      create a private one that embed this one and the other 2 bools.
