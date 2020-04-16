@@ -4,7 +4,7 @@
 Window::Window(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
 {
 	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO) {
-		throw std::runtime_error("video wasn't inited");
+		throw std::runtime_error(std::string("video wasn't inited. Error: ") + SDL_GetError());
 	}
 
 	if ((winFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {

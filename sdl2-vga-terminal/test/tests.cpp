@@ -9,7 +9,9 @@ TEST(VgaTerminal, CannotInit) {
 }
 
 TEST(VgaTerminal, HelloWorld_Window) {
-	SDL_Init(SDL_INIT_VIDEO);
+	SDL_SetMainReady(); // Not required, but for CI test.
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 	
@@ -20,7 +22,8 @@ TEST(VgaTerminal, HelloWorld_Window) {
 }
 
 TEST(VgaTerminal, HelloWorld_Text) {
-	SDL_Init(SDL_INIT_VIDEO);
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -34,7 +37,8 @@ TEST(VgaTerminal, HelloWorld_Text) {
 }
 
 TEST(VgaTerminal, ScrollDown) {
-	SDL_Init(SDL_INIT_VIDEO);
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -53,7 +57,8 @@ TEST(VgaTerminal, SetViewportNull)
 	using ::testing::StartsWith;
 	using ::testing::EndsWith;
 
-	SDL_Init(SDL_INIT_VIDEO);
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -104,7 +109,8 @@ TEST(VgaTerminal, SetViewportNull)
 
 TEST(VgaTerminal, SetViewport1)
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -125,7 +131,8 @@ TEST(VgaTerminal, SetViewport1)
 
 TEST(VgaTerminal, SetViewport2)
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -145,8 +152,10 @@ TEST(VgaTerminal, SetViewport2)
 	SDL_Quit();
 }
 
-TEST(VgaTerminal, moveCursorCircle) {
-	SDL_Init(SDL_INIT_VIDEO);
+TEST(VgaTerminal, moveCursorCircle)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -166,8 +175,10 @@ TEST(VgaTerminal, moveCursorCircle) {
 	SDL_Quit();
 }
 
-TEST(VgaTerminal, moveCursorBorder) {
-	SDL_Init(SDL_INIT_VIDEO);
+TEST(VgaTerminal, moveCursorBorder)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -187,8 +198,10 @@ TEST(VgaTerminal, moveCursorBorder) {
 	SDL_Quit();
 }
 
-TEST(VgaTerminal, ViewportMoveCursorBorder) {
-	SDL_Init(SDL_INIT_VIDEO);
+TEST(VgaTerminal, ViewportMoveCursorBorder)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 	term.setViewPort(10, 10, 10, 10);
