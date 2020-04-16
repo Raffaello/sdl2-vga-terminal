@@ -51,7 +51,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
-        throw std::runtime_error("unable to set logical rendering");
+        throw std::runtime_error(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
     }
 
     p.ncolors = mode.numColors;
