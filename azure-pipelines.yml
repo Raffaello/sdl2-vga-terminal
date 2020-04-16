@@ -46,14 +46,13 @@ stages:
       pool:
         vmImage: 'windows-latest'
       steps:
-      - script: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        displayName: "Set Dev Environment x64"
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           bootstrap-vcpkg.bat
         displayName : "vcpkg configure"
       - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           vcpkg install sdl2 sdl2-image gtest
           vcpkg integrate install
           cd ..
@@ -67,8 +66,12 @@ stages:
         displayName: "Cmake task (generator)"
       
       - script: |
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
             cd build
             cmake --build .
         displayName: cmake build
-      - script: cd build && ctest -V
+      - script: |
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+            cd build 
+            ctest -V
         displayName: cmake test (ctest)      
