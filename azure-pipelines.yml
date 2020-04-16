@@ -46,6 +46,8 @@ stages:
       pool:
         vmImage: 'windows-latest'
       steps:
+      - script: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        displayName: "Set Dev Environment x64"
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
@@ -61,9 +63,12 @@ stages:
         displayName: "check curent dir"
       - task: CMake@1
         inputs:
-          cmakeArgs: '-DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..'
+          cmakeArgs: '-DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..'
         displayName: "Cmake task (generator)"
-      - script: cd build && cmake --build .
+      
+      - script: |
+            cd build
+            cmake --build .
         displayName: cmake build
       - script: cd build && ctest -V
         displayName: cmake test (ctest)      
