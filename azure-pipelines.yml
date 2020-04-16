@@ -8,10 +8,10 @@ trigger:
 
 jobs:
 - job: Linux
-    pool:
-        vmImage: 'ubuntu-latest'
-    steps:
-        - script: ${PWD}
-          displayName: "current dir"
-        - task: CMake@1
-          displayName: "Cmake task"
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - script: ${PWD}
+      displayName: "current dir"
+    - task: CMake@1
+      displayName: "Cmake task"
