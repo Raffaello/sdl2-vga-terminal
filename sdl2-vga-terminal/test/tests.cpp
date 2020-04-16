@@ -108,7 +108,6 @@ TEST(VgaTerminal, SetViewport1)
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
-	auto r = term.getViewport();
 	term.setViewPort(0, 0, 1, 1);
 	auto e = term.getViewport();
 	EXPECT_EQ(0, e.x);
