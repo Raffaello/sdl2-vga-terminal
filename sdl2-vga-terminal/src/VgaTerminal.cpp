@@ -59,9 +59,9 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     p.colors = pCol.get();
     for (int i = 0, i3 = 0; i < p.ncolors; i++, i3+=3)
     {
-        p.colors[i].r = RESIZE_VGA_PALETTE(mode.palette[i3 + 2]);
+        p.colors[i].r = RESIZE_VGA_PALETTE(mode.palette[i3 + 0]);
         p.colors[i].g = RESIZE_VGA_PALETTE(mode.palette[i3 + 1]);
-        p.colors[i].b = RESIZE_VGA_PALETTE(mode.palette[i3 + 0]);
+        p.colors[i].b = RESIZE_VGA_PALETTE(mode.palette[i3 + 2]);
         p.colors[i].a = 255;
     }
 
