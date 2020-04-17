@@ -6,9 +6,10 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-############################ Shared lib ######################################
+############################ Shared/Static lib ######################################
+option(BUILD_SHARED_LIBS "build shared library" on)
 include(GenerateExportHeader)
-add_library(vga-terminal-lib SHARED)
+add_library(vga-terminal-lib)
 generate_export_header(
     vga-terminal-lib
     BASE_NAME vga-terminal-lib
