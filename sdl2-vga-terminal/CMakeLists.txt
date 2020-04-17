@@ -6,81 +6,107 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-############################ Shared/Static lib ######################################
-option(BUILD_SHARED_LIBS "build shared library" on)
+
+############################ Shared lib ######################################
 include(GenerateExportHeader)
-add_library(vga-terminal-lib)
+add_library(vga-terminal SHARED)
 generate_export_header(
-    vga-terminal-lib
-    BASE_NAME vga-terminal-lib
+    vga-terminal
+    BASE_NAME vga-terminal
     EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
     EXPORT_FILE_NAME vga-terminal-export.h
     STATIC_DEFINE vga-terminal-lib_BUILD_AS_STATIC
 )
 install(
-    TARGETS vga-terminal-lib 
-    EXPORT vga-terminal-lib-config
+    TARGETS vga-terminal 
+    EXPORT vga-terminal-config
     DESTINATION lib
-    PUBLIC_HEADER DESTINATION inc
+    PUBLIC_HEADER DESTINATION include
 )
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
-    $<TARGET_FILE_DIR:vga-terminal-lib>/vga-terminal-export.h 
-    DESTINATION inc
+    $<TARGET_FILE_DIR:vga-terminal>/vga-terminal-export.h 
+    DESTINATION include
 )
-export(TARGETS vga-terminal-lib
+install(FILES
+    $<TARGET_FILE:SDL2::SDL2>
+    DESTINATION lib
+)
+export(TARGETS vga-terminal 
     FILE ${CMAKE_BINARY_DIR}/vga-terminal.cmake
 )
 install(EXPORT
-    vga-terminal-lib-config DESTINATION cmake
+    vga-terminal-config DESTINATION cmake
 )
-target_include_directories(vga-terminal-lib PUBLIC 
-    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal-lib>>
+target_include_directories(vga-terminal PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_sources(vga-terminal-lib PRIVATE
+target_sources(vga-terminal PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
-target_link_libraries(vga-terminal-lib SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(vga-terminal SDL2::SDL2 SDL2::SDL2main)
+
+
+########################### Static Lib #######################################
+add_library(vga-terminal-static STATIC)
+install(
+    TARGETS vga-terminal-static
+    EXPORT vga-terminal-static-config
+    DESTINATION static/lib
+    PUBLIC_HEADER DESTINATION static/include
+)
+install(FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
+    DESTINATION static/include
+)
+
+export(TARGETS vga-terminal-static
+    FILE ${CMAKE_BINARY_DIR}/vga-terminal-static.cmake
+)
+install(EXPORT
+    vga-terminal-static-config DESTINATION static/cmake
+)
+target_include_directories(vga-terminal-static PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:static/include>
+)
+target_sources(vga-terminal-static PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+)
+target_link_libraries(vga-terminal-static SDL2::SDL2 SDL2::SDL2main)
 
 
 ################ Shared code among exe and tests #############################
-add_library(vga-terminal OBJECT)
-target_sources(vga-terminal PRIVATE 
+add_library(vga-terminal-obj OBJECT)
+target_sources(vga-terminal-obj PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 )
 
-target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
-
-
-############################## Main Example ##################################
-add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
-add_dependencies(${PROJECT_NAME} vga-terminal) 
-target_link_libraries(${PROJECT_NAME} vga-terminal)
-
-
-################## C example using SO/DLL with lazy loading ##################
-add_executable (${PROJECT_NAME}-so "sdl2-vga-terminal-so.c")
-add_dependencies(${PROJECT_NAME}-so vga-terminal-lib) 
-target_link_libraries(${PROJECT_NAME}-so vga-terminal-lib)
-if(MSVC)
-    target_link_options(${PROJECT_NAME}-so PRIVATE 
-        "/INCREMENTAL" 
-        "/DELAYLOAD:$<TARGET_FILE_NAME:vga-terminal-lib>" 
-        "/DELAY:UNLOAD"
+target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+if(WITH_SDL2_STATIC)
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static SDL2::SDL2main)
+else()
+    install(FILES
+        $<TARGET_FILE:SDL2::SDL2>
+        DESTINATION static/lib
     )
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
+endif()
+
+### Examples
+if(WITH_EXAMPLES)
+    add_subdirectory("examples")
 endif()
 
 
-################## C example using SO/DLL run-time loading ##################
-add_executable (${PROJECT_NAME}-load-so "sdl2-vga-terminal-load-so.c")
-target_link_libraries(${PROJECT_NAME}-load-so PUBLIC SDL2::SDL2 SDL2::SDL2main)
-
-
-############################### tests
+############################### tests ########################################
+if(WITH_TEST)
 add_subdirectory("test")
+endif()
