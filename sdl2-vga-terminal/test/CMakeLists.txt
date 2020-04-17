@@ -23,7 +23,7 @@ if (WITH_SNAPSHOT)
     add_executable(runSnapshotTests "snapshotTest.cpp")
     target_link_libraries(runSnapshotTests PRIVATE vga-terminal-obj GTest::gtest SDL2::SDL2_image)
     add_test(SnapshotTestsInMain runSnapshotTests)
-    add_custom_command(TARGET runUnitTests POST_BUILD
+    add_custom_command(TARGET runSnapshotTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSnapshotTests>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runSnapshotTests>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runSnapshotTests>
