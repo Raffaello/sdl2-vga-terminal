@@ -6,6 +6,7 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
+
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
 add_library(vga-terminal SHARED)
@@ -27,7 +28,11 @@ install(FILES
     $<TARGET_FILE_DIR:vga-terminal>/vga-terminal-export.h 
     DESTINATION include
 )
-export(TARGETS vga-terminal
+install(FILES
+    $<TARGET_FILE:SDL2::SDL2>
+    DESTINATION lib
+)
+export(TARGETS vga-terminal 
     FILE ${CMAKE_BINARY_DIR}/vga-terminal.cmake
 )
 install(EXPORT
@@ -47,7 +52,33 @@ target_link_libraries(vga-terminal SDL2::SDL2 SDL2::SDL2main)
 
 
 ########################### Static Lib #######################################
-
+add_library(vga-terminal-static STATIC)
+install(
+    TARGETS vga-terminal-static
+    EXPORT vga-terminal-static-config
+    DESTINATION static/lib
+    PUBLIC_HEADER DESTINATION static/include
+)
+install(FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
+    DESTINATION static/include
+)
+install(FILES
+    $<TARGET_FILE:SDL2::SDL2>
+    DESTINATION static/lib
+)
+export(TARGETS vga-terminal-static
+    FILE ${CMAKE_BINARY_DIR}/vga-terminal-static.cmake
+)
+install(EXPORT
+    vga-terminal-static-config DESTINATION cmake
+)
+target_sources(vga-terminal-static PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+)
+target_link_libraries(vga-terminal-static SDL2::SDL2 SDL2::SDL2main)
 
 
 ################ Shared code among exe and tests #############################
@@ -59,7 +90,6 @@ target_sources(vga-terminal-obj PRIVATE
 
 target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
-
 
 
 ### Examples
