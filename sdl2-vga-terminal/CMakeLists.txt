@@ -64,10 +64,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
     DESTINATION static/include
 )
-install(FILES
-    $<TARGET_FILE:SDL2::SDL2>
-    DESTINATION static/lib
-)
+
 export(TARGETS vga-terminal-static
     FILE ${CMAKE_BINARY_DIR}/vga-terminal-static.cmake
 )
@@ -89,8 +86,15 @@ target_sources(vga-terminal-obj PRIVATE
 )
 
 target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
-
+if(WITH_SDL2_STATIC)
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static SDL2::SDL2main)
+else()
+    install(FILES
+        $<TARGET_FILE:SDL2::SDL2>
+        DESTINATION static/lib
+    )
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
+endif()
 
 ### Examples
 if(WITH_EXAMPLES)

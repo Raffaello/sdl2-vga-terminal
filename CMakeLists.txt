@@ -13,7 +13,7 @@ option(WITH_EXAMPLES "build examples" OFF)
 option(WITH_TEST "build test" OFF)
 option(TEST_DUMP_SNAPSHOT "running test dumping the expected output instead of verifing it" OFF)
 option(WITH_SNAPSHOT "running snapshot test" OFF)
-
+option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" off)
 
 
 enable_testing()
