@@ -69,7 +69,11 @@ export(TARGETS vga-terminal-static
     FILE ${CMAKE_BINARY_DIR}/vga-terminal-static.cmake
 )
 install(EXPORT
-    vga-terminal-static-config DESTINATION cmake
+    vga-terminal-static-config DESTINATION static/cmake
+)
+target_include_directories(vga-terminal-static PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:static/include>
 )
 target_sources(vga-terminal-static PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
