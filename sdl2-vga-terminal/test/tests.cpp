@@ -8,7 +8,7 @@ TEST(VgaTerminal, CannotInit) {
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
 }
 
-TEST(VgaTerminal, HelloWorld_Window) {
+TEST(VgaTerminal, HelloWorldWindow) {
 	SDL_SetMainReady(); // Not required, but for CI test.
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 
@@ -21,7 +21,7 @@ TEST(VgaTerminal, HelloWorld_Window) {
 	SDL_Quit();
 }
 
-TEST(VgaTerminal, HelloWorld_Text) {
+TEST(VgaTerminal, HelloWorldText) {
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 
 	std::string termTitle = "Hello Test";
