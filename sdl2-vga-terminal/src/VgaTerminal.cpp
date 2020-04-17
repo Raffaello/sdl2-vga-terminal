@@ -375,7 +375,13 @@ void VgaTerminal::incrementCursorPosition() noexcept
         if (++_curY >= h)
         {
             _curY = h - 1;
-            scrollDownGrid();
+            if (autoScroll) {
+                scrollDownGrid();
+            }
+            else {
+                // stay in the same position
+                _curX = _viewPortX + _viewPortWidth - 1;
+            }
         }
     }
 }

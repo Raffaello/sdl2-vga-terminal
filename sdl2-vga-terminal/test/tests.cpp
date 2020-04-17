@@ -215,6 +215,24 @@ TEST(VgaTerminal, ViewportMoveCursorBorder)
 	
 	SDL_Quit();
 }
+
+TEST(VgaTerminal, NoAutoScroll)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
+	std::string termTitle = "Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+	term.autoScroll = false;
+	term.writeXY(79, 24, "0", 7, 0);
+	EXPECT_EQ(79, term.getX());
+	EXPECT_EQ(24, term.getY());
+
+	term.writeXY(79, 20, "0", 7, 0);
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(21, term.getY());
+
+	SDL_Quit();
+}
 #endif
 
 int main(int argc, char** argv) {

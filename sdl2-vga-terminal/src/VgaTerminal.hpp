@@ -72,7 +72,7 @@ public:
     
     uint8_t curDefaultCol = 7;
     bool showCursor = true;
-
+    bool autoScroll = true;
 private:
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette p;
