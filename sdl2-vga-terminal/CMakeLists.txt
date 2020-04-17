@@ -6,8 +6,7 @@ set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
 
-############################ Shared/Static lib ######################################
-option(BUILD_SHARED_LIBS "build shared library" on)
+############################ Shared lib ######################################
 include(GenerateExportHeader)
 add_library(vga-terminal-lib)
 generate_export_header(
@@ -21,12 +20,12 @@ install(
     TARGETS vga-terminal-lib 
     EXPORT vga-terminal-lib-config
     DESTINATION lib
-    PUBLIC_HEADER DESTINATION inc
+    PUBLIC_HEADER DESTINATION include
 )
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
     $<TARGET_FILE_DIR:vga-terminal-lib>/vga-terminal-export.h 
-    DESTINATION inc
+    DESTINATION include
 )
 export(TARGETS vga-terminal-lib
     FILE ${CMAKE_BINARY_DIR}/vga-terminal.cmake
@@ -48,20 +47,20 @@ target_link_libraries(vga-terminal-lib SDL2::SDL2 SDL2::SDL2main)
 
 
 ################ Shared code among exe and tests #############################
-add_library(vga-terminal OBJECT)
-target_sources(vga-terminal PRIVATE 
+add_library(vga-terminal-obj OBJECT)
+target_sources(vga-terminal-obj PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 )
 
-target_include_directories(vga-terminal PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-target_link_libraries(vga-terminal PUBLIC SDL2::SDL2 SDL2::SDL2main)
+target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
 
 
 ############################## Main Example ##################################
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
-add_dependencies(${PROJECT_NAME} vga-terminal) 
-target_link_libraries(${PROJECT_NAME} vga-terminal)
+add_dependencies(${PROJECT_NAME} vga-terminal-obj) 
+target_link_libraries(${PROJECT_NAME} vga-terminal-obj)
 
 
 ################## C example using SO/DLL with lazy loading ##################
@@ -82,5 +81,5 @@ add_executable (${PROJECT_NAME}-load-so "sdl2-vga-terminal-load-so.c")
 target_link_libraries(${PROJECT_NAME}-load-so PUBLIC SDL2::SDL2 SDL2::SDL2main)
 
 
-############################### tests
+############################### tests ########################################
 add_subdirectory("test")
