@@ -37,9 +37,9 @@ TEST(VgaTerminal, Snapshot) {
 		term.write((char)i, i, 255 - i);
 	}
 
-	term.writeXY(32, 11, "ษอออออออออออออออป", 11, 4);
-	term.writeXY(32, 12, "บ Hello World!! บ", 11, 4);
-	term.writeXY(32, 13, "ศอออออออออออออออผ", 11, 4);
+	term.writeXY(32, 11, "ษอออออออออออออออป", 14, 1);
+	term.writeXY(32, 12, "บ Hello World!! บ", 14, 1);
+	term.writeXY(32, 13, "ศอออออออออออออออผ", 14, 1);
 	term.render();
 	SDL_Delay(1000);
 	SDL_Surface* snapshot = getScreenshot(term);
