@@ -418,3 +418,9 @@ void VgaTerminal::scrollDownGrid() noexcept
     }
 }
 
+const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
+{
+    return mode;
+}
+
+
