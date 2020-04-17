@@ -40,7 +40,7 @@ int main(int argc, char* args[])
 #else
 #define PFIX ""
 #endif
-	int t = __FUnloadDelayLoadedDLL2("vga-terminal-lib" PFIX ".dll");
+	int t = __FUnloadDelayLoadedDLL2("vga-terminal" PFIX ".dll");
 	printf("unloaded? : %d\n", t);
 	getchar();
 #endif // WIN32

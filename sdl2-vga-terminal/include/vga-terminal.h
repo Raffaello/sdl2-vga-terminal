@@ -1,3 +1,8 @@
+/***********************************************
+ *** TODO:  export all the required methods  ***
+ ***        just done the bare basic         ***
+ ***********************************************/
+
 #pragma once
 
 #include <vga-terminal-export.h>
