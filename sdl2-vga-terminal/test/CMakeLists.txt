@@ -34,11 +34,12 @@ endif()
 
 add_executable(runSOTest "so-test.cpp")
 add_test(SOTest runSOTest)
-target_link_libraries(runSOTest PRIVATE vga-terminal-lib GTest::gtest)
+target_link_libraries(runSOTest PRIVATE vga-terminal GTest::gtest)
 add_custom_command(TARGET runSOTest POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSOTest>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runSOTest>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runSOTest>
+        #COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runSOTest>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vga-terminal> $<TARGET_FILE_DIR:runSOTest>
     )
 
 

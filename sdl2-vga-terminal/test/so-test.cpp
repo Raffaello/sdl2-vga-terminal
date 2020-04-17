@@ -2,8 +2,10 @@
 #include <vga-terminal.h>
 #include <SDL2/SDL.h>
 
-TEST(DISABLED_VgaTerminalSO, simpleRunningTest)
+TEST(VgaTerminalSO, simpleRunningTest)
 {
+	// TODO: Very basic, need improvement,
+	//       just for basic runtime using of SO.
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER));
 		
 

@@ -9,8 +9,12 @@ endif()
 
 project ("sdl2-vga-terminal" VERSION 0.1 DESCRIPTION "Vga Terminal on SDL2")
 
+option(WITH_EXAMPLES "build examples" OFF)
+option(WITH_TEST "build test" OFF)
 option(TEST_DUMP_SNAPSHOT "running test dumping the expected output instead of verifing it" OFF)
 option(WITH_SNAPSHOT "running snapshot test" OFF)
+
+
 
 enable_testing()
 # Include sub-projects.
