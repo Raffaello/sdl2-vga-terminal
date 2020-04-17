@@ -13,16 +13,13 @@ public:
     typedef struct
     {
         uint8_t  mode; // video mode (only mode 3 available at the moment)
-        //uint16_t sw;   // screen   width
-        //uint16_t sh;   //          height
         uint8_t  tw;   // terminal width
         uint8_t  th;   //          hieght
         uint8_t  cw;   // char     width
         uint8_t  ch;   //          height  | font size
-        //uint8_t  fs;   // font size 
         uint8_t* font;
         int  numColors;
-        uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
+        uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
     } videoMode_t;
 
     // TODO keep only the 3 uint8_t here,
@@ -37,8 +34,6 @@ public:
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
-
-    static const videoMode_t mode3;
 
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
@@ -73,7 +68,10 @@ public:
     uint8_t curDefaultCol = 7;
     bool showCursor = true;
     bool autoScroll = true;
+    
+    const videoMode_t getMode() const noexcept;
 private:
+    static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette p;
     videoMode_t mode;
