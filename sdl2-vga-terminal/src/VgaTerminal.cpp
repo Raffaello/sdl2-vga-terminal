@@ -16,7 +16,6 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(25),    // th
         static_cast <uint8_t>(8),     // cw
         static_cast <uint8_t>(VGA_FONT_SIZE_16),    // ch
-        //static_cast <uint8_t>(16)     // fs
         vgafont16,
         PALETTE_3_COLORS,
         palette3,
@@ -39,7 +38,6 @@ VgaTerminal::~VgaTerminal()
 
 VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
     VgaTerminal(title, mode3.tw * mode3.cw, mode3.th * mode3.ch, winFlags, drvIndex, renFlags)
-    
 {
 }
 
@@ -375,7 +373,13 @@ void VgaTerminal::incrementCursorPosition() noexcept
         if (++_curY >= h)
         {
             _curY = h - 1;
-            scrollDownGrid();
+            if (autoScroll) {
+                scrollDownGrid();
+            }
+            else {
+                // stay in the same position
+                _curX = _viewPortX + _viewPortWidth - 1;
+            }
         }
     }
 }
@@ -411,4 +415,10 @@ void VgaTerminal::scrollDownGrid() noexcept
         _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;
     }
 }
+
+const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
+{
+    return mode;
+}
+
 

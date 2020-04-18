@@ -42,12 +42,12 @@ TEST(VgaTerminal, ScrollDown) {
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
-	term.writeXY(VgaTerminal::mode3.tw - 1, VgaTerminal::mode3.th - 1, termTitle, 7, 1);
+	term.writeXY(term.getMode().tw - 1, term.getMode().th - 1, termTitle, 7, 1);
 	uint8_t termTitleLength = static_cast<uint8_t>(termTitle.size());
-	
-	ASSERT_EQ(VgaTerminal::position_t(termTitleLength - 1, VgaTerminal::mode3.th - 1), term.getXY());
-	ASSERT_EQ('H', term.at(VgaTerminal::mode3.tw - 1, VgaTerminal::mode3.th - 2).c);
-	ASSERT_EQ('T', term.at(5, VgaTerminal::mode3.th - 1).c);
+
+	ASSERT_EQ(VgaTerminal::position_t(termTitleLength - 1, term.getMode().th - 1), term.getXY());
+	ASSERT_EQ('H', term.at(term.getMode().tw - 1, term.getMode().th - 2).c);
+	ASSERT_EQ('T', term.at(5, term.getMode().th - 1).c);
 	
 	SDL_Quit();
 }
@@ -213,6 +213,24 @@ TEST(VgaTerminal, ViewportMoveCursorBorder)
 	EXPECT_EQ(19, term.getX());
 	EXPECT_EQ(12, term.getY());
 	
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, NoAutoScroll)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+
+	std::string termTitle = "Test";
+	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
+	term.autoScroll = false;
+	term.writeXY(79, 24, "0", 7, 0);
+	EXPECT_EQ(79, term.getX());
+	EXPECT_EQ(24, term.getY());
+
+	term.writeXY(79, 20, "0", 7, 0);
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(21, term.getY());
+
 	SDL_Quit();
 }
 #endif
