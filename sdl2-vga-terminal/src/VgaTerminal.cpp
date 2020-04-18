@@ -39,7 +39,6 @@ VgaTerminal::~VgaTerminal()
 
 VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
     VgaTerminal(title, mode3.tw * mode3.cw, mode3.th * mode3.ch, winFlags, drvIndex, renFlags)
-    
 {
 }
 
