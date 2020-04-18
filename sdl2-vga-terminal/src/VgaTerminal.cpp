@@ -16,7 +16,6 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(25),    // th
         static_cast <uint8_t>(8),     // cw
         static_cast <uint8_t>(VGA_FONT_SIZE_16),    // ch
-        //static_cast <uint8_t>(16)     // fs
         vgafont16,
         PALETTE_3_COLORS,
         palette3,
