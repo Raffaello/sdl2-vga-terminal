@@ -12,11 +12,11 @@ class VgaTerminal : public Window
 public:
     typedef struct
     {
-        uint8_t  mode; // video mode (only mode 3 available at the moment)
-        uint8_t  tw;   // terminal width
-        uint8_t  th;   //          hieght
-        uint8_t  cw;   // char     width
-        uint8_t  ch;   //          height  | font size
+        uint8_t  mode;    // video mode (only mode 3 available at the moment)
+        uint8_t  tw;      // terminal width
+        uint8_t  th;      //          hieght
+        uint8_t  cw;      // char     width
+        uint8_t  ch;      //          height  | font size
         uint8_t* font;
         int  numColors;
         uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
