@@ -75,7 +75,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         }
     }
     else {
-        SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "[% s] % s: TIMER or EVENTS not inited.", typeid(*this).name(), __func__);
+        SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: TIMER or EVENTS not inited.", typeid(*this).name(), __func__);
     }
 }
 
