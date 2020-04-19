@@ -36,6 +36,18 @@ void main_loop(void)
 #endif
 }
 
+void renderWrapper(void* term)
+{
+	if (nullptr != term) {
+		VgaTerminal* _term = (VgaTerminal*)term;
+		_term->render();
+	}
+
+#ifdef EMSCRIPTEN
+	emscripten_cancel_main_loop();
+#endif
+}
+
 extern "C" int main(int argc, char* args[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
@@ -89,9 +101,10 @@ extern "C" int main(int argc, char* args[])
 	//       something when i am creating the VgaTerminal object .... not sure
 	//VgaTerminal term1 = VgaTerminal("VgaTerminal", 720, 400, 0, -1, 0);
 #ifdef EMSCRIPTEN
-	emscripten_set_main_loop(main_loop, 0, 1);
+	//void emscripten_set_main_loop_arg(em_arg_callback_func func, void* arg, int fps, int simulate_infinite_loop)
+	emscripten_set_main_loop(main_loop, 0, 0);
 #endif
-	
+	//emscripten_set_main_loop_arg(renderWrapper, (void*)&term1, 0, 0);
 	SDL_Quit();
 	return 0;
 }
