@@ -165,7 +165,6 @@ TEST_P(SetViewportNullErrTests, setViewportNullError)
 	VgaTerminal term = VgaTerminal("setViewportNullErr", SDL_WINDOW_HIDDEN, -1, 0);
 
 	testing::internal::CaptureStderr();
-	auto r = term.getViewport();
 	EXPECT_FALSE(term.setViewPort(vp));
 	std::string output = testing::internal::GetCapturedStderr();
 	EXPECT_THAT(output, StartsWith("WARN: ["));
