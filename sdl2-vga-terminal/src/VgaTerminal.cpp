@@ -356,6 +356,11 @@ SDL_Rect VgaTerminal::getViewport() const noexcept
     return r;
 }
 
+void VgaTerminal::resetViewport() noexcept
+{
+    setViewPort(0, 0, mode.tw, mode.th);
+}
+
 uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
 {
     SDL_Event event;

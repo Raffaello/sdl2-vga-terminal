@@ -134,6 +134,17 @@ TEST(VgaTerminal, clear)
 	EXPECT_EQ(0, tc.bgCol);
 }
 
+TEST(VgaTerminal, resetViewport)
+{
+	VgaTerminal term = VgaTerminal("clear", SDL_WINDOW_HIDDEN, -1, 0);
+	auto vp = term.getViewport();
+	SDL_Rect vp2 = { 10 ,10 ,10, 10 };
+	ASSERT_TRUE(term.setViewPort(vp2));
+	cmpViewportCheck(vp2, term.getViewport());
+	term.resetViewport();
+	cmpViewportCheck(vp, term.getViewport());
+}
+
 class  SetViewportParameterTests : public ::testing::TestWithParam<std::tuple<int, int, int, int, bool, int, int>> {};
 TEST_P(SetViewportParameterTests, SetVieport)
 {
