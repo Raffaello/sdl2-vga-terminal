@@ -120,17 +120,17 @@ void VgaTerminal::gotoXY(const position_t &position) noexcept
 
 VgaTerminal::position_t VgaTerminal::getXY() const noexcept
 {
-    return position_t(_curX, _curY);
+    return position_t(getX(), getY());
 }
 
 uint8_t VgaTerminal::getX() const noexcept
 {
-    return _curX;
+    return _curX - _viewPortX;
 }
 
 uint8_t VgaTerminal::getY() const noexcept
 {
-    return _curY;
+    return _curY - _viewPortY;
 }
 
 void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol) noexcept
@@ -166,10 +166,10 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
  */
 VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const noexcept
 {
-    return (x >= mode.tw || y >= mode.th)
+    return (x >= _viewPortWidth || y >= _viewPortHeight)
         ? defaultNullChar
-        : _pGrid[static_cast<size_t>(y) * mode.tw + x]
-    ;
+        : _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX]
+        ;
 }
 
 void VgaTerminal::render(const bool force)
@@ -250,7 +250,7 @@ void VgaTerminal::clear() noexcept
         }
     }
 
-    gotoXY(_viewPortX, _viewPortWidth);
+    gotoXY(_viewPortX, _viewPortY);
 }
 
 void VgaTerminal::moveCursorLeft() noexcept
@@ -300,22 +300,33 @@ void VgaTerminal::moveCursorDown() noexcept
     }
 }
 
-void VgaTerminal::setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept
+void VgaTerminal::newLine() noexcept
 {
-    auto& [x, y] = viewport;
-    setViewPort(x, y, width, height);
+    _curX = _viewPortX;
+    auto oldY = _curY;
+    moveCursorDown();
+    // last line
+    if ((oldY == _curY) && (autoScroll)) {
+        scrollDownGrid();
+    }
 }
 
-void VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept
+bool VgaTerminal::setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept
+{
+    auto& [x, y] = viewport;
+    return setViewPort(x, y, width, height);
+}
+
+bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept
 {
     if ((x+width > mode.tw) || (y+height > mode.th)) {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport larger than terminal.", typeid(*this).name(), __func__);
-        return;
+        return false;
     }
 
     if ((width == 0) || (height == 0)) {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport too small.", typeid(*this).name(), __func__);
-        return;
+        return false;
     }
 
     _viewPortX = x;
@@ -324,14 +335,14 @@ void VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortHeight = height;
     _curX = _viewPortX;
     _curY = _viewPortY;
+
+    return true;
 }
 
-void VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
+bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
-    //auto [x, y, w, h] = r;
-    //int x, y, w, h;
     int x = r.x, y = r.y, w = r.w, h = r.h;
-    setViewPort(x, y, w, h);
+    return setViewPort(x, y, w, h);
 }
 
 SDL_Rect VgaTerminal::getViewport() const noexcept
@@ -343,6 +354,11 @@ SDL_Rect VgaTerminal::getViewport() const noexcept
     r.w = _viewPortWidth;
     r.h = _viewPortHeight;
     return r;
+}
+
+void VgaTerminal::resetViewport() noexcept
+{
+    setViewPort(0, 0, mode.tw, mode.th);
 }
 
 uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
