@@ -24,6 +24,15 @@ public:
 ::testing::Environment* env;
 
 #ifndef TEST_DUMP_SNAPSHOT
+
+void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
+{
+	EXPECT_EQ(vp.x, exp.x);
+	EXPECT_EQ(vp.y, exp.y);
+	EXPECT_EQ(vp.w, exp.w);
+	EXPECT_EQ(vp.h, exp.h);
+}
+
 TEST(VgaTerminal, CannotInit) {
 	env->TearDown();
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
@@ -77,16 +86,10 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
 	
 	auto e = term.getViewport();
-	EXPECT_EQ(r.x, e.x);
-	EXPECT_EQ(r.y, e.y);
-	EXPECT_EQ(r.w, e.w);
-	EXPECT_EQ(r.h, e.h);
+	cmpViewportCheck(r, e);
 	EXPECT_TRUE(term.setViewPort(r));
 	e = term.getViewport();
-	EXPECT_EQ(r.x, e.x);
-	EXPECT_EQ(r.y, e.y);
-	EXPECT_EQ(r.w, e.w);
-	EXPECT_EQ(r.h, e.h);
+	cmpViewportCheck(r, e);
 	
 	testing::internal::CaptureStderr();
 	EXPECT_FALSE(term.setViewPort(0, 0, 1, 0));
@@ -95,10 +98,7 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
 
 	e = term.getViewport();
-	EXPECT_EQ(r.x, e.x);
-	EXPECT_EQ(r.y, e.y);
-	EXPECT_EQ(r.w, e.w);
-	EXPECT_EQ(r.h, e.h);
+	cmpViewportCheck(r, e);
 	
 	testing::internal::CaptureStderr();
 	EXPECT_FALSE(term.setViewPort(0, 0, 0, 1));
@@ -107,10 +107,7 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
 
 	e = term.getViewport();
-	EXPECT_EQ(r.x, e.x);
-	EXPECT_EQ(r.y, e.y);
-	EXPECT_EQ(r.w, e.w);
-	EXPECT_EQ(r.h, e.h);
+	cmpViewportCheck(r, e);
 }
 
 TEST(VgaTerminal, moveCursorCircle)
