@@ -59,7 +59,10 @@ public:
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
-    
+
+    void newLine() noexcept;
+    /// the X,Y are relative to the new viewport.
+    /// TODO: return a bool if the viewport is succesfully set or not.
     void setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
     void setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
     void setViewPort(const SDL_Rect& r) noexcept;
