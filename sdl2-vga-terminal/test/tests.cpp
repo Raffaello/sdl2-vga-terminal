@@ -70,46 +70,6 @@ TEST(VgaTerminal, ScrollDown) {
 	ASSERT_EQ('T', term.at(5, term.getMode().th - 1).c);
 }
 
-TEST(VgaTerminal, SetViewportNull)
-{
-	using ::testing::StartsWith;
-	using ::testing::EndsWith;
-
-	std::string termTitle = "Hello Test";
-	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
-
-	testing::internal::CaptureStderr();
-	auto r = term.getViewport();
-	EXPECT_FALSE(term.setViewPort(0, 0, 0, 0));
-	std::string output = testing::internal::GetCapturedStderr();
-	EXPECT_THAT(output, StartsWith("WARN: ["));
-	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
-	
-	auto e = term.getViewport();
-	cmpViewportCheck(r, e);
-	EXPECT_TRUE(term.setViewPort(r));
-	e = term.getViewport();
-	cmpViewportCheck(r, e);
-	
-	testing::internal::CaptureStderr();
-	EXPECT_FALSE(term.setViewPort(0, 0, 1, 0));
-	output = testing::internal::GetCapturedStderr();
-	EXPECT_THAT(output, StartsWith("WARN: ["));
-	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
-
-	e = term.getViewport();
-	cmpViewportCheck(r, e);
-	
-	testing::internal::CaptureStderr();
-	EXPECT_FALSE(term.setViewPort(0, 0, 0, 1));
-	output = testing::internal::GetCapturedStderr();
-	EXPECT_THAT(output, StartsWith("WARN: ["));
-	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
-
-	e = term.getViewport();
-	cmpViewportCheck(r, e);
-}
-
 TEST(VgaTerminal, moveCursorCircle)
 {
 	VgaTerminal term = VgaTerminal("MoveCursor", SDL_WINDOW_HIDDEN, -1, 0);
@@ -176,6 +136,37 @@ INSTANTIATE_TEST_SUITE_P(
 		std::make_tuple(0, 0, 1, 1, false, 0, 0),    // SetViewport1
 		std::make_tuple(10, 10, 10, 10, true, 0, 0), // SetViewport2
 		std::make_tuple(5, 4, 20, 20, true, 5, 5)    // atViewport
+	)
+);
+
+class SetViewportNullErrTests : public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
+TEST_P(SetViewportNullErrTests, setViewportNullError)
+{
+	using ::testing::StartsWith;
+	using ::testing::EndsWith;
+
+	SDL_Rect vp;
+	vp.x = std::get<0>(GetParam());
+	vp.y = std::get<1>(GetParam());
+	vp.w = std::get<2>(GetParam());
+	vp.h = std::get<3>(GetParam());
+
+	VgaTerminal term = VgaTerminal("setViewportNullErr", SDL_WINDOW_HIDDEN, -1, 0);
+
+	testing::internal::CaptureStderr();
+	auto r = term.getViewport();
+	EXPECT_FALSE(term.setViewPort(vp));
+	std::string output = testing::internal::GetCapturedStderr();
+	EXPECT_THAT(output, StartsWith("WARN: ["));
+	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
+}
+INSTANTIATE_TEST_SUITE_P(
+	VgaTerminal,
+	SetViewportNullErrTests,
+	::testing::Values(
+		std::make_tuple(0, 0, 0, 0),
+		std::make_tuple(0, 0, 1, 0),
+		std::make_tuple(0, 0, 1, 0)
 	)
 );
 
