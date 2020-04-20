@@ -62,11 +62,12 @@ public:
 
     void newLine() noexcept;
     /// the X,Y are relative to the new viewport.
-    /// TODO: return a bool if the viewport is succesfully set or not.
-    void setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
-    void setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
-    void setViewPort(const SDL_Rect& r) noexcept;
+    bool setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
+    bool setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
+    bool setViewPort(const SDL_Rect& r) noexcept;
     SDL_Rect getViewport() const noexcept;
+    // TODO
+    //void resetViewport() noexcept;
     
     uint8_t curDefaultCol = 7;
     bool showCursor = true;

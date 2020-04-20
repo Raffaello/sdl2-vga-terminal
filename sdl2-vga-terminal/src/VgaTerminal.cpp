@@ -311,22 +311,22 @@ void VgaTerminal::newLine() noexcept
     }
 }
 
-void VgaTerminal::setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept
+bool VgaTerminal::setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept
 {
     auto& [x, y] = viewport;
-    setViewPort(x, y, width, height);
+    return setViewPort(x, y, width, height);
 }
 
-void VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept
+bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept
 {
     if ((x+width > mode.tw) || (y+height > mode.th)) {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport larger than terminal.", typeid(*this).name(), __func__);
-        return;
+        return false;
     }
 
     if ((width == 0) || (height == 0)) {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: viewport too small.", typeid(*this).name(), __func__);
-        return;
+        return false;
     }
 
     _viewPortX = x;
@@ -335,14 +335,14 @@ void VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortHeight = height;
     _curX = _viewPortX;
     _curY = _viewPortY;
+
+    return true;
 }
 
-void VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
+bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
-    //auto [x, y, w, h] = r;
-    //int x, y, w, h;
     int x = r.x, y = r.y, w = r.w, h = r.h;
-    setViewPort(x, y, w, h);
+    return setViewPort(x, y, w, h);
 }
 
 SDL_Rect VgaTerminal::getViewport() const noexcept

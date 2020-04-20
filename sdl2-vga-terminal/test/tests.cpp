@@ -3,27 +3,42 @@
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
 
+
+class Environment : public ::testing::Environment {
+public:
+	~Environment() override {}
+
+	// Override this to define how to set up the environment.
+	void SetUp() override
+	{
+		ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	}
+
+	// Override this to define how to tear down the environment.
+	void TearDown() override
+	{
+		SDL_Quit();
+	}
+};
+
+::testing::Environment* env;
+
 #ifndef TEST_DUMP_SNAPSHOT
 TEST(VgaTerminal, CannotInit) {
+	env->TearDown();
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
+	env->SetUp();
 }
 
 TEST(VgaTerminal, HelloWorldWindow) {
-	SDL_SetMainReady(); // Not required, but for CI test.
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 	
 	std::string title = SDL_GetWindowTitle(term.getWindow());
 	ASSERT_EQ(title, termTitle);
-	
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, HelloWorldText) {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -32,13 +47,9 @@ TEST(VgaTerminal, HelloWorldText) {
 	ASSERT_EQ(VgaTerminal::position_t(termTitleLength, 0), term.getXY());
 	ASSERT_EQ(VgaTerminal::position_t(termTitleLength, 0), VgaTerminal::position_t(term.getX(), term.getY()));
 	ASSERT_EQ('T', term.at(6, 0).c);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, ScrollDown) {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -48,8 +59,6 @@ TEST(VgaTerminal, ScrollDown) {
 	ASSERT_EQ(VgaTerminal::position_t(termTitleLength - 1, term.getMode().th - 1), term.getXY());
 	ASSERT_EQ('H', term.at(term.getMode().tw - 1, term.getMode().th - 2).c);
 	ASSERT_EQ('T', term.at(5, term.getMode().th - 1).c);
-	
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, SetViewportNull)
@@ -57,14 +66,12 @@ TEST(VgaTerminal, SetViewportNull)
 	using ::testing::StartsWith;
 	using ::testing::EndsWith;
 
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
 	testing::internal::CaptureStderr();
 	auto r = term.getViewport();
-	term.setViewPort(0, 0, 0, 0);
+	EXPECT_FALSE(term.setViewPort(0, 0, 0, 0));
 	std::string output = testing::internal::GetCapturedStderr();
 	EXPECT_THAT(output, StartsWith("WARN: ["));
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
@@ -74,7 +81,7 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_EQ(r.y, e.y);
 	EXPECT_EQ(r.w, e.w);
 	EXPECT_EQ(r.h, e.h);
-	term.setViewPort(r);
+	EXPECT_TRUE(term.setViewPort(r));
 	e = term.getViewport();
 	EXPECT_EQ(r.x, e.x);
 	EXPECT_EQ(r.y, e.y);
@@ -82,7 +89,7 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_EQ(r.h, e.h);
 	
 	testing::internal::CaptureStderr();
-	term.setViewPort(0, 0, 1, 0);
+	EXPECT_FALSE(term.setViewPort(0, 0, 1, 0));
 	output = testing::internal::GetCapturedStderr();
 	EXPECT_THAT(output, StartsWith("WARN: ["));
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
@@ -94,7 +101,7 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_EQ(r.h, e.h);
 	
 	testing::internal::CaptureStderr();
-	term.setViewPort(0, 0, 0, 1);
+	EXPECT_FALSE(term.setViewPort(0, 0, 0, 1));
 	output = testing::internal::GetCapturedStderr();
 	EXPECT_THAT(output, StartsWith("WARN: ["));
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
@@ -104,13 +111,45 @@ TEST(VgaTerminal, SetViewportNull)
 	EXPECT_EQ(r.y, e.y);
 	EXPECT_EQ(r.w, e.w);
 	EXPECT_EQ(r.h, e.h);
-	SDL_Quit();
 }
+
+class SetViewportParameterTests : public ::testing::TestWithParam<std::tuple<int, int, int, int, bool>>{};
+
+TEST_P(SetViewportParameterTests, SetVieport)
+{
+	int x = std::get<0>(GetParam());
+	int y = std::get<1>(GetParam());
+	int w = std::get<2>(GetParam());
+	int h = std::get<3>(GetParam());
+	int autoScroll = std::get<4>(GetParam());
+		
+	VgaTerminal term = VgaTerminal("SetViewport Test", SDL_WINDOW_HIDDEN, -1, 0);
+	term.autoScroll = autoScroll;
+
+	EXPECT_TRUE(term.setViewPort(x, y, w, h));
+	auto e = term.getViewport();
+	EXPECT_EQ(x, e.x);
+	EXPECT_EQ(y, e.y);
+	EXPECT_EQ(w, e.w);
+	EXPECT_EQ(h, e.h);
+	term.write("X", 15, 1);
+	auto tc = term.at(0, 0);
+	EXPECT_EQ('X', tc.c);
+	EXPECT_EQ(15, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+}
+
+INSTANTIATE_TEST_SUITE_P(
+	DISABLED_VgaTerminal,
+	SetViewportParameterTests,
+	::testing::Values(
+		std::make_tuple(0, 0, 1, 1, false),
+		std::make_tuple(10, 10, 10, 10, true)
+	)
+);
 
 TEST(VgaTerminal, SetViewport1)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -125,14 +164,10 @@ TEST(VgaTerminal, SetViewport1)
 	EXPECT_EQ(0, tc.c);
 	EXPECT_EQ(0, tc.col);
 	EXPECT_EQ(0, tc.bgCol);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, SetViewport2)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -148,14 +183,10 @@ TEST(VgaTerminal, SetViewport2)
 	EXPECT_EQ('T', tc.c);
 	EXPECT_EQ(15, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, moveCursorCircle)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -172,13 +203,10 @@ TEST(VgaTerminal, moveCursorCircle)
 	term.moveCursorUp();
 	EXPECT_EQ(10, term.getX());
 	EXPECT_EQ(10, term.getY());
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, moveCursorBorder)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 
@@ -195,13 +223,10 @@ TEST(VgaTerminal, moveCursorBorder)
 	term.moveCursorUp();
 	EXPECT_EQ(79, term.getX());
 	EXPECT_EQ(22, term.getY());
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, ViewportMoveCursorBorder)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Hello Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 	term.setViewPort(10, 10, 10, 10);
@@ -212,14 +237,10 @@ TEST(VgaTerminal, ViewportMoveCursorBorder)
 	term.moveCursorLeft();
 	EXPECT_EQ(9, term.getX());
 	EXPECT_EQ(2, term.getY());
-	
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, NoAutoScroll)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-
 	std::string termTitle = "Test";
 	VgaTerminal term = VgaTerminal(termTitle, SDL_WINDOW_HIDDEN, -1, 0);
 	term.autoScroll = false;
@@ -230,13 +251,10 @@ TEST(VgaTerminal, NoAutoScroll)
 	term.writeXY(79, 20, "0", 7, 0);
 	EXPECT_EQ(0, term.getX());
 	EXPECT_EQ(21, term.getY());
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, newLine)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
 
 	term.gotoXY(10, 10);
@@ -254,13 +272,10 @@ TEST(VgaTerminal, newLine)
 	EXPECT_EQ('t', tc.c);
 	EXPECT_EQ(7, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, atViewport)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 	VgaTerminal term = VgaTerminal("atViewported", SDL_WINDOW_HIDDEN, -1, 0);
 
 	//viewport
@@ -273,13 +288,10 @@ TEST(VgaTerminal, atViewport)
 	EXPECT_EQ('t', tc.c);
 	EXPECT_EQ(7, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-	
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, newLineViewport)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
 
 	//viewport
@@ -304,13 +316,10 @@ TEST(VgaTerminal, newLineViewport)
 	EXPECT_EQ('t', tc.c);
 	EXPECT_EQ(7, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, newLineNoAutoScroll)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
 	term.autoScroll = false;
 
@@ -330,13 +339,10 @@ TEST(VgaTerminal, newLineNoAutoScroll)
 	EXPECT_EQ('t', tc.c);
 	EXPECT_EQ(7, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-
-	SDL_Quit();
 }
 
 TEST(VgaTerminal, newLineNoAutoScrollViewport)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
 	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
 	term.autoScroll = false;
 
@@ -362,14 +368,15 @@ TEST(VgaTerminal, newLineNoAutoScrollViewport)
 	EXPECT_EQ('t', tc.c);
 	EXPECT_EQ(7, tc.col);
 	EXPECT_EQ(1, tc.bgCol);
-
-	SDL_Quit();
 }
 
 #endif
 
-int main(int argc, char** argv) {
-	::testing::InitGoogleTest(&argc, argv);
 
+
+int main(int argc, char** argv) {
+	env = ::testing::AddGlobalTestEnvironment(new Environment());
+	::testing::InitGoogleTest(&argc, argv);
+	::testing::AddGlobalTestEnvironment(env);
 	return RUN_ALL_TESTS();
 }
