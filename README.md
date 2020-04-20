@@ -55,6 +55,7 @@ Just as a convention.
 
 Some must and ideas:
 
+-   refactor the test suite, (tests.cpp)
 -   add tests for the cmake configuration and install files, expect them to be "there".
 -   clear with bgCol, and only viewport.
 -   decouple vga modes
