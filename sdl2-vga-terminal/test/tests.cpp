@@ -114,6 +114,26 @@ TEST(VgaTerminal, NoAutoScroll)
 	EXPECT_EQ(21, term.getY());
 }
 
+TEST(VgaTerminal, clear)
+{
+	VgaTerminal term = VgaTerminal("clear", SDL_WINDOW_HIDDEN, -1, 0);
+	const char c = 'X';
+	const uint8_t col = 7;
+	const uint8_t bgCol = 1;
+
+	term.write(c, col, bgCol);
+	auto tc = term.at(0, 0);
+	EXPECT_EQ(c, tc.c);
+	EXPECT_EQ(col, tc.col);
+	EXPECT_EQ(bgCol, tc.bgCol);
+	
+	term.clear();
+	tc = term.at(0, 0);
+	EXPECT_EQ(0, tc.c);
+	EXPECT_EQ(0, tc.col);
+	EXPECT_EQ(0, tc.bgCol);
+}
+
 class  SetViewportParameterTests : public ::testing::TestWithParam<std::tuple<int, int, int, int, bool, int, int>> {};
 TEST_P(SetViewportParameterTests, SetVieport)
 {
