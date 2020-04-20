@@ -66,8 +66,7 @@ public:
     bool setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
     bool setViewPort(const SDL_Rect& r) noexcept;
     SDL_Rect getViewport() const noexcept;
-    // TODO
-    //void resetViewport() noexcept;
+    void resetViewport() noexcept;
     
     uint8_t curDefaultCol = 7;
     bool showCursor = true;
