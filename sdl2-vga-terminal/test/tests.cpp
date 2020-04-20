@@ -143,11 +143,11 @@ TEST(VgaTerminal, SetViewport2)
 	EXPECT_EQ(10, e.w);
 	EXPECT_EQ(10, e.h);
 
-	term.writeXY(5, 5, "Test", 15, 0);
-	auto tc = term.at(10 + 5, 10 + 5);
+	term.writeXY(5, 5, "Test", 15, 1);
+	auto tc = term.at(5, 5);
 	EXPECT_EQ('T', tc.c);
 	EXPECT_EQ(15, tc.col);
-	EXPECT_EQ(0, tc.bgCol);
+	EXPECT_EQ(1, tc.bgCol);
 
 	SDL_Quit();
 }
@@ -207,11 +207,11 @@ TEST(VgaTerminal, ViewportMoveCursorBorder)
 	term.setViewPort(10, 10, 10, 10);
 	term.gotoXY(9, 2);
 	term.moveCursorRight();
-	EXPECT_EQ(10, term.getX());
-	EXPECT_EQ(13, term.getY());
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(3, term.getY());
 	term.moveCursorLeft();
-	EXPECT_EQ(19, term.getX());
-	EXPECT_EQ(12, term.getY());
+	EXPECT_EQ(9, term.getX());
+	EXPECT_EQ(2, term.getY());
 	
 	SDL_Quit();
 }
@@ -233,6 +233,139 @@ TEST(VgaTerminal, NoAutoScroll)
 
 	SDL_Quit();
 }
+
+TEST(VgaTerminal, newLine)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
+
+	term.gotoXY(10, 10);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(11, term.getY());
+
+	term.writeXY(10, 24, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(24, term.getY());
+	
+	// check if it is really move on a new line, scrolling the terminal
+	auto tc = term.at(10, 23);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, atViewport)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	VgaTerminal term = VgaTerminal("atViewported", SDL_WINDOW_HIDDEN, -1, 0);
+
+	//viewport
+	term.setViewPort(5, 4, 20, 20);
+	term.writeXY(5, 5, "t", 7, 1);
+	EXPECT_EQ(6, term.getX());
+	EXPECT_EQ(5, term.getY());
+
+	auto tc = term.at(5, 5);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+	
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, newLineViewport)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
+
+	//viewport
+	term.setViewPort(5, 4, 20, 20);
+	term.writeXY(5, 18, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(19, term.getY());
+
+	auto tc = term.at(5, 18);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	term.clear();
+	term.writeXY(5, 19, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(19, term.getY());
+
+	tc = term.at(5, 18);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, newLineNoAutoScroll)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
+	term.autoScroll = false;
+
+	term.gotoXY(10, 10);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(11, term.getY());
+
+	term.writeXY(10, 24, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(24, term.getY());
+
+	// check if it is NOT move on a new line, NO scrolling the terminal
+	// So basically doing just a CR on last line when autoscroll is not enabled.
+	auto tc = term.at(10, 24);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	SDL_Quit();
+}
+
+TEST(VgaTerminal, newLineNoAutoScrollViewport)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	VgaTerminal term = VgaTerminal("newLine", SDL_WINDOW_HIDDEN, -1, 0);
+	term.autoScroll = false;
+
+	//viewport
+	term.setViewPort(5, 4, 20, 20);
+	term.writeXY(5, 18, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(19, term.getY());
+
+	auto tc = term.at(5, 18);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	term.clear();
+	term.writeXY(5, 19, "test", 7, 1);
+	term.newLine();
+	EXPECT_EQ(0, term.getX());
+	EXPECT_EQ(19, term.getY());
+
+	tc = term.at(5, 19);
+	EXPECT_EQ('t', tc.c);
+	EXPECT_EQ(7, tc.col);
+	EXPECT_EQ(1, tc.bgCol);
+
+	SDL_Quit();
+}
+
 #endif
 
 int main(int argc, char** argv) {

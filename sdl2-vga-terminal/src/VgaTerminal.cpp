@@ -120,17 +120,17 @@ void VgaTerminal::gotoXY(const position_t &position) noexcept
 
 VgaTerminal::position_t VgaTerminal::getXY() const noexcept
 {
-    return position_t(_curX, _curY);
+    return position_t(getX(), getY());
 }
 
 uint8_t VgaTerminal::getX() const noexcept
 {
-    return _curX;
+    return _curX - _viewPortX;
 }
 
 uint8_t VgaTerminal::getY() const noexcept
 {
-    return _curY;
+    return _curY - _viewPortY;
 }
 
 void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol) noexcept
@@ -166,10 +166,10 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
  */
 VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const noexcept
 {
-    return (x >= mode.tw || y >= mode.th)
+    return (x >= _viewPortWidth || y >= _viewPortHeight)
         ? defaultNullChar
-        : _pGrid[static_cast<size_t>(y) * mode.tw + x]
-    ;
+        : _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX]
+        ;
 }
 
 void VgaTerminal::render(const bool force)
@@ -250,7 +250,7 @@ void VgaTerminal::clear() noexcept
         }
     }
 
-    gotoXY(_viewPortX, _viewPortWidth);
+    gotoXY(_viewPortX, _viewPortY);
 }
 
 void VgaTerminal::moveCursorLeft() noexcept
@@ -297,6 +297,17 @@ void VgaTerminal::moveCursorDown() noexcept
 {
     if (_curY < _viewPortY + _viewPortHeight - 1) {
         ++_curY;
+    }
+}
+
+void VgaTerminal::newLine() noexcept
+{
+    _curX = _viewPortX;
+    auto oldY = _curY;
+    moveCursorDown();
+    // last line
+    if ((oldY == _curY) && (autoScroll)) {
+        scrollDownGrid();
     }
 }
 
