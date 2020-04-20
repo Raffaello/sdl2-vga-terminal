@@ -8,20 +8,28 @@ class Environment : public ::testing::Environment {
 public:
 	~Environment() override {}
 
+	static void setUp()
+	{
+		ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	}
+
+	static void tearDown()
+	{
+		SDL_Quit();
+	}
+
 	// Override this to define how to set up the environment.
 	void SetUp() override
 	{
-		ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+		Environment::setUp();
 	}
 
 	// Override this to define how to tear down the environment.
 	void TearDown() override
 	{
-		SDL_Quit();
+		Environment::tearDown();
 	}
 };
-
-::testing::Environment* env;
 
 #ifndef TEST_DUMP_SNAPSHOT
 
@@ -33,10 +41,13 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 	EXPECT_EQ(vp.h, exp.h);
 }
 
-TEST(VgaTerminal, CannotInit) {
-	env->TearDown();
+TEST(VgaTerminal, CannotInit)
+{
+	// NOTE: using the env ptr, generate a segFault at the end of the test.. weird.
+	//       so created 2 static wrapper.
+	Environment::tearDown();
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
-	env->SetUp();
+	Environment::setUp();
 }
 
 TEST(VgaTerminal, HelloWorldWindow) {
@@ -294,8 +305,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 
 int main(int argc, char** argv) {
-	env = ::testing::AddGlobalTestEnvironment(new Environment());
 	::testing::InitGoogleTest(&argc, argv);
-	::testing::AddGlobalTestEnvironment(env);
+	::testing::AddGlobalTestEnvironment(new Environment());
 	return RUN_ALL_TESTS();
 }
