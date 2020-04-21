@@ -24,7 +24,9 @@ stages:
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
           ./vcpkg integrate install
+          ls -la
           cd ..
+          ls -la
           mkdir build
           cd build
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
@@ -43,7 +45,7 @@ stages:
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
             git clone https://github.com/Microsoft/vcpkg.git
             cd vcpkg
-            bootstrap-vcpkg.bat
+            call bootstrap-vcpkg.bat
             vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
             vcpkg integrate install
             cd ..
