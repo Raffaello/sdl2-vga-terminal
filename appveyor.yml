@@ -6,7 +6,7 @@ skip_branch_with_pr: false
 
 image:
     - Visual Studio 2019
-    #- Ubuntu
+    - Ubuntu
 
 platform:
   - x86
@@ -62,5 +62,5 @@ build_script:
 
 test_script:
     - cmake --build .
-    - ctest -V
-    - cmake -P cmake_install.cmake
+    - cmd: ctest -V
+    - cmd: cmake -P cmake_install.cmake
