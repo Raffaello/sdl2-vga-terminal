@@ -68,7 +68,7 @@ stages:
           cd build
           dir
           ctest -V
-        displayName: cmake test (ctest)
+        displayName: cmake test (ctest) 
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cd build
