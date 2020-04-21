@@ -51,9 +51,11 @@ stages:
             cd build
             cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
             cmake --build .
+            dir
         displayName: cmake build
       - script: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-            cd build 
+            cd build
+            dir
             ctest -V
         displayName: cmake test (ctest)      
