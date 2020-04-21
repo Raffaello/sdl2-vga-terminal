@@ -10,7 +10,7 @@ variables:
   CONFIGURATION: 'Debug'
 
 stages:
-- stage: CI 
+- stage: CI
   jobs:
     - job: Linux
       pool:
@@ -18,6 +18,10 @@ stages:
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
+      - script: Z
+          sudo apt-get update
+          sudo apt-get -y install ninja-build 
+        displayName: install Ninja Build
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
@@ -42,18 +46,16 @@ stages:
       - script: echo %CD%
         displayName: "check curent dir"
       - script: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-            git clone https://github.com/Microsoft/vcpkg.git
-            cd vcpkg
-            call bootstrap-vcpkg.bat
-            vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
-            vcpkg integrate install
-            
-        displayName: vcpkg
-      - script:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          mkdir build
-          cd build
+          git clone https://github.com/Microsoft/vcpkg.git
+          cd vcpkg
+          call bootstrap-vcpkg.bat
+          vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
+          vcpkg integrate install
+        displayName: vcpkg
+      - script: |
+          mkdir build && cd build
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
         displayName: cmake generate
       - script: |
