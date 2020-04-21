@@ -24,13 +24,13 @@ stages:
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
           ./vcpkg integrate install
-          ls -la
-          cd ..
-          ls -la
+        displayName: vcpkg
+      - script: |
           mkdir build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-          cmake --build .
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..          
+        displayName: cmake generator
+      - script: cd build && cmake --build .
         displayName: cmake build
       #- script: cd build && ctest -V
       #  displayName: cmake test (ctest)
@@ -48,16 +48,26 @@ stages:
             call bootstrap-vcpkg.bat
             vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
             vcpkg integrate install
-            cd ..
-            mkdir build
-            cd build
-            cmake -DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
-            cmake --build .
-            dir
+            
+        displayName: vcpkg
+      - script:
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          mkdir build
+          cd build
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+        displayName: cmake generate
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd build
+          cmake --build .
         displayName: cmake build
       - script: |
-            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-            cd build
-            dir
-            ctest -V
-        displayName: cmake test (ctest)      
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd build
+          dir
+          ctest -V
+        displayName: cmake test (ctest)   
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd build
+          cmake -P cmake_install.cmake
