@@ -55,13 +55,10 @@ Just as a convention.
 
 Some must and ideas:
 
--   move the examples in `examples` folder?
+-   add tests for the cmake configuration and install files, expect them to be "there".
 -   clear with bgCol, and only viewport.
--   complete the cursor functionality (When typing show the cursor not blinking (reset timer?)
--   CI with Azure Devops, travis, appveyor, sonarcloud lgtm, etc... 
 -   decouple vga modes
 -   DAC Palette changing
--   Cursor display
 -   doxygen / document the code
 -   use streams 
 -   read

@@ -12,17 +12,14 @@ class VgaTerminal : public Window
 public:
     typedef struct
     {
-        uint8_t  mode; // video mode (only mode 3 available at the moment)
-        //uint16_t sw;   // screen   width
-        //uint16_t sh;   //          height
-        uint8_t  tw;   // terminal width
-        uint8_t  th;   //          hieght
-        uint8_t  cw;   // char     width
-        uint8_t  ch;   //          height  | font size
-        //uint8_t  fs;   // font size 
+        uint8_t  mode;    // video mode (only mode 3 available at the moment)
+        uint8_t  tw;      // terminal width
+        uint8_t  th;      //          hieght
+        uint8_t  cw;      // char     width
+        uint8_t  ch;      //          height  | font size
         uint8_t* font;
         int  numColors;
-        uint8_t* palette; // BGR palette assumed (might be required a palette format flag?)
+        uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
     } videoMode_t;
 
     // TODO keep only the 3 uint8_t here,
@@ -37,8 +34,6 @@ public:
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
-
-    static const videoMode_t mode3;
 
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
@@ -61,19 +56,27 @@ public:
     void clear() noexcept;
   
     void moveCursorLeft() noexcept;
+    // TODO: double check moveCursorRight with incrementCursorPosition as a potential the same method.
+    //       moveCursorRight is the same as incrementalCursorPosition with disabled autoScroll. (?)
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
-    
-    void setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
-    void setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
-    void setViewPort(const SDL_Rect& r) noexcept;
+
+    void newLine() noexcept;
+    /// the X,Y are relative to the new viewport.
+    bool setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
+    bool setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
+    bool setViewPort(const SDL_Rect& r) noexcept;
     SDL_Rect getViewport() const noexcept;
+    void resetViewport() noexcept;
     
     uint8_t curDefaultCol = 7;
     bool showCursor = true;
-
+    bool autoScroll = true;
+    
+    const videoMode_t getMode() const noexcept;
 private:
+    static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette p;
     videoMode_t mode;
@@ -91,7 +94,7 @@ private:
     
     // these should be parameters?
     uint8_t cur_shape = 219;
-    uint32_t cursor_time = 1000;
+    uint32_t cursor_time = 500;
  
     uint32_t _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);

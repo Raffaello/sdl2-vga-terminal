@@ -2,7 +2,8 @@
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
 
-std::string generateSnapshotFilename() {
+std::string generateSnapshotFilename()
+{
 	std::string snapshotFilename = ::testing::UnitTest::GetInstance()->current_test_info()->test_case_name();
 	snapshotFilename += '.';
 	snapshotFilename += ::testing::UnitTest::GetInstance()->current_test_info()->name();
@@ -11,7 +12,8 @@ std::string generateSnapshotFilename() {
 	return snapshotFilename;
 }
 
-SDL_Surface* getScreenshot(const VgaTerminal& term) {
+SDL_Surface* getScreenshot(const VgaTerminal& term)
+{
 	int w = 0, h = 0;
 	const uint32_t format = SDL_PIXELFORMAT_ABGR8888;
 
@@ -25,7 +27,8 @@ SDL_Surface* getScreenshot(const VgaTerminal& term) {
 	return snapshot;
 }
 
-TEST(VgaTerminal, Snapshot) {
+TEST(VgaTerminal, Snapshot)
+{
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 	std::string termTitle = "Hello Test";
@@ -34,12 +37,12 @@ TEST(VgaTerminal, Snapshot) {
 	std::string snapshotFilename = generateSnapshotFilename();
 
 	for (int i = 0; i < 256; i++) {
-		term.write((char)i, i, 255 - i);
+		term.write(static_cast<char>(i), i, 255 - i);
 	}
 
-	term.writeXY(32, 11, "ษอออออออออออออออป", 11, 4);
-	term.writeXY(32, 12, "บ Hello World!! บ", 11, 4);
-	term.writeXY(32, 13, "ศอออออออออออออออผ", 11, 4);
+	term.writeXY(32, 11, "ษอออออออออออออออป", 14, 1);
+	term.writeXY(32, 12, "บ Hello World!! บ", 14, 1);
+	term.writeXY(32, 13, "ศอออออออออออออออผ", 14, 1);
 	term.render();
 	SDL_Delay(1000);
 	SDL_Surface* snapshot = getScreenshot(term);
@@ -51,11 +54,11 @@ TEST(VgaTerminal, Snapshot) {
 #else
 	SDL_Surface* image = IMG_Load(("snapshot/" + snapshotFilename).c_str());
 
-	ASSERT_EQ(image->format->format, snapshot->format->format);
-	ASSERT_EQ(image->format->BytesPerPixel, snapshot->format->BytesPerPixel);
-	ASSERT_EQ(image->pitch, snapshot->pitch);
-	ASSERT_EQ(image->w, snapshot->w);
-	ASSERT_EQ(image->h, snapshot->h);
+	EXPECT_EQ(image->format->format, snapshot->format->format);
+	EXPECT_EQ(image->format->BytesPerPixel, snapshot->format->BytesPerPixel);
+	EXPECT_EQ(image->pitch, snapshot->pitch);
+	EXPECT_EQ(image->w, snapshot->w);
+	EXPECT_EQ(image->h, snapshot->h);
 
 	if (SDL_LockSurface(image) != 0) {
 		GTEST_LOG_(ERROR) << "unable to access image" << SDL_GetError();
@@ -66,7 +69,7 @@ TEST(VgaTerminal, Snapshot) {
 	}
 
 	int size = image->pitch * image->h;
-	ASSERT_EQ(0, SDL_memcmp(image->pixels, snapshot->pixels, size));
+	EXPECT_EQ(0, SDL_memcmp(image->pixels, snapshot->pixels, size));
 
 	SDL_UnlockSurface(image);
 	SDL_UnlockSurface(snapshot);

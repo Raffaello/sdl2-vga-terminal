@@ -27,11 +27,11 @@ typedef VGA_Terminal* (__cdecl* PROCINIT)();
 
 #if defined(DEBUG) || !defined(NDBEBUG)
 
-#define VGA_SO_NAME "vga-terminal-libd"
+#define VGA_SO_NAME "vga-terminald"
 
 #else
 
-#define VGA_SO_NAME "vga-terminal-lib"
+#define VGA_SO_NAME "vga-terminal"
 
 #endif
 

@@ -1,3 +1,8 @@
+/***********************************************
+ *** TODO:  export all the required methods  ***
+ ***        just done the bare basic         ***
+ ***********************************************/
+
 #pragma once
 
 #include <vga-terminal-export.h>
@@ -15,8 +20,6 @@ extern "C" {
 	VGA_TERMINAL_EXPORT void VGA_TERMINAL_writeXY(VGA_Terminal* term, const uint8_t x, const uint8_t y, const char* str, const uint8_t col, const uint8_t bgCol);
 	/// render in the terminal
 	VGA_TERMINAL_EXPORT void VGA_TERMINAL_render(VGA_Terminal* term);
-
-//int add(int a, int b) { return a + b; }
 #ifdef __cplusplus
 }
 #endif
