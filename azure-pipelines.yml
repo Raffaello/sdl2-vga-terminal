@@ -20,8 +20,8 @@ stages:
         displayName: "current dir"
       - script: |
           sudo apt-get update
-          sudo apt-get -y install ninja-build 
-        displayName: install Ninja Build
+          sudo apt-get -y install ninja-build  libsdl2-dev
+        displayName: install Ninja Build SDL2 
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
@@ -56,7 +56,7 @@ stages:
       - script: |
           mkdir build && cd build
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -A "x64" -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
         displayName: cmake generate
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
