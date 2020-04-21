@@ -18,7 +18,7 @@ stages:
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
-      - script: Z
+      - script: |
           sudo apt-get update
           sudo apt-get -y install ninja-build 
         displayName: install Ninja Build
