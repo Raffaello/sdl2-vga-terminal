@@ -56,6 +56,8 @@ public:
     void clear() noexcept;
   
     void moveCursorLeft() noexcept;
+    // TODO: double check moveCursorRight with incrementCursorPosition as a potential the same method.
+    //       moveCursorRight is the same as incrementalCursorPosition with disabled autoScroll. (?)
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
@@ -92,7 +94,7 @@ private:
     
     // these should be parameters?
     uint8_t cur_shape = 219;
-    uint32_t cursor_time = 1000;
+    uint32_t cursor_time = 500;
  
     uint32_t _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);

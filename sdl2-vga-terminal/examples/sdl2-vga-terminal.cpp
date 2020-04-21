@@ -65,7 +65,7 @@ int main(int argc, char* args[])
 
 
 	term2.setViewPort(11, 2, 19, 5);
-	term2.write("Hello ViewPort !!!", 3, 12);
+	term2.write("Hello ViewPort !!!", 1, 14);
 	term2.render();
 	SDL_Delay(1000);
 
@@ -83,14 +83,14 @@ int main(int argc, char* args[])
 
 	term1.render();
 	SDL_Delay(500);
-	term1.writeXY(40, 12, "Again!", 9, 0);
+	term1.writeXY(40, 12, "Again!", 9, 15);
 	term1.render();
 	SDL_Delay(500);
-	term1.writeXY(10, 15, "ษอออออออออป",12 ,3);
-	term1.writeXY(10, 16, "บ         บ",12 ,3);
-	term1.writeXY(10, 17, "ศอออออออออผ",12 ,3);
-	term1.gotoXY(12, 16); term1.write(3, 1, 15);
-	term1.gotoXY(14, 16); term1.write(4, 15, 1);
+	term1.writeXY(10, 15, "ษอออออออออป", 14 , 2);
+	term1.writeXY(10, 16, "บ         บ", 14 , 2);
+	term1.writeXY(10, 17, "ศอออออออออผ", 14 , 2);
+	term1.gotoXY(12, 16); term1.write(3, 4, 15);
+	term1.gotoXY(14, 16); term1.write(4, 15, 4);
 	term1.gotoXY(16, 16); term1.write(5, 0, 15);
 	term1.gotoXY(18, 16); term1.write(6, 15, 0);
 	term1.render();

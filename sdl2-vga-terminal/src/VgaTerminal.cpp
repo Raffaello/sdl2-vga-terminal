@@ -1,6 +1,5 @@
 #include "VgaTerminal.hpp"
 #include <typeinfo>
-#include <SDL2/SDL_assert.h>
 #include <stdexcept>
 #include "vgafonts.h"
 #include "vgapalette.h"
@@ -8,14 +7,14 @@
 constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
 template<typename T> 
-constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3f); }
+constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3F); }
 
 const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(0x003), // mode
         static_cast <uint8_t>(80),    // tw
         static_cast <uint8_t>(25),    // th
         static_cast <uint8_t>(8),     // cw
-        static_cast <uint8_t>(VGA_FONT_SIZE_16),    // ch
+        static_cast <uint8_t>(VGA_FONT_SIZE_16), // ch
         vgafont16,
         PALETTE_3_COLORS,
         palette3,
@@ -82,7 +81,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c)
 {
     const uint16_t offs = static_cast<uint8_t>(c) * mode.ch;
-    const uint8_t lsz = 8;
+    constexpr uint8_t lsz = 8;
     const int dstx = dst.x + lsz;
     const SDL_Color col_ = p.colors[col];
     const SDL_Color bgCol_ = p.colors[bgCol];
@@ -147,7 +146,7 @@ void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t
 {
     size_t sz = str.size();
     for (size_t i = 0; i < sz; i++) {
-        write(str.at(i), col, bgCol);
+        write(str[i], col, bgCol);
     }
 }
 
@@ -363,6 +362,7 @@ void VgaTerminal::resetViewport() noexcept
 
 uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
 {
+    // TODO review the user event
     SDL_Event event;
     SDL_UserEvent userevent;
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);

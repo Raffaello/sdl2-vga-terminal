@@ -7,7 +7,7 @@
 
 #pragma once
 
-/* N.B: The color format is stored as BGR */
+/* N.B: The color format is stored as RGB */
 
 #include <stdint.h>
 
