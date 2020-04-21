@@ -23,10 +23,9 @@ stages:
           cd vcpkg
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
-          ./vcpkg integrate install
-          cd ..
-          mkdir build
-          cd build
+          #cd ..
+          #mkdir build
+          #cd build
         displayName: "vcpkg configure"
       - script: ninja --version || echo "not found"
         displayName: "check Ninja"
@@ -37,7 +36,11 @@ stages:
         inputs:
           cmakeArgs: '-DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..'
         displayName: "Cmake task (generator)"
-      - script: cd build && cmake --build .
+      - script: |
+          cd vcpkg
+          ./vcpkg integrate install
+          cd ../build
+          cmake --build ..
         displayName: cmake build
       #- script: cd build && ctest -V
       #  displayName: cmake test (ctest)
@@ -54,9 +57,8 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
-          vcpkg integrate install
-          cd ..
-          mkdir build
+          rem cd ..
+          rem mkdir build
         displayName : "vcpkg install & integrate"
       - script: echo %CD%
         displayName: "check curent dir"
@@ -67,8 +69,10 @@ stages:
       
       - script: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-            cd build
-            cmake --build .
+            cd vcpkg
+            vcpkg integrate install
+            cd ..\build
+            cmake --build ..
         displayName: cmake build
       - script: |
             call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
