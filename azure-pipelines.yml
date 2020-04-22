@@ -77,7 +77,7 @@ stages:
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           call bootstrap-vcpkg.bat
-          vcpkg install sdl2 sdl2-image gtest --triplet %ARCH%-windows
+          vcpkg install sdl2 sdl2-image gtest --triplet x%ARCH%-windows
           vcpkg integrate install
         displayName: vcpkg
       #- script: |
