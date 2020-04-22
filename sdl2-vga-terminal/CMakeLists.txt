@@ -1,11 +1,11 @@
-﻿cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.16)
+
 
 set (CMAKE_CXX_STANDARD 17)
-set (CMAKE_C_STANDARD 11)
+#set (CMAKE_C_STANDARD 11)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
-
 
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
@@ -48,7 +48,7 @@ target_sources(vga-terminal PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
-target_link_libraries(vga-terminal SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(vga-terminal SDL2::SDL2)
 
 
 ########################### Static Lib #######################################
@@ -79,7 +79,7 @@ target_sources(vga-terminal-static PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
 )
-target_link_libraries(vga-terminal-static SDL2::SDL2 SDL2::SDL2main)
+target_link_libraries(vga-terminal-static SDL2::SDL2)
 
 
 ################ Shared code among exe and tests #############################
@@ -91,13 +91,13 @@ target_sources(vga-terminal-obj PRIVATE
 
 target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(WITH_SDL2_STATIC)
-    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static SDL2::SDL2main)
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static)
 else()
     install(FILES
         $<TARGET_FILE:SDL2::SDL2>
         DESTINATION static/lib
     )
-    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2 SDL2::SDL2main)
+    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2)
 endif()
 
 ### Examples
