@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 	typedef void VGA_Terminal;
+	VGA_TERMINAL_EXPORT const char* VGA_TERMINAL_version();
 	/// create a new terminal, SDL_INIT VIDEO & TIMER must be inited first.
 	VGA_TERMINAL_EXPORT VGA_Terminal* VGA_TERMINAL_init();
 	/// destroy the given terminal

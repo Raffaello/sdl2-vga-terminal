@@ -1,5 +1,11 @@
 #include <vga-terminal.h>
 #include "VgaTerminal.hpp"
+#include <version.h>
+
+const char* VGA_TERMINAL_version()
+{
+	return VGA_TERMINAL_VERSION;
+}
 
 VGA_Terminal* VGA_TERMINAL_init()
 {

@@ -35,6 +35,8 @@ public:
 
     typedef std::pair<uint8_t, uint8_t> position_t;
 
+    static const std::string getVersion();
+
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);

@@ -41,6 +41,12 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 	EXPECT_EQ(vp.h, exp.h);
 }
 
+TEST(VgaTerminal, checkVersion)
+{
+	VgaTerminal t("", 0, -1, 0);
+	ASSERT_STRCASEEQ("0.2", t.getVersion().c_str());
+}
+
 TEST(VgaTerminal, CannotInit)
 {
 	// NOTE: using the env ptr, generate a segFault at the end of the test.. weird.

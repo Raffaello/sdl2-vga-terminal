@@ -7,7 +7,8 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif()
 
-project ("sdl2-vga-terminal" VERSION 0.1 DESCRIPTION "Vga Terminal on SDL2")
+
+project ("sdl2-vga-terminal" VERSION 0.2 DESCRIPTION "Vga Terminal on SDL2")
 
 option(WITH_EXAMPLES "build examples" ON)
 option(WITH_TEST "build test" ON)

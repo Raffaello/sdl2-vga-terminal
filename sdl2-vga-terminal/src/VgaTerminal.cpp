@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include "vgafonts.h"
 #include "vgapalette.h"
+#include <version.h>
 
 constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
@@ -26,6 +27,11 @@ bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
         && c == o.c
         && col == o.col
         && bgCol == o.bgCol;
+}
+
+const std::string VgaTerminal::getVersion()
+{
+    return std::string(VGA_TERMINAL_VERSION);
 }
 
 VgaTerminal::~VgaTerminal()

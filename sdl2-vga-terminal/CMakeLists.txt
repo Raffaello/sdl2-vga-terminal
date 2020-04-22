@@ -2,10 +2,11 @@
 
 
 set (CMAKE_CXX_STANDARD 17)
-#set (CMAKE_C_STANDARD 11)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
+
+configure_file(version.h.in version.h)
 
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
@@ -72,6 +73,7 @@ install(EXPORT
     vga-terminal-static-config DESTINATION static/cmake
 )
 target_include_directories(vga-terminal-static PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
 )
@@ -89,7 +91,10 @@ target_sources(vga-terminal-obj PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 )
 
-target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(vga-terminal-obj PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 if(WITH_SDL2_STATIC)
     target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static)
 else()
