@@ -45,6 +45,8 @@ stages:
       steps:
       - script: echo %CD%
         displayName: "check curent dir"
+      - script: choco list --local-only
+        displayName: chocolatey installed packages
       - script: choco uninstall gcc
         displayName: Remove GCC chocolatey installation
       - script: |
