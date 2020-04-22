@@ -20,19 +20,19 @@ stages:
         displayName: "current dir"
       - script: |
           sudo apt-get update
-          sudo apt-get -y install ninja-build  libsdl2-dev
+          sudo apt-get -y install ninja-build  libsdl2-dev libsdl2-image-dev
         displayName: install Ninja Build SDL2 
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           ./bootstrap-vcpkg.sh
-          ./vcpkg install sdl2 sdl2-image gtest
+          ./vcpkg install gtest
           ./vcpkg integrate install
         displayName: vcpkg
       - script: |
           mkdir build
           cd build
-          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..          
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         displayName: cmake generator
       - script: cd build && cmake --build .
         displayName: cmake build
@@ -45,6 +45,8 @@ stages:
       steps:
       - script: echo %CD%
         displayName: "check curent dir"
+      - script: choco uninstall gcc
+        displayName: Remove GCC chocolatey installation
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           git clone https://github.com/Microsoft/vcpkg.git
@@ -73,3 +75,4 @@ stages:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cd build
           cmake -P cmake_install.cmake
+        displayName: cmake install
