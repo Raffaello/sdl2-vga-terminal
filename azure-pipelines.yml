@@ -47,12 +47,24 @@ stages:
             BuildType: Debug
             CMakeArgs: '-G"Visual Studio 15 2019 Win64"'
             JFlag: -j 2
+          
+          # 64-bit Release:
+          #   ARCH: x64
+          #   BuildType: Release
+          #   CMakeArgs: '-G"Visual Studio 15 2019 Win64"'
+          #   JFlag: -j 2
 
-          64-bit Release:
-            ARCH: x86
-            BuildType: Release
-            CMakeArgs: '-G"Visual Studio 15 2019"'
-            JFlag: -j 2
+          # 32-bit Debug:
+          #   ARCH: x86
+          #   BuildType: Debug
+          #   CMakeArgs: '-G"Visual Studio 15 2019"'
+          #   JFlag: -j 2
+
+          # 32-bit Release:
+          #   ARCH: x86
+          #   BuildType: Release
+          #   CMakeArgs: '-G"Visual Studio 15 2019"'
+          #   JFlag: -j 2
       pool:
         vmImage: 'windows-2019'
       steps:
