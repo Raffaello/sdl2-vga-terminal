@@ -21,7 +21,7 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         palette3,
 };
 
-bool VgaTerminal::terminalChar_t::operator==(const terminalChar_t& o) const
+bool VgaTerminal::_terminalChar_t::operator==(const _terminalChar_t& o) const
 {
     return rendered == o.rendered
         && c == o.c
@@ -68,7 +68,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         p.colors[i].a = 255;
     }
 
-    _pGrid = std::make_unique<terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
+    _pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
     if (!_pGrid) {
         throw std::runtime_error("unable to alloc _pGrid");
     }

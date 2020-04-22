@@ -22,15 +22,11 @@ public:
         uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
     } videoMode_t;
 
-    // TODO keep only the 3 uint8_t here,
-    //      create a private one that embed this one and the other 2 bools.
-    typedef struct terminalChar_t
+    typedef struct
     {
         uint8_t c;
         uint8_t col;
         uint8_t bgCol;
-        bool rendered;
-        bool operator==(const terminalChar_t& o) const;
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
@@ -76,14 +72,20 @@ public:
     
     const videoMode_t getMode() const noexcept;
 private:
+    typedef struct _terminalChar_t : terminalChar_t
+    {
+        bool rendered;
+        bool operator==(const _terminalChar_t& o) const;
+    } _terminalChar_t;
+
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette p;
     videoMode_t mode;
     uint8_t _curX = 0;
     uint8_t _curY = 0;
-    std::unique_ptr<terminalChar_t[]> _pGrid;
-    terminalChar_t defaultNullChar = { 0, 0, 0, false };
+    std::unique_ptr<_terminalChar_t[]> _pGrid;
+    _terminalChar_t defaultNullChar = { 0, 0, 0, false };
     uint8_t _viewPortX;
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
