@@ -276,16 +276,7 @@ void VgaTerminal::moveCursorLeft() noexcept
 
 void VgaTerminal::moveCursorRight() noexcept
 {
-    if (_curX < _viewPortX + _viewPortWidth - 1) {
-        ++_curX;
-    }
-    else if (_curY < _viewPortY + _viewPortHeight - 1) {
-        _curY++;
-        _curX = _viewPortX;
-    }
-    else {
-        //already at the max
-    }
+    incrementCursorPosition(false);
 }
 
 void VgaTerminal::moveCursorUp() noexcept
@@ -386,23 +377,19 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     return interval;
 }
 
-void VgaTerminal::incrementCursorPosition() noexcept
+void VgaTerminal::incrementCursorPosition(bool increment) noexcept
 {
-    if (++_curX >= _viewPortX + _viewPortWidth)
-    {
+    if (_curX < _viewPortX + _viewPortWidth - 1) {
+        ++_curX;
+    }
+    else if (_curY < _viewPortY + _viewPortHeight - 1) {
+        _curY++;
         _curX = _viewPortX;
-        auto h = _viewPortY + _viewPortHeight;
-        if (++_curY >= h)
-        {
-            _curY = h - 1;
-            if (autoScroll) {
-                scrollDownGrid();
-            }
-            else {
-                // stay in the same position
-                _curX = _viewPortX + _viewPortWidth - 1;
-            }
-        }
+    }
+    else if ((increment) && (autoScroll)) {
+        //already at the max
+        _curX = _viewPortX;
+        scrollDownGrid();
     }
 }
 

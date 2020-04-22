@@ -58,8 +58,6 @@ public:
     void clear() noexcept;
   
     void moveCursorLeft() noexcept;
-    // TODO: double check moveCursorRight with incrementCursorPosition as a potential the same method.
-    //       moveCursorRight is the same as incrementalCursorPosition with disabled autoScroll. (?)
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
@@ -101,7 +99,7 @@ private:
     uint32_t _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
-    void incrementCursorPosition() noexcept;
+    void incrementCursorPosition(bool increment = true) noexcept;
     void scrollDownGrid() noexcept;
     void renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c);
 };
