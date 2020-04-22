@@ -86,7 +86,7 @@ stages:
       #    cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
       #  displayName: cmake generate
       - task: CMake@1
-        displayName: 'CMake .. '-G"Visual Studio 16 2019"' -Ax%ARCH% -DCMAKE_BUILD_TYPE=$(BuildType) -DSNMALLOC_CI_BUILD=On -DSNMALLOC_RUST_SUPPORT=On'
+        displayName: 'CMake .. -G"Visual Studio 16 2019" -Ax%ARCH% -DCMAKE_BUILD_TYPE=$(BuildType) -DSNMALLOC_CI_BUILD=On -DSNMALLOC_RUST_SUPPORT=On'
         inputs:
           cmakeArgs: '.. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
       - script: |
