@@ -59,6 +59,17 @@ void Window::renderPresent() const
 	SDL_RenderPresent(_pRenderer);
 }
 
+void Window::toggleFullscreenDesktop()
+{
+	_bFullScreenDesktop = !_bFullScreenDesktop;
+	SDL_SetWindowFullscreen(getWindow(), _bFullScreenDesktop ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
+}
+
+uint32_t Window::getWindowId() const
+{
+	return _windowId;
+}
+
 bool Window::handleEvent(SDL_Event& event)
 {
 	if (event.window.windowID != getWindowId() || handler == nullptr) {

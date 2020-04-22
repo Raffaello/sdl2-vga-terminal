@@ -5,35 +5,41 @@
 #include <string>
 #include <bitset>
 
-
 class VgaTerminal : public Window
 {
-
 public:
     typedef struct
     {
-        uint8_t  mode;    // video mode (only mode 3 available at the moment)
-        uint8_t  tw;      // terminal width
-        uint8_t  th;      //          hieght
-        uint8_t  cw;      // char     width
-        uint8_t  ch;      //          height  | font size
+        uint8_t  mode;      // video mode (only mode 3 available at the moment)
+        uint8_t  tw;        // terminal width
+        uint8_t  th;        //          height
+        uint8_t  cw;        // char     width
+        uint8_t  ch;        //          height  | font size
+        uint16_t numColors; // 65K max (16 bit) otherwse 24|32 bits if 0 (?)
         uint8_t* font;
-        int  numColors;
-        uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
+        uint8_t* palette;   // RGB palette
+        uint8_t* cursors;
     } videoMode_t;
 
-    // TODO keep only the 3 uint8_t here,
-    //      create a private one that embed this one and the other 2 bools.
-    typedef struct terminalChar_t
+    typedef struct
     {
         uint8_t c;
         uint8_t col;
         uint8_t bgCol;
-        bool rendered;
-        bool operator==(const terminalChar_t& o) const;
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
+
+    enum class CURSOR_MODE : uint8_t {
+        CURSOR_MODE_NORMAL = 0,
+        CURSOR_MODE_FAT = 1,
+        CURSOR_MODE_BLOCK = 2,
+        CURSOR_MODE_VERTICAL = 3,
+    };
+
+    CURSOR_MODE cursor_mode = CURSOR_MODE::CURSOR_MODE_NORMAL;
+
+    static const std::string getVersion();
 
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
@@ -56,50 +62,54 @@ public:
     void clear() noexcept;
   
     void moveCursorLeft() noexcept;
-    // TODO: double check moveCursorRight with incrementCursorPosition as a potential the same method.
-    //       moveCursorRight is the same as incrementalCursorPosition with disabled autoScroll. (?)
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
     void moveCursorDown() noexcept;
 
     void newLine() noexcept;
-    /// the X,Y are relative to the new viewport.
+
     bool setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
     bool setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
     bool setViewPort(const SDL_Rect& r) noexcept;
     SDL_Rect getViewport() const noexcept;
     void resetViewport() noexcept;
+
+    const videoMode_t getMode() const noexcept;
     
-    uint8_t curDefaultCol = 7;
+    uint8_t cursorDefaultCol = 7;
+    uint16_t cursor_time = 500; /// ms
     bool showCursor = true;
     bool autoScroll = true;
-    
-    const videoMode_t getMode() const noexcept;
 private:
+    typedef struct _terminalChar_t : terminalChar_t
+    {
+        bool rendered;
+        bool operator==(const _terminalChar_t& o) const;
+    } _terminalChar_t;
+
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
-    SDL_Palette p;
+    SDL_Palette _pal;
     videoMode_t mode;
+    std::unique_ptr<_terminalChar_t[]> _pGrid;
+    const _terminalChar_t _defaultNullChar = { 0, 0, 0, false };
+    
     uint8_t _curX = 0;
     uint8_t _curY = 0;
-    std::unique_ptr<terminalChar_t[]> _pGrid;
-    terminalChar_t defaultNullChar = { 0, 0, 0, false };
     uint8_t _viewPortX;
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
-
-    bool _cursonOn = true;
-    SDL_TimerID _cursorTimer = 0;
-    
-    // these should be parameters?
-    uint8_t cur_shape = 219;
-    uint32_t cursor_time = 500;
- 
-    uint32_t _timerId = 0;
+  
+    bool _drawCursor = true; 
+    SDL_TimerID _cursorTimerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
-    void incrementCursorPosition() noexcept;
-    void scrollDownGrid() noexcept;
-    void renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c);
+    void _incrementCursorPosition(bool increment = true) noexcept;
+    void _scrollDownGrid() noexcept;
+    void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
+    void _renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol);
+    void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
+    void _renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force);
+    void _renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force);
 };

@@ -2,10 +2,11 @@
 
 
 set (CMAKE_CXX_STANDARD 17)
-#set (CMAKE_C_STANDARD 11)
 set (CMAKE_DEBUG_POSTFIX d)
 
 find_package(SDL2 CONFIG REQUIRED)
+
+configure_file(version.h.in version.h)
 
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
@@ -72,6 +73,7 @@ install(EXPORT
     vga-terminal-static-config DESTINATION static/cmake
 )
 target_include_directories(vga-terminal-static PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
 )
@@ -89,7 +91,10 @@ target_sources(vga-terminal-obj PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
 )
 
-target_include_directories(vga-terminal-obj PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(vga-terminal-obj PUBLIC 
+    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
 if(WITH_SDL2_STATIC)
     target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static)
 else()
@@ -105,6 +110,30 @@ if(WITH_EXAMPLES)
     add_subdirectory("examples")
 endif()
 
+
+######################## add compiler options ################################
+if(MSVC)
+# @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
+
+    target_compile_options(vga-terminal PRIVATE /W4 /WX)
+    target_compile_options(vga-terminal-static PRIVATE /W4 /WX)
+    target_compile_options(vga-terminal-obj PRIVATE /W4 /WX)
+elseif(GCC)
+    target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(vga-terminal-obj PRIVATE -Wall -Wextra -pedantic -Werror)
+elseif(CLANG)
+endif()
+
+
+get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
+get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
+get_target_property(vga-terminal-obj_copts vga-terminal-obj COMPILE_OPTIONS)
+
+message("target compiler options:")
+message(STATUS "vga-terminal " ${vga-terminal_copts})
+message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
+message(STATUS "vga-terminal-obj " ${vga-terminal-obj_copts})
 
 ############################### tests ########################################
 if(WITH_TEST)

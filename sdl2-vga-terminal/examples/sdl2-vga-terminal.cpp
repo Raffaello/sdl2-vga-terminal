@@ -54,6 +54,7 @@ int main(int argc, char* args[])
 
 	// --- end SDL2 system init and info
 	VgaTerminal term2 = VgaTerminal("T2 test", 640, 400, 0, -1, 0);
+	term2.cursor_mode = VgaTerminal::CURSOR_MODE::CURSOR_MODE_BLOCK;
 	term2.write("events: understand which windows is focused...", 10, 0);
 	term2.writeXY(10, 1, "**** Viewporting ****", 10, 0);
 	term2.writeXY(10, 2, "*                   *", 10, 0);

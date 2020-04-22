@@ -24,9 +24,6 @@ Use `vcpkg` and install `SDL2`.
 
 SDL2 Video sub-system has to be initialized before using `VgaTerminal` class.
 
-for extended ASCII chars to use as literal (eg: char 205), it is required to save the source code with 
-the codepage 437 encoding (OEM United States / Extended ASCII / DOS Terminal).
-
 There are few examples usage as part of this cmake compilation too.
 
 ## Screenshot
@@ -50,17 +47,3 @@ please note if you are dumping the snapshot, you have to copy back to the `test/
 The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
 Just as a convention.
-
-## TODO 
-
-Some must and ideas:
-
--   add tests for the cmake configuration and install files, expect them to be "there".
--   clear with bgCol, and only viewport.
--   decouple vga modes
--   DAC Palette changing
--   doxygen / document the code
--   use streams 
--   read
--   unicode VGA font
--   some functions can be optimized using SDL_Surface functions/SDL functions
