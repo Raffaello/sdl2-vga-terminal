@@ -175,11 +175,12 @@ INSTANTIATE_TEST_SUITE_P(
 	VgaTerminal,
 	SetViewportParameterTests,
 	::testing::Values(
-		std::make_tuple(0, 0, 1, 1, false, 0, 0),    // SetViewport1
-		std::make_tuple(10, 10, 10, 10, true, 0, 0), // SetViewport2
-		std::make_tuple(5, 4, 20, 20, true, 5, 5)    // atViewport
+		std::make_tuple<int, int, int, int, bool, int, int>(0, 0, 1, 1, false, 0, 0),    // SetViewport1
+		std::make_tuple<int, int, int, int, bool, int, int>(10, 10, 10, 10, true, 0, 0), // SetViewport2
+		std::make_tuple<int, int, int, int, bool, int, int>(5, 4, 20, 20, true, 5, 5)    // atViewport
 	)
 );
+
 
 class SetViewportNullErrTests : public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
 TEST_P(SetViewportNullErrTests, setViewportNullError)
@@ -205,9 +206,9 @@ INSTANTIATE_TEST_SUITE_P(
 	VgaTerminal,
 	SetViewportNullErrTests,
 	::testing::Values(
-		std::make_tuple(0, 0, 0, 0),
-		std::make_tuple(0, 0, 1, 0),
-		std::make_tuple(0, 0, 1, 0)
+		std::make_tuple<int, int, int, int>(0, 0, 0, 0),
+		std::make_tuple<int, int, int, int>(0, 0, 1, 0),
+		std::make_tuple<int, int, int, int>(0, 0, 1, 0)
 	)
 );
 
@@ -331,6 +332,7 @@ INSTANTIATE_TEST_SUITE_P(
 		false
 	)
 );
+
 #endif
 
 
