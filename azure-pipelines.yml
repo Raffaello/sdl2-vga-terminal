@@ -88,7 +88,7 @@ stages:
       - task: CMake@1
         displayName: 'CMake generator'
         inputs:
-          cmakeArgs: '.. -G"Visual Studio 16 2019" -Ax%ARCH% -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
+          cmakeArgs: '.. -G"Ninja" -Ax%ARCH% -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake --build .
