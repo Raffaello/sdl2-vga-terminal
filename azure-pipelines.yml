@@ -14,7 +14,7 @@ stages:
   jobs:
     - job: Linux
       pool:
-        vmImage: 'ubuntu-latest'
+        vmImage: 'ubuntu-18.04'
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
@@ -41,14 +41,16 @@ stages:
       
     - job: Windows
       pool:
-        vmImage: 'windows-latest'
+        vmImage: 'windows-2019'
       steps:
       - script: echo %CD%
         displayName: "check curent dir"
+      - script: echo %PATH%
+        displayName: show PATH
       - script: choco list --local-only
         displayName: chocolatey installed packages
-      - script: choco uninstall gcc
-        displayName: Remove GCC chocolatey installation
+      - script: choco uninstall strawberryperl
+        displayName: Remove GCC (StrawBerry Perl) chocolatey installation
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           git clone https://github.com/Microsoft/vcpkg.git
