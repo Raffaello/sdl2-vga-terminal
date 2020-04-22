@@ -40,6 +40,19 @@ stages:
       #  displayName: cmake test (ctest)
       
     - job: Windows
+      strategy:
+        matrix:
+          64-bit Debug:
+            ARCH: x64
+            BuildType: Debug
+            CMakeArgs: '-G"Visual Studio 15 2019 Win64"'
+            JFlag: -j 2
+
+          64-bit Release:
+            ARCH: x86
+            BuildType: Release
+            CMakeArgs: '-G"Visual Studio 15 2019 Win64"'
+            JFlag: -j 2
       pool:
         vmImage: 'windows-2019'
       steps:
@@ -47,36 +60,35 @@ stages:
         displayName: "check curent dir"
       - script: echo %PATH%
         displayName: show PATH
-      - script: choco list --local-only
-        displayName: chocolatey installed packages
-      - script: choco uninstall strawberryperl
-        displayName: Remove GCC (StrawBerry Perl) chocolatey installation
+      #- script: choco list --local-only
+      #  displayName: chocolatey installed packages
+      #- script: choco uninstall strawberryperl
+      #  displayName: Remove GCC (StrawBerry Perl) chocolatey installation
       - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           call bootstrap-vcpkg.bat
-          vcpkg install sdl2 sdl2-image gtest --triplet x64-windows
+          vcpkg install sdl2 sdl2-image gtest --triplet %ARCH%-windows
           vcpkg integrate install
         displayName: vcpkg
+      #- script: |
+      #    mkdir build && cd build
+      #    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+      #    cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+      #  displayName: cmake generate
+      - task: CMake@1
+        displayName: 'CMake .. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType) -DSNMALLOC_CI_BUILD=On -DSNMALLOC_RUST_SUPPORT=On'
+        inputs:
+          cmakeArgs: '.. $(CMakeArgs) -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
       - script: |
-          mkdir build && cd build
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
-        displayName: cmake generate
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cd build
           cmake --build .
+        workingDirectory: build
         displayName: cmake build
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cd build
-          dir
-          ctest -V
-        displayName: cmake test (ctest) 
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cd build
-          cmake -P cmake_install.cmake
+      - script: 'ctest -V -C $(BuildType)'
+        workingDirectory: build
+        displayName: 'Run Ctest'
+      - script: cmake -P cmake_install.cmake
+        workingDirectory: build
         displayName: cmake install
