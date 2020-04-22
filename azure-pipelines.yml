@@ -51,7 +51,7 @@ stages:
           64-bit Release:
             ARCH: x86
             BuildType: Release
-            CMakeArgs: '-G"Visual Studio 15 2019 Win32"'
+            CMakeArgs: '-G"Visual Studio 15 2019"'
             JFlag: -j 2
       pool:
         vmImage: 'windows-2019'
