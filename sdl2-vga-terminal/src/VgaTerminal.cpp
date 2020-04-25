@@ -4,7 +4,6 @@
 #include "vgafonts.h"
 #include "vgapalette.h"
 #include <version.h>
-#include <bitset>
 
 constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
@@ -37,8 +36,8 @@ const std::string VgaTerminal::getVersion()
 
 VgaTerminal::~VgaTerminal()
 {
-    if (_timerId != 0) {
-        SDL_RemoveTimer(_timerId);
+    if (_cursorTimerId != 0) {
+        SDL_RemoveTimer(_cursorTimerId);
     }
 }
 
@@ -75,8 +74,8 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
     
     if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
-        _timerId = SDL_AddTimer(cursor_time, _timerCallBack, this);
-        if (_timerId == 0) {
+        _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBack, this);
+        if (_cursorTimerId == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
     }
@@ -85,27 +84,60 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
 }
 
-void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c)
+void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, uint8_t col, uint8_t bgCol)
 {
-    const uint16_t offs = static_cast<uint8_t>(c) * mode.ch;
-    constexpr uint8_t lsz = 8;
+    constexpr auto lsz = 8;
+
+    // *** render line ***
+    SDL_Point points[lsz];
+    uint8_t fgi = 0, bgi = lsz;
+    for (uint8_t x = 0; x < lsz; x++) {
+        if (line.test(x)) points[fgi++] = { dstx - x, dsty };
+        else points[--bgi] = { dstx - x, dsty };
+    }
+
+    SDL_SetRenderDrawColor(getRenderer(), _pal.colors[col].r, _pal.colors[col].g, _pal.colors[col].b, _pal.colors[col].a);
+    SDL_RenderDrawPoints(getRenderer(), points, fgi);
+    SDL_SetRenderDrawColor(getRenderer(), _pal.colors[bgCol].r, _pal.colors[bgCol].g, _pal.colors[bgCol].b, _pal.colors[bgCol].a);
+    SDL_RenderDrawPoints(getRenderer(), &points[fgi], lsz - bgi);
+
+}
+void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
+{
+    uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
+    constexpr uint8_t lsz = sizeof(uint8_t) * 8;
     const int dstx = dst.x + lsz;
-    const SDL_Color col_ = _pal.colors[col];
-    const SDL_Color bgCol_ = _pal.colors[bgCol];
+
     for (uint8_t y = 0; y < mode.ch; y++)
     {
-        const std::bitset<lsz> line(mode.font[offs + y]);
-        const int dsty = dst.y + y;
-       
-        // *** render line ***
-        for (uint8_t x = 0; x < lsz; x++) {
-            const SDL_Color col__ = line[x] == 1 ? col_ : bgCol_;
-            // without buffer cannot be multithreding
-            // 1 char at time due to the set color
-            SDL_SetRenderDrawColor(getRenderer(), col__.r, col__.g, col__.b, col__.a);
-            SDL_RenderDrawPoint(getRenderer(), dstx - x, dsty);
+        _renderCharLine(font[y], dstx, dst.y + y, tc.col, tc.bgCol);
+    }
+
+    tc.rendered = true;
+}
+
+void VgaTerminal::_renderCursor(const SDL_Point& dst, _terminalChar_t& tc)
+{
+    if (showCursor && _drawCursor) {
+        const uint8_t col = tc.col == tc.bgCol ? 
+            cursorDefaultCol :
+            tc.col
+        ;
+            
+        constexpr uint8_t lsz = sizeof(uint8_t) * 8;
+        const int dstx = dst.x + lsz;
+        const SDL_Color col_ = _pal.colors[col];
+        const SDL_Color bgCol_ = _pal.colors[tc.bgCol];
+        const uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
+        const uint8_t* cursorFont = &vgafont_cursors16[static_cast<int>(cursor_mode) * mode.ch];
+
+        for (uint8_t y = 0; y < mode.ch; y++)
+        {
+            _renderCharLine(font[y] ^ cursorFont[y], dstx, dst.y + y, col, tc.bgCol);
         }
-        // end *** render line ***
+    }
+    else {
+        _renderFontChar(dst, tc);
     }
 }
 
@@ -146,7 +178,7 @@ void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol) no
     _pGrid[pos].col = col;
     _pGrid[pos].bgCol = bgCol; 
     _pGrid[pos].rendered = false;
-    incrementCursorPosition();
+    _incrementCursorPosition();
 }
 
 void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept
@@ -208,43 +240,25 @@ void VgaTerminal::render(const bool force)
     _pGrid[icur].rendered = false;
 
     for (int j = 0; j < mode.th; j++) {
-         int j2 = j * mode.tw;
-         int jch = j * mode.ch;
-        
+        int j2 = j * mode.tw;
+        int jch = j * mode.ch;
+
         for (int i = 0; i < mode.tw; i++) {
             int i2 = j2 + i;
 
             if (!force && _pGrid[i2].rendered) {
                 continue;
             }
-        
-            SDL_Point p = { i * mode.cw, jch };
-            uint8_t col, bgCol, c;
-            c = _pGrid[i2].c;
-            col = _pGrid[i2].col;
-            bgCol = _pGrid[i2].bgCol;
 
+            SDL_Point p = { i * mode.cw, jch };
             // cursor position
-            if ((_curY == j) && (_curX == i)
-                && (showCursor && _cursonOn)) {
-                
-                if (c != 0) {
-                    // invert col and bgCol
-                    col = _pGrid[i2].bgCol;
-                    bgCol = _pGrid[i2].col;
-                }
-                else {
-                    // only the cursor
-                    bgCol = 0;
-                    col = curDefaultCol;
-                    c = cur_shape;
-                }
+            if ((_curY == j) && (_curX == i)) {
+                _renderCursor(p, _pGrid[i2]);
             }
             else {
-                _pGrid[i2].rendered = true;
+                //_pGrid[i2].rendered = true;
+                _renderFontChar(p, _pGrid[i2]);
             }
-
-            renderChar(p, col, bgCol, c);
         }
     }
 
@@ -284,7 +298,7 @@ void VgaTerminal::moveCursorLeft() noexcept
 
 void VgaTerminal::moveCursorRight() noexcept
 {
-    incrementCursorPosition(false);
+    _incrementCursorPosition(false);
 }
 
 void VgaTerminal::moveCursorUp() noexcept
@@ -311,7 +325,7 @@ void VgaTerminal::newLine() noexcept
     moveCursorDown();
     // last line
     if ((oldY == _curY) && (autoScroll)) {
-        scrollDownGrid();
+        _scrollDownGrid();
     }
 }
 
@@ -374,7 +388,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     SDL_UserEvent userevent;
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
-    that->_cursonOn = !that->_cursonOn;
+    that->_drawCursor = !that->_drawCursor;
     userevent.type = SDL_USEREVENT;
     userevent.code = 0;
     userevent.data1 = NULL;
@@ -387,7 +401,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     return interval;
 }
 
-void VgaTerminal::incrementCursorPosition(bool increment) noexcept
+void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
 {
     if (_curX < _viewPortX + _viewPortWidth - 1) {
         ++_curX;
@@ -399,11 +413,11 @@ void VgaTerminal::incrementCursorPosition(bool increment) noexcept
     else if ((increment) && (autoScroll)) {
         //already at the max
         _curX = _viewPortX;
-        scrollDownGrid();
+        _scrollDownGrid();
     }
 }
 
-void VgaTerminal::scrollDownGrid() noexcept
+void VgaTerminal::_scrollDownGrid() noexcept
 {
     // todo can be used as private fields instead of local vars.
     auto vh = _viewPortY + _viewPortHeight;
@@ -439,5 +453,3 @@ const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 {
     return mode;
 }
-
-

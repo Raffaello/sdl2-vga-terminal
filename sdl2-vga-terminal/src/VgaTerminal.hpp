@@ -3,7 +3,7 @@
 #include "Window.hpp"
 #include <memory>
 #include <string>
-
+#include <bitset>
 
 class VgaTerminal : public Window
 {
@@ -29,6 +29,15 @@ public:
     } terminalChar_t;
 
     typedef std::pair<uint8_t, uint8_t> position_t;
+
+    enum class CURSOR_MODE : uint8_t {
+        CURSOR_MODE_NORMAL = 0,
+        CURSOR_MODE_FAT = 1,
+        CURSOR_MODE_BLOCK = 2,
+        CURSOR_MODE_VERTICAL = 3,
+    };
+
+    CURSOR_MODE cursor_mode = CURSOR_MODE::CURSOR_MODE_NORMAL;
 
     static const std::string getVersion();
 
@@ -65,11 +74,13 @@ public:
     SDL_Rect getViewport() const noexcept;
     void resetViewport() noexcept;
     
-    uint8_t curDefaultCol = 7;
+    uint8_t cursorDefaultCol = 7;
+    const videoMode_t getMode() const noexcept;
+    
+    
+    
     bool showCursor = true;
     bool autoScroll = true;
-    
-    const videoMode_t getMode() const noexcept;
 private:
     typedef struct _terminalChar_t : terminalChar_t
     {
@@ -92,15 +103,17 @@ private:
     uint8_t _viewPortHeight;
   
     // these should be parameters?
-    uint8_t cur_shape = 219;
+    //uint8_t cur_shape = 219;
     uint32_t cursor_time = 500; // uint16_t?
-    uint8_t _cursor_mode = 0;
     
-    bool _cursonOn = true;
-    SDL_TimerID _timerId = 0;
+    bool _drawCursor = true; 
+    SDL_TimerID _cursorTimerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
-    void incrementCursorPosition(bool increment = true) noexcept;
-    void scrollDownGrid() noexcept;
-    void renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const char c);
+    void _incrementCursorPosition(bool increment = true) noexcept;
+    void _scrollDownGrid() noexcept;
+    void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
+    void _renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, uint8_t col, uint8_t bgCol);
+    void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
+    //void _renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const uint8_t* font);
 };
