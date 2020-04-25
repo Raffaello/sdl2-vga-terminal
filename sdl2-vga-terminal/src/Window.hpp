@@ -17,12 +17,9 @@ public:
 	void setRendererDrawColor(const uint8_t r,const uint8_t g, const  uint8_t b, const  uint8_t a) const;
 	void renderClear() const;
 	void renderPresent() const;
-	inline void toggleFullscreenDesktop() { 
-		_bFullScreenDesktop = !_bFullScreenDesktop;
-		SDL_SetWindowFullscreen(getWindow(), _bFullScreenDesktop ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
-	}
+	void toggleFullscreenDesktop();
 
-	inline uint32_t getWindowId() const { return _windowId; }
+	uint32_t getWindowId() const;
 	
 	typedef std::function<bool(SDL_Event&, Window*)> handler_t;
 	handler_t handler = nullptr;
@@ -32,8 +29,6 @@ public:
 private:
 	SDL_Window* _pWindow = nullptr;
 	SDL_Renderer* _pRenderer = nullptr;
-	bool _bFullScreenDesktop = false;
 	uint32_t _windowId;
-
-	
+	bool _bFullScreenDesktop = false;
 };

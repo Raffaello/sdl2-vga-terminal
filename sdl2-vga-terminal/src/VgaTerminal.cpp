@@ -17,8 +17,8 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         static_cast <uint8_t>(25),    // th
         static_cast <uint8_t>(8),     // cw
         static_cast <uint8_t>(VGA_FONT_SIZE_16), // ch
-        vgafont16,
         PALETTE_3_COLORS,
+        vgafont16,
         palette3,
 };
 
@@ -58,15 +58,15 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         throw std::runtime_error(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
     }
 
-    p.ncolors = mode.numColors;
-    pCol = std::make_unique<SDL_Color[]>(p.ncolors);
-    p.colors = pCol.get();
-    for (int i = 0, i3 = 0; i < p.ncolors; i++, i3+=3)
+    _pal.ncolors = mode.numColors;
+    pCol = std::make_unique<SDL_Color[]>(_pal.ncolors);
+    _pal.colors = pCol.get();
+    for (int i = 0, i3 = 0; i < _pal.ncolors; i++, i3+=3)
     {
-        p.colors[i].r = RESIZE_VGA_PALETTE(mode.palette[i3 + 0]);
-        p.colors[i].g = RESIZE_VGA_PALETTE(mode.palette[i3 + 1]);
-        p.colors[i].b = RESIZE_VGA_PALETTE(mode.palette[i3 + 2]);
-        p.colors[i].a = 255;
+        _pal.colors[i].r = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 0]));
+        _pal.colors[i].g = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 1]));
+        _pal.colors[i].b = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 2]));
+        _pal.colors[i].a = 255;
     }
 
     _pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
@@ -90,8 +90,8 @@ void VgaTerminal::renderChar(const SDL_Point& dst, const uint8_t col, const uint
     const uint16_t offs = static_cast<uint8_t>(c) * mode.ch;
     constexpr uint8_t lsz = 8;
     const int dstx = dst.x + lsz;
-    const SDL_Color col_ = p.colors[col];
-    const SDL_Color bgCol_ = p.colors[bgCol];
+    const SDL_Color col_ = _pal.colors[col];
+    const SDL_Color bgCol_ = _pal.colors[bgCol];
     for (uint8_t y = 0; y < mode.ch; y++)
     {
         const std::bitset<lsz> line(mode.font[offs + y]);
@@ -345,7 +345,9 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
 
 bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
-    int x = r.x, y = r.y, w = r.w, h = r.h;
+    uint8_t x = static_cast<uint8_t>(r.x), y = static_cast<uint8_t>(r.y),
+        w = static_cast<uint8_t>(r.w), h = static_cast<uint8_t>(r.h);
+
     return setViewPort(x, y, w, h);
 }
 

@@ -11,14 +11,14 @@ class VgaTerminal : public Window
 public:
     typedef struct
     {
-        uint8_t  mode;    // video mode (only mode 3 available at the moment)
-        uint8_t  tw;      // terminal width
-        uint8_t  th;      //          height
-        uint8_t  cw;      // char     width
-        uint8_t  ch;      //          height  | font size
+        uint8_t  mode;      // video mode (only mode 3 available at the moment)
+        uint8_t  tw;        // terminal width
+        uint8_t  th;        //          height
+        uint8_t  cw;        // char     width
+        uint8_t  ch;        //          height  | font size
+        uint16_t numColors; // 65K max (16 bit) otherwse 24|32 bits if 0 (?)
         uint8_t* font;
-        int  numColors;
-        uint8_t* palette; // RGB palette
+        uint8_t* palette;   // RGB palette
     } videoMode_t;
 
     typedef struct
@@ -27,8 +27,6 @@ public:
         uint8_t col;
         uint8_t bgCol;
     } terminalChar_t;
-
-    
 
     typedef std::pair<uint8_t, uint8_t> position_t;
 
@@ -81,12 +79,13 @@ private:
 
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
-    SDL_Palette p;
+    SDL_Palette _pal;
     videoMode_t mode;
-    uint8_t _curX = 0;
-    uint8_t _curY = 0;
     std::unique_ptr<_terminalChar_t[]> _pGrid;
     _terminalChar_t defaultNullChar = { 0, 0, 0, false };
+    
+    uint8_t _curX = 0;
+    uint8_t _curY = 0;
     uint8_t _viewPortX;
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
