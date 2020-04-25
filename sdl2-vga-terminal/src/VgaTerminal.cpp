@@ -4,6 +4,7 @@
 #include "vgafonts.h"
 #include "vgapalette.h"
 #include <version.h>
+#include <bitset>
 
 constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
@@ -171,10 +172,17 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
  */
 VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const noexcept
 {
-    return (x >= _viewPortWidth || y >= _viewPortHeight)
-        ? defaultNullChar
-        : _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX]
-        ;
+    if (x >= _viewPortWidth || y >= _viewPortHeight) {
+        return defaultNullChar;
+    }
+
+    _terminalChar_t _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
+    terminalChar_t tc;
+    tc.c = _tc.c;
+    tc.col = _tc.col;
+    tc.bgCol = _tc.bgCol;
+ 
+    return tc;
 }
 
 void VgaTerminal::render(const bool force)

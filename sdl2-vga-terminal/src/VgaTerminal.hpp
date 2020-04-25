@@ -3,7 +3,6 @@
 #include "Window.hpp"
 #include <memory>
 #include <string>
-#include <bitset>
 
 
 class VgaTerminal : public Window
@@ -14,12 +13,12 @@ public:
     {
         uint8_t  mode;    // video mode (only mode 3 available at the moment)
         uint8_t  tw;      // terminal width
-        uint8_t  th;      //          hieght
+        uint8_t  th;      //          height
         uint8_t  cw;      // char     width
         uint8_t  ch;      //          height  | font size
         uint8_t* font;
         int  numColors;
-        uint8_t* palette; // RGB palette assumed (might be required a palette format flag?)
+        uint8_t* palette; // RGB palette
     } videoMode_t;
 
     typedef struct
@@ -28,6 +27,8 @@ public:
         uint8_t col;
         uint8_t bgCol;
     } terminalChar_t;
+
+    
 
     typedef std::pair<uint8_t, uint8_t> position_t;
 
@@ -59,7 +60,7 @@ public:
     void moveCursorDown() noexcept;
 
     void newLine() noexcept;
-    /// the X,Y are relative to the new viewport.
+
     bool setViewPort(const position_t& viewport, const uint8_t width, const uint8_t height) noexcept;
     bool setViewPort(const uint8_t x, const uint8_t y, const uint8_t width, const uint8_t height) noexcept;
     bool setViewPort(const SDL_Rect& r) noexcept;
@@ -90,15 +91,14 @@ private:
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
-
-    bool _cursonOn = true;
-    SDL_TimerID _cursorTimer = 0;
-    
+  
     // these should be parameters?
     uint8_t cur_shape = 219;
-    uint32_t cursor_time = 500;
- 
-    uint32_t _timerId = 0;
+    uint32_t cursor_time = 500; // uint16_t?
+    uint8_t _cursor_mode = 0;
+    
+    bool _cursonOn = true;
+    SDL_TimerID _timerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void incrementCursorPosition(bool increment = true) noexcept;
