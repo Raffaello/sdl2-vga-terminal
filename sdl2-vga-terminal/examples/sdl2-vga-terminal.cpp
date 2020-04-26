@@ -64,7 +64,6 @@ int main(int argc, char* args[])
 	term2.writeXY(10, 6, "*                   *", 10, 0);
 	term2.writeXY(10, 7, "*********************", 10, 0);
 
-
 	term2.setViewPort(11, 2, 19, 5);
 	term2.write("Hello ViewPort !!!", 1, 14);
 	term2.render();

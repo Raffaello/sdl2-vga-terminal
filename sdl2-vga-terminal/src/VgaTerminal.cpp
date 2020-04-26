@@ -217,7 +217,7 @@ void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const 
 
 void VgaTerminal::_renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force)
 {
-    for (int i = x1, i2 = yw; i < x2; i++, i2++) {
+    for (int i = x1, i2 = yw + x1; i < x2; i++, i2++) {
         if (!force && _pGrid[i2].rendered) {
             continue;
         }
@@ -236,6 +236,7 @@ void VgaTerminal::render(const bool force)
     int yw = _curY * mode.tw;
     int ych = _curY * mode.ch;
     int icur = static_cast<int>(_curY) * mode.tw + _curX;
+    _pGrid[icur].rendered = false;
     SDL_Point p = { _curX * mode.cw, ych };
     // top cursor grid
     _renderGridPartialY(0, _curY, force);
@@ -380,8 +381,12 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
     that->_drawCursor = !that->_drawCursor;
-    int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
-    that->_pGrid[icur].rendered = false;
+    
+    // TODO concurrency issue here...
+    //int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
+    //that->_pGrid[icur].rendered = false;
+    // ..............
+
     userevent.type = SDL_USEREVENT;
     userevent.code = 0;
     userevent.data1 = NULL;
