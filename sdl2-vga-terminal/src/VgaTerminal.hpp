@@ -7,7 +7,6 @@
 
 class VgaTerminal : public Window
 {
-
 public:
     typedef struct
     {
@@ -109,7 +108,7 @@ private:
     void _incrementCursorPosition(bool increment = true) noexcept;
     void _scrollDownGrid() noexcept;
     void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
-    void _renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, uint8_t col, uint8_t bgCol);
+    void _renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol);
     void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
     void _renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force);
     void _renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const bool force);

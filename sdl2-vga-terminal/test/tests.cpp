@@ -170,7 +170,6 @@ TEST(VgaTerminal, clearViewport)
 	EXPECT_EQ(c2, tc.c);
 	EXPECT_EQ(col, tc.col);
 	EXPECT_EQ(bgCol, tc.bgCol);
-
 }
 
 TEST(VgaTerminal, resetViewport)

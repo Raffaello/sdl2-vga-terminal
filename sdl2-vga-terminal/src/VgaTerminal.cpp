@@ -85,7 +85,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
 }
 
-void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, uint8_t col, uint8_t bgCol)
+void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol)
 {
     constexpr auto lsz = 8;
 
@@ -100,7 +100,6 @@ void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, con
     SDL_RenderDrawPoints(getRenderer(), points, fgi);
     SDL_SetRenderDrawColor(getRenderer(), _pal.colors[bgCol].r, _pal.colors[bgCol].g, _pal.colors[bgCol].b, _pal.colors[bgCol].a);
     SDL_RenderDrawPoints(getRenderer(), &points[fgi], lsz - bgi);
-
 }
 void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 {
@@ -199,8 +198,8 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
 
     _terminalChar_t _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
     terminalChar_t tc;
-    tc.c = _tc.c;
-    tc.col = _tc.col;
+    tc.c = _tc.c,
+    tc.col = _tc.col,
     tc.bgCol = _tc.bgCol;
  
     return tc;
@@ -417,10 +416,12 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
         _curX = _viewPortX;
     }
     else if ((increment) && (autoScroll)) {
-        //already at the max
         _curX = _viewPortX;
         _scrollDownGrid();
     }
+    else {
+            //already at the max
+     }
 }
 
 void VgaTerminal::_scrollDownGrid() noexcept
