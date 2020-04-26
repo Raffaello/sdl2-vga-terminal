@@ -19,6 +19,7 @@ public:
         uint16_t numColors; // 65K max (16 bit) otherwse 24|32 bits if 0 (?)
         uint8_t* font;
         uint8_t* palette;   // RGB palette
+        uint8_t* cursors;
     } videoMode_t;
 
     typedef struct
@@ -73,12 +74,11 @@ public:
     bool setViewPort(const SDL_Rect& r) noexcept;
     SDL_Rect getViewport() const noexcept;
     void resetViewport() noexcept;
-    
-    uint8_t cursorDefaultCol = 7;
+
     const videoMode_t getMode() const noexcept;
     
-    
-    
+    uint8_t cursorDefaultCol = 7;
+    uint16_t cursor_time = 500; /// ms
     bool showCursor = true;
     bool autoScroll = true;
 private:
@@ -102,10 +102,6 @@ private:
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
   
-    // these should be parameters?
-    //uint8_t cur_shape = 219;
-    uint32_t cursor_time = 500; // uint16_t?
-    
     bool _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
@@ -115,5 +111,4 @@ private:
     void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
     void _renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, uint8_t col, uint8_t bgCol);
     void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
-    //void _renderChar(const SDL_Point& dst, const uint8_t col, const uint8_t bgCol, const uint8_t* font);
 };

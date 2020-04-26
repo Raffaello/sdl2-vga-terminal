@@ -19,6 +19,7 @@ const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
         PALETTE_3_COLORS,
         vgafont16,
         palette3,
+        vgafont_cursors16,
 };
 
 bool VgaTerminal::_terminalChar_t::operator==(const _terminalChar_t& o) const
@@ -88,7 +89,6 @@ void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, con
 {
     constexpr auto lsz = 8;
 
-    // *** render line ***
     SDL_Point points[lsz];
     uint8_t fgi = 0, bgi = lsz;
     for (uint8_t x = 0; x < lsz; x++) {
@@ -105,11 +105,9 @@ void VgaTerminal::_renderCharLine(const std::bitset<8> line, const int dstx, con
 void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 {
     uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
-    constexpr uint8_t lsz = sizeof(uint8_t) * 8;
-    const int dstx = dst.x + lsz;
+    const int dstx = dst.x + 8;
 
-    for (uint8_t y = 0; y < mode.ch; y++)
-    {
+    for (uint8_t y = 0; y < mode.ch; y++) {
         _renderCharLine(font[y], dstx, dst.y + y, tc.col, tc.bgCol);
     }
 
@@ -118,26 +116,17 @@ void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 
 void VgaTerminal::_renderCursor(const SDL_Point& dst, _terminalChar_t& tc)
 {
-    if (showCursor && _drawCursor) {
-        const uint8_t col = tc.col == tc.bgCol ? 
-            cursorDefaultCol :
-            tc.col
-        ;
+    const uint8_t col = tc.col == tc.bgCol ? 
+        cursorDefaultCol :
+        tc.col
+    ;
             
-        constexpr uint8_t lsz = sizeof(uint8_t) * 8;
-        const int dstx = dst.x + lsz;
-        const SDL_Color col_ = _pal.colors[col];
-        const SDL_Color bgCol_ = _pal.colors[tc.bgCol];
-        const uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
-        const uint8_t* cursorFont = &vgafont_cursors16[static_cast<int>(cursor_mode) * mode.ch];
+    const int dstx = dst.x + 8;
+    const uint8_t* font = &mode.font[static_cast<int>(tc.c) * mode.ch];
+    const uint8_t* cursorFont = &mode.cursors[static_cast<int>(cursor_mode) * mode.ch];
 
-        for (uint8_t y = 0; y < mode.ch; y++)
-        {
-            _renderCharLine(font[y] ^ cursorFont[y], dstx, dst.y + y, col, tc.bgCol);
-        }
-    }
-    else {
-        _renderFontChar(dst, tc);
+    for (uint8_t y = 0; y < mode.ch; y++) {
+        _renderCharLine(font[y] ^ cursorFont[y], dstx, dst.y + y, col, tc.bgCol);
     }
 }
 
@@ -158,7 +147,7 @@ void VgaTerminal::gotoXY(const position_t &position) noexcept
 
 VgaTerminal::position_t VgaTerminal::getXY() const noexcept
 {
-    return position_t(getX(), getY());
+    return std::make_pair(getX(), getY());
 }
 
 uint8_t VgaTerminal::getX() const noexcept
@@ -252,11 +241,11 @@ void VgaTerminal::render(const bool force)
 
             SDL_Point p = { i * mode.cw, jch };
             // cursor position
-            if ((_curY == j) && (_curX == i)) {
+            if ((_curY == j) && (_curX == i)
+                && (showCursor) && (_drawCursor)) {
                 _renderCursor(p, _pGrid[i2]);
             }
             else {
-                //_pGrid[i2].rendered = true;
                 _renderFontChar(p, _pGrid[i2]);
             }
         }
@@ -267,23 +256,22 @@ void VgaTerminal::render(const bool force)
 
 void VgaTerminal::clear() noexcept
 {
-    // TODO: can just use memcpy to repeatealy copy the null char in the grid?
-    //       only if is all zeros.
-    for (int j = 0; j < mode.th; j++) {
+    const int vy = _viewPortY + _viewPortHeight;
+    const int vx = _viewPortX + _viewPortWidth;
+
+    for (int j = _viewPortY; j < vy; j++) {
         int j2 = j * mode.tw;
-        for (int i = 0; i < mode.tw; i++) {
-            int i2 = i + j2;
-            _pGrid[i2] = defaultNullChar;
+        for (int i = _viewPortX; i < vx; i++) {
+            _pGrid[static_cast<size_t>(i) + j2] = defaultNullChar;
         }
     }
 
-    gotoXY(_viewPortX, _viewPortY);
+    gotoXY(0, 0);
 }
 
 void VgaTerminal::moveCursorLeft() noexcept
 {
     if (_curX > _viewPortX) {
-        //gotoXY(_curX - 1, _curY);
         --_curX;
     }
     else if(_curY > _viewPortY) {
@@ -321,7 +309,7 @@ void VgaTerminal::moveCursorDown() noexcept
 void VgaTerminal::newLine() noexcept
 {
     _curX = _viewPortX;
-    auto oldY = _curY;
+    uint8_t oldY = _curY;
     moveCursorDown();
     // last line
     if ((oldY == _curY) && (autoScroll)) {
@@ -367,12 +355,13 @@ bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 
 SDL_Rect VgaTerminal::getViewport() const noexcept
 {
-    //return { _viewPortX, _viewPortY, _viewPortWidth, _viewPortHeight };
     SDL_Rect r;
-    r.x = _viewPortX;
-    r.y = _viewPortY;
-    r.w = _viewPortWidth;
+    
+    r.x = _viewPortX,
+    r.y = _viewPortY,
+    r.w = _viewPortWidth,
     r.h = _viewPortHeight;
+
     return r;
 }
 
@@ -442,7 +431,6 @@ void VgaTerminal::_scrollDownGrid() noexcept
     }
 
     // clear line
-    //int j2 = (mode.th - 1) * mode.tw;
     int j2 = (vh - 1) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = defaultNullChar;

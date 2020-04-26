@@ -140,6 +140,39 @@ TEST(VgaTerminal, clear)
 	EXPECT_EQ(0, tc.bgCol);
 }
 
+TEST(VgaTerminal, clearViewport)
+{
+	VgaTerminal term = VgaTerminal("clear", SDL_WINDOW_HIDDEN, -1, 0);
+	const char c = 'X';
+	const char c2 = 'Y';
+	const uint8_t col = 7;
+	const uint8_t bgCol = 1;
+	
+	term.gotoXY(9, 10);
+	term.write(c2, col, bgCol);
+
+	ASSERT_TRUE(term.setViewPort(10, 10, 10, 10));
+
+	term.write(c, col, bgCol);
+	auto tc = term.at(0, 0);
+	EXPECT_EQ(c, tc.c);
+	EXPECT_EQ(col, tc.col);
+	EXPECT_EQ(bgCol, tc.bgCol);
+
+	term.clear();
+	tc = term.at(0, 0);
+	EXPECT_EQ(0, tc.c);
+	EXPECT_EQ(0, tc.col);
+	EXPECT_EQ(0, tc.bgCol);
+
+	term.resetViewport();
+	tc = term.at(9, 10);
+	EXPECT_EQ(c2, tc.c);
+	EXPECT_EQ(col, tc.col);
+	EXPECT_EQ(bgCol, tc.bgCol);
+
+}
+
 TEST(VgaTerminal, resetViewport)
 {
 	VgaTerminal term = VgaTerminal("clear", SDL_WINDOW_HIDDEN, -1, 0);
