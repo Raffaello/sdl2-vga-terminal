@@ -92,7 +92,7 @@ private:
     SDL_Palette _pal;
     videoMode_t mode;
     std::unique_ptr<_terminalChar_t[]> _pGrid;
-    _terminalChar_t defaultNullChar = { 0, 0, 0, false };
+    const _terminalChar_t _defaultNullChar = { 0, 0, 0, false };
     
     uint8_t _curX = 0;
     uint8_t _curY = 0;
@@ -108,8 +108,8 @@ private:
     void _incrementCursorPosition(bool increment = true) noexcept;
     void _scrollDownGrid() noexcept;
     void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
-    void _renderCharLine(const std::bitset<8> line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol);
+    void _renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol);
     void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
     void _renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force);
-    void _renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const bool force);
+    void _renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force);
 };
