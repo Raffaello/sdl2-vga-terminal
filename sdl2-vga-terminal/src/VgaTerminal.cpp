@@ -206,32 +206,11 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
     return tc;
 }
 
-void VgaTerminal::render(const bool force)
+void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force)
 {
-    // TODO:
-    // for performances this if should not be done
-    // and slice the for loop without the curX,Y pos
-    // like: (j =0; j< _curY), (j=_curY+1; j<mode.th) => the i loop as usual
-    //       j=curY, (i=0; <_curX),/(i=_curX+1; i<mode.tw)
-    //       j=curY, i=curX
-    //
-    //       at that point the loops is a general function accepting the 4 vaues for the range
-    //       special case only for the cursor, 
-    //       and can just ignore the rendered flag
-    //
-
-    if (!force && (SDL_GetWindowFlags(getWindow()) & SDL_WINDOW_HIDDEN) == SDL_WINDOW_HIDDEN) {
-        return;
-    }
-
-    // force to render the cursor everytime
-    int icur = static_cast<int>(_curY) * mode.tw + _curX;
-    _pGrid[icur].rendered = false;
-
-    for (int j = 0; j < mode.th; j++) {
+    for (int j = y1; j < y2; j++) {
         int j2 = j * mode.tw;
         int jch = j * mode.ch;
-
         for (int i = 0; i < mode.tw; i++) {
             int i2 = j2 + i;
 
@@ -240,16 +219,52 @@ void VgaTerminal::render(const bool force)
             }
 
             SDL_Point p = { i * mode.cw, jch };
-            // cursor position
-            if ((_curY == j) && (_curX == i)
-                && (showCursor) && (_drawCursor)) {
-                _renderCursor(p, _pGrid[i2]);
-            }
-            else {
-                _renderFontChar(p, _pGrid[i2]);
-            }
+
+            _renderFontChar(p, _pGrid[i2]);
         }
     }
+}
+
+void VgaTerminal::_renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const bool force)
+{
+    int j2 = _curY * mode.tw;
+    int jch = _curY * mode.ch;
+    for (int i = x1; i < x2; i++) {
+        int i2 = j2 + i;
+
+        if (!force && _pGrid[i2].rendered) {
+            continue;
+        }
+
+        SDL_Point p = { i * mode.cw, jch };
+        _renderFontChar(p, _pGrid[i2]);
+    }
+}
+
+void VgaTerminal::render(const bool force)
+{
+    if (!force && (SDL_GetWindowFlags(getWindow()) & SDL_WINDOW_HIDDEN) == SDL_WINDOW_HIDDEN) {
+        return;
+    }
+
+    SDL_Point p = { _curX * mode.cw, _curY * mode.ch };
+    int icur = static_cast<int>(_curY) * mode.tw + _curX;
+    // top cursor grid
+    _renderGridPartialY(0, _curY, force);
+    // left cursor grid
+    _renderGridLinePartialX(0, _curX, force);
+    // cursor position
+    if ((force || !_pGrid[icur].rendered) 
+        && (showCursor && _drawCursor)) {
+        _renderCursor(p, _pGrid[icur]);
+    }
+    else {
+        _renderFontChar(p, _pGrid[icur]);
+    }
+    // right cursor grid
+    _renderGridLinePartialX(_curX + 1, mode.tw, force);
+    // bottom cursor grid    
+    _renderGridPartialY(_curY + 1, mode.th, force);
 
     renderPresent();
 }
@@ -378,6 +393,8 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
     that->_drawCursor = !that->_drawCursor;
+    int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
+    that->_pGrid[icur].rendered = false;
     userevent.type = SDL_USEREVENT;
     userevent.code = 0;
     userevent.data1 = NULL;
