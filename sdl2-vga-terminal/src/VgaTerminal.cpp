@@ -401,6 +401,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
 
     event.type = SDL_USEREVENT;
     event.user = userevent;
+    event.window.windowID = that->getWindowId();
 
     SDL_PushEvent(&event);
     return interval;

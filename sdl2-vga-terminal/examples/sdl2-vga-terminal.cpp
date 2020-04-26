@@ -99,9 +99,11 @@ int main(int argc, char* args[])
 	
 	Window::handler_t f = [](SDL_Event& event, Window* w) {
 		VgaTerminal* term = reinterpret_cast<VgaTerminal*>(w);
+		SDL_UserEvent userevent;
+		string keyname;
 		switch (event.type) {
 		case SDL_KEYDOWN:
-			string keyname = SDL_GetKeyName(event.key.keysym.sym);
+			keyname = SDL_GetKeyName(event.key.keysym.sym);
 			if (keyname == "Left") {
 				term->moveCursorLeft();
 			}
@@ -113,6 +115,15 @@ int main(int argc, char* args[])
 			}
 			else if (keyname == "Down") {
 				term->moveCursorDown();
+			}
+		break;
+		case SDL_USEREVENT:
+			userevent = event.user;
+			if (userevent.code == 0) {
+				//std::cout << "cursor!" << endl;
+			}
+			else {
+				//cout << userevent.code << endl;
 			}
 		break;
 		}
@@ -136,6 +147,7 @@ int main(int argc, char* args[])
 		}
 		else if (event.window.windowID == term2.getWindowId()) {
 			term = &term2;
+
 		}
 		else {
 			term1.render();
@@ -144,12 +156,7 @@ int main(int argc, char* args[])
 		}
 
 		switch (event.type) {
-		case SDL_USEREVENT:
-			userevent = event.user;
-			if (userevent.code == 0) {
-				cout << "cursor!" << endl;
-			}
-			break;
+		
 		case SDL_QUIT:
 			quit = true;
 			break;
