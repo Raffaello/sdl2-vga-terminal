@@ -103,6 +103,7 @@ private:
   
     bool _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
+    SDL_mutex* _cursortTimerMutex = nullptr;
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void _incrementCursorPosition(bool increment = true) noexcept;

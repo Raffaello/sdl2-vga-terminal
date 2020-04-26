@@ -40,6 +40,10 @@ VgaTerminal::~VgaTerminal()
     if (_cursorTimerId != 0) {
         SDL_RemoveTimer(_cursorTimerId);
     }
+
+    if (nullptr != _cursortTimerMutex) {
+        SDL_DestroyMutex(_cursortTimerMutex);
+    }
 }
 
 VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
@@ -79,6 +83,8 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         if (_cursorTimerId == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
+
+        _cursortTimerMutex = SDL_CreateMutex();
     }
     else {
         SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: TIMER or EVENTS not inited.", typeid(*this).name(), __func__);
@@ -236,15 +242,17 @@ void VgaTerminal::render(const bool force)
     int yw = _curY * mode.tw;
     int ych = _curY * mode.ch;
     int icur = static_cast<int>(_curY) * mode.tw + _curX;
-    _pGrid[icur].rendered = false;
     SDL_Point p = { _curX * mode.cw, ych };
     // top cursor grid
     _renderGridPartialY(0, _curY, force);
     // left cursor grid
     _renderGridLinePartialX(0, _curX, yw, ych,  force);
     // cursor position
-    if ((force || !_pGrid[icur].rendered) 
-        && (showCursor && _drawCursor)) {
+    SDL_LockMutex(_cursortTimerMutex);
+    bool expr = (force || !_pGrid[icur].rendered)
+        && (showCursor && _drawCursor);
+    SDL_UnlockMutex(_cursortTimerMutex);
+    if (expr) {
         _renderCursor(p, _pGrid[icur]);
     }
     else {
@@ -380,12 +388,11 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
     SDL_UserEvent userevent;
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
+    SDL_LockMutex(that->_cursortTimerMutex);
     that->_drawCursor = !that->_drawCursor;
-    
-    // TODO concurrency issue here...
-    //int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
-    //that->_pGrid[icur].rendered = false;
-    // ..............
+    int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
+    that->_pGrid[icur].rendered = false;
+    SDL_UnlockMutex(that->_cursortTimerMutex);
 
     userevent.type = SDL_USEREVENT;
     userevent.code = 0;
