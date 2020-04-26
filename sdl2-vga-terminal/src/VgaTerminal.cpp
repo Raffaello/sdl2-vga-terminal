@@ -160,7 +160,7 @@ uint8_t VgaTerminal::getY() const noexcept
     return _curY - _viewPortY;
 }
 
-void VgaTerminal::write(const char c, const uint8_t col, const uint8_t bgCol) noexcept
+void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
     int pos = _curX + _curY * mode.tw;
     _pGrid[pos].c = c;

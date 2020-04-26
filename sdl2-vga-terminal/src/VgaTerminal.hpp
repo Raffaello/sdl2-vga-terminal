@@ -53,7 +53,7 @@ public:
     uint8_t getX() const noexcept;
     uint8_t getY() const noexcept;
     
-    void write(const char c, const uint8_t col, const uint8_t bgCol) noexcept;
+    void write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
     terminalChar_t at(const uint8_t x, const uint8_t y) const noexcept;
