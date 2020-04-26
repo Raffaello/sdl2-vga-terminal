@@ -208,11 +208,9 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
 
 void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force)
 {
-    for (
-        int j = y1, j2= y1 * mode.tw, jch = y1 * mode.ch;
+    for (int j = y1, j2= y1 * mode.tw, jch = y1 * mode.ch;
         j < y2;
-        j++, j2+=mode.tw, jch+=mode.ch
-        ) {
+        j++, j2+=mode.tw, jch+=mode.ch) {
         _renderGridLinePartialX(0, mode.tw, j2, jch, force);
     }
 }
