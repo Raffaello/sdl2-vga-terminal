@@ -105,24 +105,18 @@ else()
     target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2)
 endif()
 
-### Examples
-if(WITH_EXAMPLES)
-    add_subdirectory("examples")
-endif()
-
-
 ######################## add compiler options ################################
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
     target_compile_options(vga-terminal PRIVATE /W4 /WX)
     target_compile_options(vga-terminal-static PRIVATE /W4 /WX)
     target_compile_options(vga-terminal-obj PRIVATE /W4 /WX)
-elseif(GCC)
-    target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic -Werror)
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -Werror)
-    target_compile_options(vga-terminal-obj PRIVATE -Wall -Wextra -pedantic -Werror)
-elseif(CLANG)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic) #-Werror)
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic) #-Werror)
+    target_compile_options(vga-terminal-obj PRIVATE -Wall -Wextra -pedantic) #-Werror)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 
@@ -134,6 +128,17 @@ message("target compiler options:")
 message(STATUS "vga-terminal " ${vga-terminal_copts})
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 message(STATUS "vga-terminal-obj " ${vga-terminal-obj_copts})
+
+
+
+if (WIN32)
+    set(LIB_SDL2main SDL2::SDL2main)
+endif()
+
+################################ Examples ####################################
+if(WITH_EXAMPLES)
+    add_subdirectory("examples")
+endif()
 
 ############################### tests ########################################
 if(WITH_TEST)
