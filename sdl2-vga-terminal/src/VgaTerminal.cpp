@@ -40,10 +40,6 @@ VgaTerminal::~VgaTerminal()
     if (_cursorTimerId != 0) {
         SDL_RemoveTimer(_cursorTimerId);
     }
-
-    if (nullptr != _cursortTimerMutex) {
-        SDL_DestroyMutex(_cursortTimerMutex);
-    }
 }
 
 VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
@@ -79,12 +75,10 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     }
     
     if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
-        _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBack, this);
+        _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBackWrapper, this);
         if (_cursorTimerId == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
         }
-
-        _cursortTimerMutex = SDL_CreateMutex();
     }
     else {
         SDL_LogWarn(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: TIMER or EVENTS not inited.", typeid(*this).name(), __func__);
@@ -248,10 +242,12 @@ void VgaTerminal::render(const bool force)
     // left cursor grid
     _renderGridLinePartialX(0, _curX, yw, ych,  force);
     // cursor position
-    SDL_LockMutex(_cursortTimerMutex);
-    bool expr = (force || !_pGrid[icur].rendered)
-        && (showCursor && _drawCursor);
-    SDL_UnlockMutex(_cursortTimerMutex);
+    bool expr;
+    {
+        std::lock_guard lck(_cursortTimerMutex);
+        expr = (force || !_pGrid[icur].rendered)
+            && (showCursor && _drawCursor);
+    }
     if (expr) {
         _renderCursor(p, _pGrid[icur]);
     }
@@ -381,27 +377,32 @@ void VgaTerminal::resetViewport() noexcept
     setViewPort(0, 0, mode.tw, mode.th);
 }
 
-uint32_t VgaTerminal::_timerCallBack(uint32_t interval, void* param)
+uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
+{
+    VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
+    return that->_timerCallBack(interval);
+}
+
+uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 {
     // TODO review the user event
     SDL_Event event;
     SDL_UserEvent userevent;
-    VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
     
-    SDL_LockMutex(that->_cursortTimerMutex);
-    that->_drawCursor = !that->_drawCursor;
-    int icur = static_cast<int>(that->_curY) * that->mode.tw + that->_curX;
-    that->_pGrid[icur].rendered = false;
-    SDL_UnlockMutex(that->_cursortTimerMutex);
+    {
+        std::lock_guard lck(_cursortTimerMutex);
+        _drawCursor = !_drawCursor;
+        // in case _curY or _curX got changed, it is still acceptable
+        // it just might render 1 position more.
+        _pGrid[static_cast<size_t>(_curY) * mode.tw + _curX].rendered = false;
+        interval = cursor_time;
+    }
 
-    userevent.type = SDL_USEREVENT;
     userevent.code = 0;
-    userevent.data1 = NULL;
-    userevent.data2 = NULL;
-
-    event.type = SDL_USEREVENT;
+    userevent.data1 = userevent.data2 = NULL;
+    event.type = userevent.type = SDL_USEREVENT;
     event.user = userevent;
-    event.window.windowID = that->getWindowId();
+    userevent.windowID = event.window.windowID = getWindowId();
 
     SDL_PushEvent(&event);
     return interval;
@@ -421,8 +422,8 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
         _scrollDownGrid();
     }
     else {
-            //already at the max
-     }
+        //already at the max
+    }
 }
 
 void VgaTerminal::_scrollDownGrid() noexcept
@@ -443,7 +444,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
             if (_pGrid[i2].rendered && _pGrid[ii2] == _pGrid[i2]) {
                 continue;
             }
-
+            
             _pGrid[ii2] = _pGrid[i2];
             _pGrid[ii2].rendered = false;
         }

@@ -132,6 +132,7 @@ int main(int argc, char* args[])
 	};
 
 	term2.handler = f;
+	term2.cursor_time = 100;
 	
 	string keyname;
 	while (!quit) {
@@ -147,7 +148,6 @@ int main(int argc, char* args[])
 		}
 		else if (event.window.windowID == term2.getWindowId()) {
 			term = &term2;
-
 		}
 		else {
 			term1.render();
