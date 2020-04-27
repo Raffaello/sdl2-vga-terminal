@@ -104,6 +104,7 @@ private:
     bool _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
     SDL_mutex* _cursortTimerMutex = nullptr;
+    //std::mutex // std::lock_guard  // => instead of SDL_mutex C++11
     static uint32_t _timerCallBack(uint32_t interval, void* param);
 
     void _incrementCursorPosition(bool increment = true) noexcept;

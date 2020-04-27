@@ -44,7 +44,7 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 TEST(VgaTerminal, checkVersion)
 {
 	VgaTerminal t("", 0, -1, 0);
-	ASSERT_STRCASEEQ("0.2", t.getVersion().c_str());
+	ASSERT_STRCASEEQ("0.2.1", t.getVersion().c_str());
 }
 
 TEST(VgaTerminal, CannotInit)
