@@ -8,27 +8,6 @@ find_package(SDL2 CONFIG REQUIRED)
 
 configure_file(version.h.in version.h)
 
-################ Shared code among exe and tests #############################
-#add_library(vga-terminal-obj OBJECT)
-#target_sources(vga-terminal-obj PRIVATE 
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
-#)
-
-#target_include_directories(vga-terminal-obj PUBLIC 
-#    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:vga-terminal>>
-#    ${CMAKE_CURRENT_SOURCE_DIR}/src
-#)
-#if(WITH_SDL2_STATIC)
-#    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2-static)
-#else()
-#    install(FILES
-#        $<TARGET_FILE:SDL2::SDL2>
-#        DESTINATION static/lib
-#    )
-#    target_link_libraries(vga-terminal-obj PUBLIC SDL2::SDL2)
-#endif()
-
 
 ########################### Static Lib #######################################
 add_library(vga-terminal-static STATIC)
@@ -70,12 +49,11 @@ else()
     target_link_libraries(vga-terminal-static PUBLIC SDL2::SDL2)
 endif()
 
-#target_link_libraries(vga-terminal-static PUBLIC SDL2::SDL2)
-
 
 ############################ Shared lib ######################################
 include(GenerateExportHeader)
 add_library(vga-terminal SHARED)
+add_dependencies(vga-terminal vga-terminal-static)
 generate_export_header(
     vga-terminal
     BASE_NAME vga-terminal
@@ -110,12 +88,12 @@ target_include_directories(vga-terminal PUBLIC
     $<INSTALL_INTERFACE:include>
 )
 target_sources(vga-terminal PRIVATE
-    #$<BUILD_INTERFACE:vga-terminal-obj>
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+    #$<BUILD_INTERFACE:vga-terminal-static>
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
-target_link_libraries(vga-terminal SDL2::SDL2)
+target_link_libraries(vga-terminal vga-terminal-static)
 
 
 ######################## add compiler options ################################
@@ -124,24 +102,19 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
     target_compile_options(vga-terminal PRIVATE /W4 /WX)
     target_compile_options(vga-terminal-static PRIVATE /W4 /WX)
-    #target_compile_options(vga-terminal-obj PRIVATE /W4 /WX)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic) #-Werror)
     target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic) #-Werror)
-    #target_compile_options(vga-terminal-obj PRIVATE -Wall -Wextra -pedantic) #-Werror)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 
 get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
 get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
-#get_target_property(vga-terminal-obj_copts vga-terminal-obj COMPILE_OPTIONS)
 
 message("target compiler options:")
 message(STATUS "vga-terminal " ${vga-terminal_copts})
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
-#message(STATUS "vga-terminal-obj " ${vga-terminal-obj_copts})
-
 
 
 if (WIN32)
