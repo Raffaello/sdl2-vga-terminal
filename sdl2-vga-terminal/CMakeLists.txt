@@ -85,7 +85,7 @@ generate_export_header(
     ${LIB_NAME}
     BASE_NAME ${LIB_NAME}
     EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
-    EXPORT_FILE_NAME {$LIB_NAME}-export.h
+    EXPORT_FILE_NAME ${LIB_NAME}-export.h
     STATIC_DEFINE ${LIB_NAME}-lib_BUILD_AS_STATIC
 )
 install(
