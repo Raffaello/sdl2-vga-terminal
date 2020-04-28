@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 3.16)
 
 ############################## Main Example ##################################
 add_executable (${PROJECT_NAME} "sdl2-vga-terminal.cpp")
-add_dependencies(${PROJECT_NAME} vga-terminal-obj) 
-target_link_libraries(${PROJECT_NAME} vga-terminal-obj ${LIB_SDL2main})
+add_dependencies(${PROJECT_NAME} vga-terminal-static) 
+target_link_libraries(${PROJECT_NAME} vga-terminal-static ${LIB_SDL2main})
 
 
 ################## C example using SO/DLL with lazy loading ##################
