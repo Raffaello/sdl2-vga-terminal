@@ -1,11 +1,17 @@
 #pragma once
 
+#if (_MSC_VER < 1910 || _MSC_FULL_VER < 190023918)
+#   error "Required Visual Studio 2015 Update 2 at least"
+#endif
+
 #include "Window.hpp"
 #include <memory>
 #include <string>
 #include <bitset>
 #include <mutex>
 #include <atomic>
+
+
 
 class VgaTerminal : public Window
 {
@@ -93,21 +99,22 @@ private:
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette _pal;
     videoMode_t mode;
-    std::unique_ptr<_terminalChar_t[]> _pGrid;
-    const _terminalChar_t _defaultNullChar = { 0, 0, 0, false };
+    std::unique_ptr<std::atomic<_terminalChar_t>[]> _pGrid;
+    //std::unique_ptr<_terminalChar_t[]> _pGrid;
+    const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });
     
-    uint8_t _curX = 0;
-    uint8_t _curY = 0;
+    std::atomic<uint8_t> _curX = 0;
+    std::atomic<uint8_t> _curY = 0;
     uint8_t _viewPortX;
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
   
-    bool _drawCursor = true; 
+    std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
-    std::mutex _cursortTimerMutex;
+    //std::mutex _cursortTimerMutex;
     std::atomic<bool> _onIdle = true;
-    void _busy();
+    void _busy() noexcept;
     static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
     uint32_t _timerCallBack(uint32_t interval);
 

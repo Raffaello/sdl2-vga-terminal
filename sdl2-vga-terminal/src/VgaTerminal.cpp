@@ -69,7 +69,8 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         _pal.colors[i].a = 255;
     }
 
-    _pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
+    _pGrid = std::make_unique<std::atomic<_terminalChar_t>[]>(static_cast<uint64_t>(mode.tw) * mode.th);
+    //_pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
     if (!_pGrid) {
         throw std::runtime_error("unable to alloc _pGrid");
     }
@@ -163,10 +164,9 @@ uint8_t VgaTerminal::getY() const noexcept
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
     int pos = _curX + _curY * mode.tw;
-    _pGrid[pos].c = c;
-    _pGrid[pos].col = col;
-    _pGrid[pos].bgCol = bgCol; 
-    _pGrid[pos].rendered = false;
+    _terminalChar_t tc;
+    tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
+    _pGrid[pos] = tc;
     
     _incrementCursorPosition();
 }
@@ -219,12 +219,13 @@ void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const 
 void VgaTerminal::_renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force)
 {
     for (int i = x1, i2 = yw + x1; i < x2; i++, i2++) {
-        if (!force && _pGrid[i2].rendered) {
+        _terminalChar_t tc = _pGrid[i2];
+        if (!force && tc.rendered) {
             continue;
         }
 
         SDL_Point p = { i * mode.cw, ych };
-        _renderFontChar(p, _pGrid[i2]);
+        _renderFontChar(p, tc);
     }
 }
 
@@ -244,19 +245,20 @@ void VgaTerminal::render(const bool force)
     _renderGridLinePartialX(0, _curX, yw, ych,  force);
     // cursor position
     bool expr;
-    {
-        std::lock_guard lck(_cursortTimerMutex);
+    _terminalChar_t tc = _pGrid[icur];
+//    {
+  //      std::lock_guard lck(_cursortTimerMutex);
        /* expr = (force || !_pGrid[icur].rendered)
             && (showCursor && _drawCursor);*/
-        expr = (force || !_pGrid[icur].rendered) 
+        expr = (force || !tc.rendered) 
             && (showCursor && (!_onIdle || _drawCursor));
-    }
+ //   }
     
     if (expr) {
-        _renderCursor(p, _pGrid[icur]);
+        _renderCursor(p, tc);
     }
     else {
-        _renderFontChar(p, _pGrid[icur]);
+        _renderFontChar(p, tc);
     }
     // right cursor grid
     _renderGridLinePartialX(_curX + 1, mode.tw, yw, ych, force);
@@ -387,9 +389,11 @@ void VgaTerminal::resetViewport() noexcept
 
 void VgaTerminal::_busy() noexcept
 {
-    // TODO: atomic operations on the _curY, _curX and rendered flag.
     _onIdle = false;
-    _pGrid[_curY * mode.tw + _curX].rendered = false;
+    int icur = _curY * mode.tw + _curX;
+    _terminalChar_t tc = _pGrid[icur];
+    tc.rendered = false;
+    _pGrid[icur] = tc;
 }
 
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
@@ -404,8 +408,8 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     SDL_Event event;
     SDL_UserEvent userevent;
     
-    {
-        std::lock_guard lck(_cursortTimerMutex);
+   // {
+        //std::lock_guard lck(_cursortTimerMutex);
         if (_onIdle) {
             _drawCursor = !_drawCursor;
         }
@@ -413,14 +417,15 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
             _onIdle = true;
             _drawCursor = true;
         }
-        
-        // TODO use atomic to be safe
-        // in case _curY or _curX got changed, it is still acceptable
-        // it just might render 1 position more. 
-        _pGrid[static_cast<size_t>(_curY) * mode.tw + _curX].rendered = false;
+        // todo wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
+        int icur = _curY * mode.tw + _curX;
+        _terminalChar_t tc = _pGrid[icur];
+        tc.rendered = false;
+        _pGrid[icur] = tc;
+
         interval = cursor_time;
         
-    }
+    //}
 
     userevent.code = 0;
     userevent.data1 = userevent.data2 = NULL;
@@ -467,12 +472,16 @@ void VgaTerminal::_scrollDownGrid() noexcept
         {
             int i2 = i + j2;
             int ii2 = i + jj2;
-            if (_pGrid[i2].rendered && _pGrid[ii2] == _pGrid[i2]) {
+            _terminalChar_t tc1 = _pGrid[i2];
+            _terminalChar_t tc2 = _pGrid[ii2];
+
+            if (tc1.rendered && tc1 == tc2) {
                 continue;
             }
             
-            _pGrid[ii2] = _pGrid[i2];
-            _pGrid[ii2].rendered = false;
+            tc2 = tc1;
+            tc2.rendered = false;
+            _pGrid[ii2] = tc2;
         }
     }
 

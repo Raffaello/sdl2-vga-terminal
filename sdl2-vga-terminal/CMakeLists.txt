@@ -13,7 +13,10 @@ configure_file(version.h.in version.h)
 set(LIB_NAME vga-terminal-static)
 set(LIB_CONF ${LIB_NAME}-config)
 set(LIB_VER ${LIB_CONF}-version)
-
+if (MSVC)
+    # Requires VS 2015 Update 2 at least.
+    add_compile_definitions(_ENABLE_ATOMIC_ALIGNMENT_FIX)
+endif()
 include(CMakePackageConfigHelpers)
 
 add_library(${LIB_NAME} STATIC)
