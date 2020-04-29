@@ -167,6 +167,7 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
     _pGrid[pos].col = col;
     _pGrid[pos].bgCol = bgCol; 
     _pGrid[pos].rendered = false;
+    
     _incrementCursorPosition();
 }
 
@@ -245,9 +246,12 @@ void VgaTerminal::render(const bool force)
     bool expr;
     {
         std::lock_guard lck(_cursortTimerMutex);
-        expr = (force || !_pGrid[icur].rendered)
-            && (showCursor && _drawCursor);
+       /* expr = (force || !_pGrid[icur].rendered)
+            && (showCursor && _drawCursor);*/
+        expr = (force || !_pGrid[icur].rendered) 
+            && (showCursor && (!_onIdle || _drawCursor));
     }
+    
     if (expr) {
         _renderCursor(p, _pGrid[icur]);
     }
@@ -289,6 +293,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     else {
         // alredy in 0,0 ... what should i do? :)
     }
+    _busy();
 }
 
 void VgaTerminal::moveCursorRight() noexcept
@@ -304,6 +309,7 @@ void VgaTerminal::moveCursorUp() noexcept
     else {
         // no scroll yet
     }
+    _busy();
 }
 
 void VgaTerminal::moveCursorDown() noexcept
@@ -311,6 +317,8 @@ void VgaTerminal::moveCursorDown() noexcept
     if (_curY < _viewPortY + _viewPortHeight - 1) {
         ++_curY;
     }
+    
+    _busy();
 }
 
 void VgaTerminal::newLine() noexcept
@@ -377,6 +385,12 @@ void VgaTerminal::resetViewport() noexcept
     setViewPort(0, 0, mode.tw, mode.th);
 }
 
+void VgaTerminal::_busy()
+{
+    _onIdle = false;
+    _pGrid[_curY * mode.tw + _curX].rendered = false;
+}
+
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
 {
     VgaTerminal* that = reinterpret_cast<VgaTerminal*>(param);
@@ -391,11 +405,20 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     
     {
         std::lock_guard lck(_cursortTimerMutex);
-        _drawCursor = !_drawCursor;
+        if (_onIdle) {
+            _drawCursor = !_drawCursor;
+        }
+        else {
+            _onIdle = true;
+            _drawCursor = true;
+        }
+        
+        // TODO use atomic to be safe
         // in case _curY or _curX got changed, it is still acceptable
-        // it just might render 1 position more.
+        // it just might render 1 position more. 
         _pGrid[static_cast<size_t>(_curY) * mode.tw + _curX].rendered = false;
         interval = cursor_time;
+        
     }
 
     userevent.code = 0;
@@ -424,6 +447,8 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
     else {
         //already at the max
     }
+
+    _busy();
 }
 
 void VgaTerminal::_scrollDownGrid() noexcept

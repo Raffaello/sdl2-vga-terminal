@@ -52,6 +52,7 @@ int main(int argc, char* args[])
 		}
 	}
 
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority::SDL_LOG_PRIORITY_DEBUG);
 	// --- end SDL2 system init and info
 	VgaTerminal term2 = VgaTerminal("T2 test", 640, 400, 0, -1, 0);
 	term2.cursor_mode = VgaTerminal::CURSOR_MODE::CURSOR_MODE_BLOCK;

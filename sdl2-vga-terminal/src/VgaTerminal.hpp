@@ -5,6 +5,7 @@
 #include <string>
 #include <bitset>
 #include <mutex>
+#include <atomic>
 
 class VgaTerminal : public Window
 {
@@ -105,6 +106,8 @@ private:
     bool _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
     std::mutex _cursortTimerMutex;
+    std::atomic<bool> _onIdle = true;
+    void _busy();
     static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
     uint32_t _timerCallBack(uint32_t interval);
 
