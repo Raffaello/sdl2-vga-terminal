@@ -385,8 +385,9 @@ void VgaTerminal::resetViewport() noexcept
     setViewPort(0, 0, mode.tw, mode.th);
 }
 
-void VgaTerminal::_busy()
+void VgaTerminal::_busy() noexcept
 {
+    // TODO: atomic operations on the _curY, _curX and rendered flag.
     _onIdle = false;
     _pGrid[_curY * mode.tw + _curX].rendered = false;
 }
