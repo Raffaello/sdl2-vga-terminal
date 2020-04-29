@@ -3,35 +3,8 @@
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
 #include <cmath>
+#include "Environment.hpp"
 
-class Environment : public ::testing::Environment {
-public:
-	~Environment() override {}
-
-	static void setUp()
-	{
-		ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS));
-		SDL_LogSetPriority(SDL_LOG_CATEGORY_SYSTEM, SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
-		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority::SDL_LOG_PRIORITY_VERBOSE);
-	}
-
-	static void tearDown()
-	{
-		SDL_Quit();
-	}
-
-	// Override this to define how to set up the environment.
-	void SetUp() override
-	{
-		Environment::setUp();
-	}
-
-	// Override this to define how to tear down the environment.
-	void TearDown() override
-	{
-		Environment::tearDown();
-	}
-};
 
 #ifndef TEST_DUMP_SNAPSHOT
 
@@ -243,7 +216,7 @@ TEST_P(CursorBlinkingTests, cursorBlinking)
 	cmpTicks(init, start, old_time);
 }
 
-class  SetViewportParameterTests : public ::testing::TestWithParam<std::tuple<int, int, int, int, bool, int, int>> {};
+class  SetViewportParameterTests: public ::testing::TestWithParam<std::tuple<int, int, int, int, bool, int, int>> {};
 TEST_P(SetViewportParameterTests, SetVieport)
 {
 	int vx = std::get<0>(GetParam());
@@ -279,7 +252,7 @@ INSTANTIATE_TEST_SUITE_P(
 	)
 );
 
-class SetViewportNullErrTests : public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
+class SetViewportNullErrTests: public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
 TEST_P(SetViewportNullErrTests, setViewportNullError)
 {
 	using ::testing::StartsWith;
@@ -309,7 +282,7 @@ INSTANTIATE_TEST_SUITE_P(
 	)
 );
 
-class  MoveCursorBorderCW : public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
+class  MoveCursorBorderCW: public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
 TEST_P(MoveCursorBorderCW, moveCursorBoderCW)
 {
 	SDL_Rect vp;
@@ -347,7 +320,7 @@ INSTANTIATE_TEST_SUITE_P(
 	)
 );
 
-class  NewLineParameterTests : public ::testing::TestWithParam<std::tuple<int, int, bool>> {};
+class  NewLineParameterTests: public ::testing::TestWithParam<std::tuple<int, int, bool>> {};
 TEST_P(NewLineParameterTests, newLine)
 {
 	int x = std::get<0>(GetParam());
@@ -388,7 +361,7 @@ INSTANTIATE_TEST_SUITE_P(
 	)
 );
 
-class  NewLineViewPortTests : public ::testing::TestWithParam<bool> {};
+class  NewLineViewPortTests: public ::testing::TestWithParam<bool> {};
 TEST_P(NewLineViewPortTests, newLineViewport)
 {
 	bool autoScroll = GetParam();
