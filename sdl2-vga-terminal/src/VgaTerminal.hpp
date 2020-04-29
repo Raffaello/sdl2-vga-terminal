@@ -1,16 +1,15 @@
 #pragma once
 
 #if (_MSC_VER < 1910 || _MSC_FULL_VER < 190023918)
-#   error "Required Visual Studio 2015 Update 2 at least"
+#   error "Visual Studio 2015 Update 2 at least is required"
 #endif
 
 #include "Window.hpp"
 #include <memory>
 #include <string>
 #include <bitset>
-#include <mutex>
+//#include <mutex>
 #include <atomic>
-
 
 
 class VgaTerminal : public Window
@@ -88,6 +87,8 @@ public:
     uint16_t cursor_time = 500; /// ms
     bool showCursor = true;
     bool autoScroll = true;
+protected:
+
 private:
     typedef struct _terminalChar_t : terminalChar_t
     {
@@ -114,6 +115,7 @@ private:
     SDL_TimerID _cursorTimerId = 0;
     //std::mutex _cursortTimerMutex;
     std::atomic<bool> _onIdle = true;
+    // TODO: find a better name for the method.
     void _busy() noexcept;
     static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
     uint32_t _timerCallBack(uint32_t interval);

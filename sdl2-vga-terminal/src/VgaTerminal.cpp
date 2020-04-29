@@ -198,7 +198,7 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
         return _defaultNullChar;
     }
 
-    _terminalChar_t _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
+    _terminalChar_t _tc = _pGrid[(static_cast<int>(y) + _viewPortY) * mode.tw + x + _viewPortX];
     terminalChar_t tc;
     tc.c = _tc.c,
     tc.col = _tc.col,
@@ -390,6 +390,7 @@ void VgaTerminal::resetViewport() noexcept
 void VgaTerminal::_busy() noexcept
 {
     _onIdle = false;
+    // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
     int icur = _curY * mode.tw + _curX;
     _terminalChar_t tc = _pGrid[icur];
     tc.rendered = false;
@@ -417,7 +418,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
             _onIdle = true;
             _drawCursor = true;
         }
-        // todo wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
+        // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
         int icur = _curY * mode.tw + _curX;
         _terminalChar_t tc = _pGrid[icur];
         tc.rendered = false;
@@ -485,7 +486,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
         }
     }
 
-    // clear line
+    // clear line -> TODO: promote to a public method?
     int j2 = (vh - 1) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
