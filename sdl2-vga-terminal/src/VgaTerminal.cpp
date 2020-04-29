@@ -66,19 +66,17 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
         _pal.colors[i].r = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 0]));
         _pal.colors[i].g = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 1]));
         _pal.colors[i].b = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 2]));
-        _pal.colors[i].a = 255;
+        _pal.colors[i].a = SDL_ALPHA_OPAQUE;
     }
 
     _pGrid = std::make_unique<std::atomic<_terminalChar_t>[]>(static_cast<uint64_t>(mode.tw) * mode.th);
     //_pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
-    if (!_pGrid) {
-        throw std::runtime_error("unable to alloc _pGrid");
-    }
     
     if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
         _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBackWrapper, this);
         if (_cursorTimerId == 0) {
-            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to install cursor callback.", typeid(*this).name(), __func__);
+            SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to add cursor callback. Error: %s",
+                typeid(*this).name(), __func__, SDL_GetError());
         }
     }
     else {
@@ -89,7 +87,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 {
     uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
-    const int dstx = dst.x + 8;
+    const int dstx = dst.x + mode.cw;
 
     for (uint8_t y = 0; y < mode.ch; y++) {
         _renderCharLine(font[y], dstx, dst.y + y, tc.col, tc.bgCol);
@@ -100,6 +98,9 @@ void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 
 void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol)
 {
+    // TODO lsz is mode.cw,
+    //      start make sense spliting to a VgaTerminalRender, all the 
+    //      rendering functions.
     constexpr auto lsz = 8;
 
     SDL_Point points[lsz];
@@ -122,7 +123,7 @@ void VgaTerminal::_renderCursor(const SDL_Point& dst, _terminalChar_t& tc)
         tc.col
     ;
             
-    const int dstx = dst.x + 8;
+    const int dstx = dst.x + mode.cw;
     const uint8_t* font = &mode.font[static_cast<int>(tc.c) * mode.ch];
     const uint8_t* cursorFont = &mode.cursors[static_cast<int>(cursor_mode) * mode.ch];
 
@@ -163,6 +164,7 @@ uint8_t VgaTerminal::getY() const noexcept
 
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
+    // todo make sense to have a _getCursorPosition method.
     int pos = _curX + _curY * mode.tw;
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
@@ -198,7 +200,7 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) co
         return _defaultNullChar;
     }
 
-    _terminalChar_t _tc = _pGrid[(static_cast<int>(y) + _viewPortY) * mode.tw + x + _viewPortX];
+    _terminalChar_t _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
     terminalChar_t tc;
     tc.c = _tc.c,
     tc.col = _tc.col,
@@ -211,7 +213,7 @@ void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const 
 {
     for (int j = y1, j2= y1 * mode.tw, jch = y1 * mode.ch;
         j < y2;
-        j++, j2+=mode.tw, jch+=mode.ch) {
+        j++, j2 += mode.tw, jch += mode.ch) {
         _renderGridLinePartialX(0, mode.tw, j2, jch, force);
     }
 }
@@ -235,35 +237,30 @@ void VgaTerminal::render(const bool force)
         return;
     }
 
-    int yw = _curY * mode.tw;
-    int ych = _curY * mode.ch;
-    int icur = static_cast<int>(_curY) * mode.tw + _curX;
-    SDL_Point p = { _curX * mode.cw, ych };
-    // top cursor grid
-    _renderGridPartialY(0, _curY, force);
-    // left cursor grid
-    _renderGridLinePartialX(0, _curX, yw, ych,  force);
-    // cursor position
-    bool expr;
-    _terminalChar_t tc = _pGrid[icur];
-//    {
-  //      std::lock_guard lck(_cursortTimerMutex);
-       /* expr = (force || !_pGrid[icur].rendered)
-            && (showCursor && _drawCursor);*/
-        expr = (force || !tc.rendered) 
-            && (showCursor && (!_onIdle || _drawCursor));
- //   }
+    uint8_t curY = _curY;
+    uint8_t curX = _curX;
     
-    if (expr) {
+    int yw = curY * mode.tw;
+    int ych = curY * mode.ch;
+    int icur = static_cast<int>(curY) * mode.tw + curX;
+    _terminalChar_t tc = _pGrid[icur];
+    SDL_Point p = { curX * mode.cw, ych };
+    
+    // top cursor grid
+    _renderGridPartialY(0, curY, force);
+    // left cursor grid
+    _renderGridLinePartialX(0, curX, yw, ych,  force);
+    if ((force || !tc.rendered)
+        && (showCursor && (!_onIdle || _drawCursor))) {
         _renderCursor(p, tc);
     }
     else {
         _renderFontChar(p, tc);
     }
     // right cursor grid
-    _renderGridLinePartialX(_curX + 1, mode.tw, yw, ych, force);
+    _renderGridLinePartialX(curX + 1, mode.tw, yw, ych, force);
     // bottom cursor grid    
-    _renderGridPartialY(_curY + 1, mode.th, force);
+    _renderGridPartialY(curY + 1, mode.th, force);
 
     renderPresent();
 }
@@ -409,25 +406,21 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     SDL_Event event;
     SDL_UserEvent userevent;
     
-   // {
-        //std::lock_guard lck(_cursortTimerMutex);
-        if (_onIdle) {
-            _drawCursor = !_drawCursor;
-        }
-        else {
-            _onIdle = true;
-            _drawCursor = true;
-        }
-        // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
-        int icur = _curY * mode.tw + _curX;
-        _terminalChar_t tc = _pGrid[icur];
-        tc.rendered = false;
-        _pGrid[icur] = tc;
+    if (_onIdle) {
+        _drawCursor = !_drawCursor;
+    }
+    else {
+        _onIdle = true;
+        _drawCursor = true;
+    }
+    // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
+    int icur = _curY * mode.tw + _curX;
+    _terminalChar_t tc = _pGrid[icur];
+    tc.rendered = false;
+    _pGrid[icur] = tc;
 
-        interval = cursor_time;
+    interval = cursor_time;
         
-    //}
-
     userevent.code = 0;
     userevent.data1 = userevent.data2 = NULL;
     event.type = userevent.type = SDL_USEREVENT;

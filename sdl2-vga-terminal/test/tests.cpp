@@ -6,8 +6,6 @@
 #include "Environment.hpp"
 
 
-#ifndef TEST_DUMP_SNAPSHOT
-
 void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 {
 	EXPECT_EQ(vp.x, exp.x);
@@ -402,8 +400,6 @@ INSTANTIATE_TEST_SUITE_P(
 		false
 	)
 );
-
-#endif
 
 
 int main(int argc, char** argv) {
