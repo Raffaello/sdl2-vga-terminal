@@ -2,6 +2,11 @@
 #include <stdexcept>
 
 Window::Window(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
+	: Window(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, winFlags, drvIndex, renFlags)
+{
+}
+
+Window::Window(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
 {
 	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO) {
 		throw std::runtime_error(std::string("video wasn't inited. Error: ") + SDL_GetError());
@@ -14,7 +19,7 @@ Window::Window(const std::string &title, const int width, const int height, cons
 		_bFullScreenDesktop = false;
 	}
 
-	_pWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, winFlags);
+	_pWindow = SDL_CreateWindow(title.c_str(), x, y, width, height, winFlags);
 
 	if (!_pWindow) {
 		std::string str = SDL_GetError();
@@ -29,7 +34,7 @@ Window::Window(const std::string &title, const int width, const int height, cons
 	}
 
 	_windowId = SDL_GetWindowID(getWindow());
-	
+
 	setRendererDrawColor(0, 0, 0, 255);
 	renderClear();
 	renderPresent();

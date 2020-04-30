@@ -50,6 +50,7 @@ public:
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
+    VgaTerminal(const std::string &title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     virtual ~VgaTerminal();
 
     void gotoXY(const uint8_t x, const uint8_t y) noexcept;
@@ -83,7 +84,7 @@ public:
     const videoMode_t getMode() const noexcept;
     
     uint8_t cursorDefaultCol = 7;
-    uint16_t cursor_time = 500; /// ms
+    std::atomic<uint16_t> cursor_time = 500; /// ms
     bool showCursor = true;
     bool autoScroll = true;
 protected:
@@ -98,7 +99,9 @@ private:
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette _pal;
-    videoMode_t mode;
+    // TODO potentially candidate for atomic, when setMode is available
+    //      at the moment is like a const, so defined as const...
+    const videoMode_t mode;
     std::unique_ptr<std::atomic<_terminalChar_t>[]> _pGrid;
     //std::unique_ptr<_terminalChar_t[]> _pGrid;
     const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });

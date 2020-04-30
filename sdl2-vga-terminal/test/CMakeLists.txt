@@ -42,3 +42,9 @@ if (WITH_SNAPSHOT)
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/snapshot $<TARGET_FILE_DIR:runSnapshotTests>/snapshot
     )
 endif()
+
+### Valgrind tests ###
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_executable(runHelgrindTests "valgrind/helgrind.cpp")
+    target_link_libraries(runHelgrindTests PRIVATE vga-terminal-static ${LIB_SDL2main})
+endif()

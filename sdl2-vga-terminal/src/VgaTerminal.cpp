@@ -47,11 +47,16 @@ VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int
 {
 }
 
-VgaTerminal::VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags) :
-    Window(title, width, height, winFlags, drvIndex, renFlags),
-    _viewPortX(0), _viewPortY(0)
+VgaTerminal::VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
+    : VgaTerminal(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, winFlags, drvIndex, renFlags)
 {
-    mode = mode3;
+}
+
+VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
+    : Window(title, x, y, width, height, winFlags, drvIndex, renFlags),
+    _viewPortX(0), _viewPortY(0), mode(mode3)
+{
+    //mode = mode3;
     _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
@@ -61,7 +66,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
     _pal.ncolors = mode.numColors;
     pCol = std::make_unique<SDL_Color[]>(_pal.ncolors);
     _pal.colors = pCol.get();
-    for (int i = 0, i3 = 0; i < _pal.ncolors; i++, i3+=3)
+    for (int i = 0, i3 = 0; i < _pal.ncolors; i++, i3 += 3)
     {
         _pal.colors[i].r = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 0]));
         _pal.colors[i].g = static_cast<uint8_t>(RESIZE_VGA_PALETTE(mode.palette[i3 + 1]));
@@ -71,8 +76,8 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
     _pGrid = std::make_unique<std::atomic<_terminalChar_t>[]>(static_cast<uint64_t>(mode.tw) * mode.th);
     //_pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
-    
-    if((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
+
+    if ((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
         _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBackWrapper, this);
         if (_cursorTimerId == 0) {
             SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "[%s] %s: unable to add cursor callback. Error: %s",
