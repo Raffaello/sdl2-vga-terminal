@@ -54,7 +54,7 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
 VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
     : Window(title, x, y, width, height, winFlags, drvIndex, renFlags),
-    _viewPortX(0), _viewPortY(0), mode(mode3)
+    mode(mode3), _viewPortX(0), _viewPortY(0)
 {
     //mode = mode3;
     _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
@@ -74,8 +74,7 @@ VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, con
         _pal.colors[i].a = SDL_ALPHA_OPAQUE;
     }
 
-    _pGrid = std::make_unique<std::atomic<_terminalChar_t>[]>(static_cast<uint64_t>(mode.tw) * mode.th);
-    //_pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
+    _pGrid = std::make_unique<_terminalChar_t[]>(static_cast<uint64_t>(mode.tw) * mode.th);
 
     if ((SDL_WasInit(SDL_INIT_TIMER) == SDL_INIT_TIMER) && (SDL_WasInit(SDL_INIT_EVENTS) == SDL_INIT_EVENTS)) {
         _cursorTimerId = SDL_AddTimer(cursor_time, _timerCallBackWrapper, this);
@@ -173,8 +172,10 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
     int pos = _curX + _curY * mode.tw;
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
-    _pGrid[pos] = tc;
-    
+    {
+        std::lock_guard lck(_pGridMutex);
+        _pGrid[pos] = tc;
+    }
     _incrementCursorPosition();
 }
 
@@ -199,13 +200,17 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
  * @param y 
  * @return VgaTerminal::terminalChar_t defaultNullChar if out of screen
  */
-VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) const noexcept
+VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) noexcept
 {
     if (x >= _viewPortWidth || y >= _viewPortHeight) {
         return _defaultNullChar;
     }
-
-    _terminalChar_t _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
+   
+    _terminalChar_t _tc;
+    {
+        std::lock_guard lck(_pGridMutex);
+        _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
+    }
     terminalChar_t tc;
     tc.c = _tc.c,
     tc.col = _tc.col,
@@ -226,7 +231,11 @@ void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const 
 void VgaTerminal::_renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force)
 {
     for (int i = x1, i2 = yw + x1; i < x2; i++, i2++) {
-        _terminalChar_t tc = _pGrid[i2];
+        _terminalChar_t tc;
+        {
+            std::lock_guard lck(_pGridMutex);
+            tc = _pGrid[i2];
+        }
         if (!force && tc.rendered) {
             continue;
         }
@@ -248,7 +257,11 @@ void VgaTerminal::render(const bool force)
     int yw = curY * mode.tw;
     int ych = curY * mode.ch;
     int icur = static_cast<int>(curY) * mode.tw + curX;
-    _terminalChar_t tc = _pGrid[icur];
+    _terminalChar_t tc;
+    {
+        std::lock_guard lck(_pGridMutex);
+        tc = _pGrid[icur];
+    }
     SDL_Point p = { curX * mode.cw, ych };
     
     // top cursor grid
@@ -275,10 +288,13 @@ void VgaTerminal::clear() noexcept
     const int vy = _viewPortY + _viewPortHeight;
     const int vx = _viewPortX + _viewPortWidth;
 
-    for (int j = _viewPortY; j < vy; j++) {
-        int j2 = j * mode.tw;
-        for (int i = _viewPortX; i < vx; i++) {
-            _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
+    {
+        std::lock_guard lck(_pGridMutex);
+        for (int j = _viewPortY; j < vy; j++) {
+            int j2 = j * mode.tw;
+            for (int i = _viewPortX; i < vx; i++) {
+                _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
+            }
         }
     }
 
@@ -394,9 +410,10 @@ void VgaTerminal::_busy() noexcept
     _onIdle = false;
     // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
     int icur = _curY * mode.tw + _curX;
-    _terminalChar_t tc = _pGrid[icur];
-    tc.rendered = false;
-    _pGrid[icur] = tc;
+    {
+        std::lock_guard lck(_pGridMutex);
+        _pGrid[icur].rendered = false;
+    }
 }
 
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
@@ -420,9 +437,10 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     }
     // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
     int icur = _curY * mode.tw + _curX;
-    _terminalChar_t tc = _pGrid[icur];
-    tc.rendered = false;
-    _pGrid[icur] = tc;
+    {
+        std::lock_guard lck(_pGridMutex);
+        _pGrid[icur].rendered = false;
+    }
 
     interval = cursor_time;
         
@@ -462,6 +480,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
     auto vh = _viewPortY + _viewPortHeight;
     auto vw = _viewPortWidth + _viewPortWidth;
 
+    std::lock_guard lck(_pGridMutex);
     for (int j = _viewPortY + 1; j < vh ; j++)
     {
         int j2 = j * mode.tw;
@@ -471,16 +490,13 @@ void VgaTerminal::_scrollDownGrid() noexcept
         {
             int i2 = i + j2;
             int ii2 = i + jj2;
-            _terminalChar_t tc1 = _pGrid[i2];
-            _terminalChar_t tc2 = _pGrid[ii2];
 
-            if (tc1.rendered && tc1 == tc2) {
+            if (_pGrid[i2].rendered && _pGrid[i2] == _pGrid[ii2]) {
                 continue;
             }
             
-            tc2 = tc1;
-            tc2.rendered = false;
-            _pGrid[ii2] = tc2;
+            _pGrid[ii2] = _pGrid[i2];
+            _pGrid[ii2].rendered = false;
         }
     }
 

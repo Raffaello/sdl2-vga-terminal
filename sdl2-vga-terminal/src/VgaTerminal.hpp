@@ -1,14 +1,15 @@
 #pragma once
 
-#if defined(_MSC_VER) && (_MSC_VER < 1910 || _MSC_FULL_VER < 190023918)
-#   error "Visual Studio 2015 Update 2 at least is required"
-#endif
+//#if defined(_MSC_VER) && (_MSC_VER < 1910 || _MSC_FULL_VER < 190023918)
+//#   error "Visual Studio 2015 Update 2 at least is required"
+//#endif
 
 #include "Window.hpp"
 #include <memory>
 #include <string>
 #include <bitset>
 #include <atomic>
+#include <mutex>
 
 
 class VgaTerminal : public Window
@@ -63,7 +64,7 @@ public:
     void write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
-    terminalChar_t at(const uint8_t x, const uint8_t y) const noexcept;
+    terminalChar_t at(const uint8_t x, const uint8_t y) noexcept;
 
     void render(const bool force = false);
     void clear() noexcept;
@@ -99,11 +100,11 @@ private:
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette _pal;
-    // TODO potentially candidate for atomic, when setMode is available
-    //      at the moment is like a const, so defined as const...
+    // potentially candidate for atomic, when setMode is available
+    // at the moment is like a const, so defined as const...
     const videoMode_t mode;
-    std::unique_ptr<std::atomic<_terminalChar_t>[]> _pGrid;
-    //std::unique_ptr<_terminalChar_t[]> _pGrid;
+    std::unique_ptr<_terminalChar_t[]> _pGrid;
+    std::mutex _pGridMutex;
     const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });
     
     std::atomic<uint8_t> _curX = 0;
@@ -115,7 +116,6 @@ private:
   
     std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
-    //std::mutex _cursortTimerMutex;
     std::atomic<bool> _onIdle = true;
     // TODO: find a better name for the method.
     void _busy() noexcept;
