@@ -9,10 +9,10 @@ endif()
 
 project ("sdl2-vga-terminal" VERSION 0.2.1 DESCRIPTION "Vga Terminal on SDL2")
 
-option(WITH_EXAMPLES "build examples" ON)
-option(WITH_TEST "build test" ON)
-option(TEST_DUMP_SNAPSHOT "running test dumping the expected output instead of verifing it" OFF)
-option(WITH_SNAPSHOT "running snapshot test" OFF)
+option(BUILD_EXAMPLES "build examples" ON)
+include(CTest)
+option(TEST_DUMP_SNAPSHOT "build test to dump the expected output instead of verifing it" OFF)
+option(BUILD_SNAPSHOT "build snapshot test" OFF)
 option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 
 enable_testing()

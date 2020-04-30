@@ -172,11 +172,11 @@ unset(vga-terminal_copts)
 unset(vga-terminal-static_copts)
 
 ################################ Examples ####################################
-if(WITH_EXAMPLES)
+if(BUILD_EXAMPLES)
     add_subdirectory("examples")
 endif()
 
 ############################### tests ########################################
-if(WITH_TEST)
+if(BUILD_TESTING)
 add_subdirectory("test")
 endif()
