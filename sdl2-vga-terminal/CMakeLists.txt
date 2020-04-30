@@ -8,6 +8,15 @@ find_package(SDL2 CONFIG REQUIRED)
 
 configure_file(version.h.in version.h)
 
+if(WITH_SDL2_STATIC)
+    set(LIB_SDL2 SDL2::SDL2)
+else()
+    set(LIB_SDL2 SDL2::SDL2-static)
+endif()
+
+if (WIN32)
+    set(LIB_SDL2main SDL2::SDL2main)
+endif()
 
 ########################### Static Lib #######################################
 set(LIB_NAME vga-terminal-static)
@@ -61,14 +70,12 @@ target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
 )
 
-if(WITH_SDL2_STATIC)
-    target_link_libraries(${LIB_NAME} PUBLIC SDL2::SDL2-static)
-else()
+target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2})
+if(NOT (WITH_SDL2_STATIC))
     install(FILES
         $<TARGET_FILE:SDL2::SDL2>
         DESTINATION static/lib
     )
-    target_link_libraries(${LIB_NAME} PUBLIC SDL2::SDL2)
 endif()
 
 unset(LIB_NAME)
@@ -102,10 +109,12 @@ install(FILES
     $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h 
     DESTINATION include
 )
-install(FILES
-    $<TARGET_FILE:SDL2::SDL2>
-    DESTINATION lib
-)
+if (NOT (WITH_SDL2_STATIC))
+    install(FILES
+        $<TARGET_FILE:SDL2::SDL2>
+        DESTINATION lib
+    )
+endif()
 
 write_basic_package_version_file(
   ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
@@ -161,10 +170,6 @@ message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 
 unset(vga-terminal_copts)
 unset(vga-terminal-static_copts)
-
-if (WIN32)
-    set(LIB_SDL2main SDL2::SDL2main)
-endif()
 
 ################################ Examples ####################################
 if(WITH_EXAMPLES)
