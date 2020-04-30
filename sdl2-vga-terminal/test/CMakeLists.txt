@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 3.16)
 find_package(GTest 1.10 CONFIG REQUIRED)
 
 if (TEST_DUMP_SNAPSHOT)
-    set (BUILD_SNAPSHOT bool ON)
+    set (BUILD_SNAPSHOT bool ON) # ON by dependent option configuration anyway, but not hurting
     add_compile_definitions(TEST_DUMP_SNAPSHOT)
 else()
     ### VgaTerminal tests ###
