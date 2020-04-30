@@ -143,11 +143,11 @@ unset(LIB_VER)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
-    target_compile_options(vga-terminal PRIVATE /W4 /WX)
     target_compile_options(vga-terminal-static PRIVATE /W4 /WX)
+    target_compile_options(vga-terminal PRIVATE /W4 /WX)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC) #-Werror)
     target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic) #-Werror)
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic) #-Werror)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 

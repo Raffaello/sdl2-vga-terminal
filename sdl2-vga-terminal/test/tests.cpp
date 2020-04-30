@@ -4,7 +4,7 @@
 #include <SDL2/SDL_image.h>
 #include <cmath>
 #include "Environment.hpp"
-
+#include <cstring>
 
 void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 {
