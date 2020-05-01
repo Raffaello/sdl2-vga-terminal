@@ -1,2 +1,3 @@
 todo:
-	#label: "bot-todo"
+	label: "bot-todo :spiral_notepad:"
+	autoAssign: false
