@@ -44,7 +44,7 @@ TEST(VgaTerminal, TimerNotInitedWarning)
 	{
 		testing::internal::CaptureStderr();
 		std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-		VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+		VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
 		std::string output = testing::internal::GetCapturedStderr();
 		EXPECT_THAT(output, testing::EndsWith("TIMER or EVENTS not inited.\n"));
 		EXPECT_THAT(output, testing::StartsWith("WARN:"));
