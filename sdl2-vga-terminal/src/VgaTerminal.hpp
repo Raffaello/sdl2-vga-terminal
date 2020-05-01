@@ -1,9 +1,16 @@
 #pragma once
 
+//#if defined(_MSC_VER) && (_MSC_VER < 1910 || _MSC_FULL_VER < 190023918)
+//#   error "Visual Studio 2015 Update 2 at least is required"
+//#endif
+
 #include "Window.hpp"
 #include <memory>
 #include <string>
 #include <bitset>
+#include <atomic>
+#include <mutex>
+
 
 class VgaTerminal : public Window
 {
@@ -36,6 +43,7 @@ public:
         CURSOR_MODE_BLOCK = 2,
         CURSOR_MODE_VERTICAL = 3,
     };
+    static constexpr uint8_t NUM_CURSOR_MODES = 4;
 
     CURSOR_MODE cursor_mode = CURSOR_MODE::CURSOR_MODE_NORMAL;
 
@@ -44,6 +52,7 @@ public:
     VgaTerminal() = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
+    VgaTerminal(const std::string &title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     virtual ~VgaTerminal();
 
     void gotoXY(const uint8_t x, const uint8_t y) noexcept;
@@ -56,7 +65,7 @@ public:
     void write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
-    terminalChar_t at(const uint8_t x, const uint8_t y) const noexcept;
+    terminalChar_t at(const uint8_t x, const uint8_t y) noexcept;
 
     void render(const bool force = false);
     void clear() noexcept;
@@ -75,11 +84,14 @@ public:
     void resetViewport() noexcept;
 
     const videoMode_t getMode() const noexcept;
+    bool isIdle() const noexcept;
     
     uint8_t cursorDefaultCol = 7;
-    uint16_t cursor_time = 500; /// ms
+    std::atomic<uint16_t> cursor_time = 500; /// ms
     bool showCursor = true;
     bool autoScroll = true;
+protected:
+
 private:
     typedef struct _terminalChar_t : terminalChar_t
     {
@@ -90,21 +102,26 @@ private:
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette _pal;
-    videoMode_t mode;
+    // potentially candidate for atomic, when setMode would be available
+    // at the moment is like a const, so defined as a const...
+    const videoMode_t mode;
     std::unique_ptr<_terminalChar_t[]> _pGrid;
-    const _terminalChar_t _defaultNullChar = { 0, 0, 0, false };
+    std::mutex _pGridMutex;
+    const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });
     
-    uint8_t _curX = 0;
-    uint8_t _curY = 0;
+    std::atomic<uint8_t> _curX = 0;
+    std::atomic<uint8_t> _curY = 0;
     uint8_t _viewPortX;
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
   
-    bool _drawCursor = true; 
+    std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
-    SDL_mutex* _cursortTimerMutex = nullptr;
-    static uint32_t _timerCallBack(uint32_t interval, void* param);
+    std::atomic<bool> _onIdle = true;
+    void _setBusy() noexcept;
+    static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
+    uint32_t _timerCallBack(uint32_t interval);
 
     void _incrementCursorPosition(bool increment = true) noexcept;
     void _scrollDownGrid() noexcept;

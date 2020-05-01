@@ -10,7 +10,7 @@ class Window
 public:
 	Window() = delete;
 	Window(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
-	
+	Window(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
 	SDL_Window* getWindow() const;
 	SDL_Renderer* getRenderer() const;
 

@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
+#include <algorithm>
+
 
 std::string generateSnapshotFilename()
 {
@@ -8,7 +11,7 @@ std::string generateSnapshotFilename()
 	snapshotFilename += '.';
 	snapshotFilename += ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	snapshotFilename += ".png";
-
+	std::replace(snapshotFilename.begin(), snapshotFilename.end(), '/', '-');
 	return snapshotFilename;
 }
 
@@ -27,33 +30,19 @@ SDL_Surface* getScreenshot(const VgaTerminal& term)
 	return snapshot;
 }
 
-TEST(VgaTerminal, Snapshot)
+void snapShotTest(VgaTerminal& term, const std::string& snapshotFilename)
 {
-	SDL_Init(SDL_INIT_VIDEO);
-	IMG_Init(IMG_INIT_PNG);
-	std::string termTitle = "Hello Test";
-	VgaTerminal term = VgaTerminal(termTitle, 0, -1, 0);
-	term.showCursor = false;
-	std::string snapshotFilename = generateSnapshotFilename();
-
-	for (int i = 0; i < 256; i++) {
-		term.write(static_cast<char>(i), i, 255 - i);
-	}
-
-	term.writeXY(32, 11, "ษอออออออออออออออป", 14, 1);
-	term.writeXY(32, 12, "บ Hello World!! บ", 14, 1);
-	term.writeXY(32, 13, "ศอออออออออออออออผ", 14, 1);
 	term.render();
-	SDL_Delay(1000);
+
 	SDL_Surface* snapshot = getScreenshot(term);
 
 #ifdef TEST_DUMP_SNAPSHOT
 	GTEST_LOG_(INFO) << "Dumping snapshot: " << snapshotFilename;
 	IMG_SavePNG(snapshot, ("snapshot/" + snapshotFilename).c_str());
-	SDL_FreeSurface(snapshot);
 #else
 	SDL_Surface* image = IMG_Load(("snapshot/" + snapshotFilename).c_str());
-
+	ASSERT_FALSE(NULL == image);
+	ASSERT_FALSE(NULL == image->format);
 	EXPECT_EQ(image->format->format, snapshot->format->format);
 	EXPECT_EQ(image->format->BytesPerPixel, snapshot->format->BytesPerPixel);
 	EXPECT_EQ(image->pitch, snapshot->pitch);
@@ -74,12 +63,60 @@ TEST(VgaTerminal, Snapshot)
 	SDL_UnlockSurface(image);
 	SDL_UnlockSurface(snapshot);
 	SDL_FreeSurface(image);
-	SDL_FreeSurface(snapshot);
 #endif
+	SDL_FreeSurface(snapshot);
+}
+
+TEST(VgaTerminal, Snapshot)
+{
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
+	ASSERT_NE(0, IMG_Init(IMG_INIT_PNG));
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
+	term.showCursor = false;
+	std::string snapshotFilename = generateSnapshotFilename();
+
+	for (int i = 0; i < 256; i++) {
+		term.write(static_cast<char>(i), i, 255 - i);
+	}
+
+	term.writeXY(32, 11, "ษอออออออออออออออป", 14, 1);
+	term.writeXY(32, 12, "บ Hello World!! บ", 14, 1);
+	term.writeXY(32, 13, "ศอออออออออออออออผ", 14, 1);
+	
+	snapShotTest(term, snapshotFilename);
 
 	IMG_Quit();
 	SDL_Quit();
 }
+
+class  CursorShapeTests: public ::testing::TestWithParam<VgaTerminal::CURSOR_MODE> {};
+TEST_P(CursorShapeTests, CursorShapeSnapshot)
+{
+	VgaTerminal::CURSOR_MODE cursorMode = GetParam();
+	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS));
+	ASSERT_NE(0, IMG_Init(IMG_INIT_PNG));
+	std::string snapshotFilename = generateSnapshotFilename();
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name(); 
+	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
+	term.cursor_mode = cursorMode;
+	term.write(title, 7, 0);
+	
+	snapShotTest(term, snapshotFilename);
+
+	IMG_Quit();
+	SDL_Quit();
+}
+INSTANTIATE_TEST_SUITE_P(
+	VgaTerminal,
+	CursorShapeTests,
+	::testing::Values(
+		VgaTerminal::CURSOR_MODE::CURSOR_MODE_NORMAL,
+		VgaTerminal::CURSOR_MODE::CURSOR_MODE_FAT,
+		VgaTerminal::CURSOR_MODE::CURSOR_MODE_BLOCK,
+		VgaTerminal::CURSOR_MODE::CURSOR_MODE_VERTICAL
+	)
+);
 
 int main(int argc, char** argv) {
 #ifdef TEST_DUMP_SNAPSHOT
