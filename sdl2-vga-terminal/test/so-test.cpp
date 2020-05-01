@@ -4,7 +4,7 @@
 
 TEST(VgaTerminalSO, simpleRunningTest)
 {
-	// TODO: Very basic, need improvement,
+	// TODO: Very basic, need improvement, (todo-bot self-test file change)
 	//       just for basic runtime using of SO.
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER));
 		
