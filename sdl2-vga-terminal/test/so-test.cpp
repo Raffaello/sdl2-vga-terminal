@@ -4,8 +4,8 @@
 
 TEST(VgaTerminalSO, simpleRunningTest)
 {
-	// @TODO: Very basic, need improvement
-	// @body: just for basic runtime using of SO.
+	// TODO: Very basic, need improvement
+	//	     just for basic runtime using of SO.
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER));
 		
 
@@ -16,9 +16,6 @@ TEST(VgaTerminalSO, simpleRunningTest)
 	VGA_TERMINAL_destroy(term);
 
 	SDL_Quit();
-	// @todo: bot testing reply
-	// @body: Hello.
-
 }
 
 
