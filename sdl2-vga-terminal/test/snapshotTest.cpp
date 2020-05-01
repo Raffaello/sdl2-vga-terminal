@@ -42,6 +42,7 @@ void snapShotTest(VgaTerminal& term, const std::string& snapshotFilename)
 #else
 	SDL_Surface* image = IMG_Load(("snapshot/" + snapshotFilename).c_str());
 	ASSERT_FALSE(NULL == image);
+	ASSERT_FALSE(NULL == image->format);
 	EXPECT_EQ(image->format->format, snapshot->format->format);
 	EXPECT_EQ(image->format->BytesPerPixel, snapshot->format->BytesPerPixel);
 	EXPECT_EQ(image->pitch, snapshot->pitch);
