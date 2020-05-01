@@ -134,7 +134,7 @@ target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_sources(vga-terminal PRIVATE
+target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
 )
 target_link_libraries(${LIB_NAME} vga-terminal-static)
