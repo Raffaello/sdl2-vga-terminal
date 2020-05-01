@@ -63,7 +63,7 @@ void win32()
 		{
 			fRunTimeLinkSuccess = TRUE;
 			VGA_Terminal* term = ProcAddInit();
-			ProcAddWriteXY(term, 0, 0, "test", 10, 0);
+			ProcAddWriteXY(term, 0, 0, "GREETINGS PROFESSOR FALKENS.", 10, 0);
 			ProcAddRender(term);
 			SDL_Delay(1000);
 			ProcAddDestroy(term);

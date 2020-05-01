@@ -83,6 +83,14 @@ int main(int argc, char* args[])
 		term1.write((char)i, i, 255 - i);
 	}
 
+	cout << "Keyboards specials on the focused window: " << endl
+		<< "Press F11 to toggle fullscreen" << endl
+		<< "press C to clear"
+		<< "press S to change cursor shape" << endl
+		<< "press + / Keypad + to increase cursor blinking speed" << endl
+		<< "press - / Keypad - to decrease cursor blinkgin speed" << endl
+		<< "[Viewport Window only] up/down/left/right arrows to move the cursor" << endl;
+
 	term1.render();
 	SDL_Delay(500);
 	term1.writeXY(40, 12, "Again!", 9, 15);
@@ -121,8 +129,9 @@ int main(int argc, char* args[])
 		break;
 		case SDL_USEREVENT:
 			userevent = event.user;
-			if (userevent.code == 0) {
-				//std::cout << "cursor!" << endl;
+			// TODO at some point a better event name should be used
+			if (userevent.type == SDL_USEREVENT && userevent.code == 0) {
+				//std::cout << "cursor event!" << endl;
 			}
 			else {
 				//cout << userevent.code << endl;
@@ -182,6 +191,22 @@ int main(int argc, char* args[])
 			else if (keyname == "C") {
 				cout << "clearing..." << endl;
 				term->clear();
+			}
+			else if (keyname == "S") {
+				cout << "cursor shape..." << endl;
+				// unsafe cursor rotation, please be a little bit more verbose
+				// and handle properly the cases.
+				auto cs = (static_cast<int>(term->cursor_mode) + 1) % VgaTerminal::NUM_CURSOR_MODES;
+				term->cursor_mode = static_cast<VgaTerminal::CURSOR_MODE>(cs);
+			}
+			else if ((event.key.keysym.sym == SDLK_EQUALS && event.key.keysym.mod & KMOD_SHIFT) || keyname == "Keypad +") {
+				
+				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 0.9));
+				cout << "incresing cursor speed (decrease cursor_time) ~10% = " << term->cursor_time << endl;
+			}
+			else if ((keyname == "Keypad -") || (keyname == "-")) {
+				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 1.1));
+				cout << "decresing cursor speed (incresing cursor_time) ~10% = " << term->cursor_time << endl;
 			}
 			else {
 				term->write(keyname, 1, 10);

@@ -43,6 +43,7 @@ public:
         CURSOR_MODE_BLOCK = 2,
         CURSOR_MODE_VERTICAL = 3,
     };
+    static constexpr uint8_t NUM_CURSOR_MODES = 4;
 
     CURSOR_MODE cursor_mode = CURSOR_MODE::CURSOR_MODE_NORMAL;
 

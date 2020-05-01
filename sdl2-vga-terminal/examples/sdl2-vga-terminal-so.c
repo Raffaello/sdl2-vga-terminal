@@ -8,9 +8,9 @@
 #include <stdio.h>
 
 #ifdef WIN32
-#include <windows.h>
-#include <delayimp.h>
-#pragma comment(lib, "delayimp")
+#	include <windows.h>
+#	include <delayimp.h>
+#	pragma comment(lib, "delayimp")
 #endif
 
 
@@ -23,23 +23,27 @@ int main(int argc, char* args[])
 
 	VGA_Terminal* term = VGA_TERMINAL_init();
 
-	VGA_TERMINAL_writeXY(term, 0, 0, "TEST test", 10, 0);
+	VGA_TERMINAL_writeXY(term, 0, 0, "GREETINGS PROFESSOR FALKEN.", 10, 0);
 	// emulating the main even loop 3 times
 	// just to show the cursor blinking....
-	int quit = 3;
+	int quit = 6;
+	SDL_Event e;
 	while (quit--) {
 		VGA_TERMINAL_render(term);
-		SDL_Delay(1000);
+		do {
+			SDL_WaitEvent(&e);
+		} while (e.type != SDL_USEREVENT && e.user.type != SDL_USEREVENT);
+		
 	};
 
 	VGA_TERMINAL_destroy(term);
 
 #ifdef WIN32
-#ifndef NDEBUG
-#define PFIX "d"
-#else
-#define PFIX ""
-#endif
+#	ifndef NDEBUG
+#		define PFIX "d"
+#	else
+#		define PFIX ""
+#	endif
 	int t = __FUnloadDelayLoadedDLL2("vga-terminal" PFIX ".dll");
 	printf("unloaded? : %d\n", t);
 	getchar();
