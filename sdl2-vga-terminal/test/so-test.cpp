@@ -17,7 +17,7 @@ TEST(VgaTerminalSO, simpleRunningTest)
 
 	SDL_Quit();
 	// @todo: bot testing
-	// @body: Greetings Professor Falken.
+	// @body: Hello.
 
 }
 
