@@ -102,8 +102,8 @@ private:
     static const videoMode_t mode3;
     std::unique_ptr<SDL_Color[]> pCol;
     SDL_Palette _pal;
-    // potentially candidate for atomic, when setMode is available
-    // at the moment is like a const, so defined as const...
+    // potentially candidate for atomic, when setMode would be available
+    // at the moment is like a const, so defined as a const...
     const videoMode_t mode;
     std::unique_ptr<_terminalChar_t[]> _pGrid;
     std::mutex _pGridMutex;

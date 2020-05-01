@@ -56,7 +56,6 @@ VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, con
     : Window(title, x, y, width, height, winFlags, drvIndex, renFlags),
     mode(mode3), _viewPortX(0), _viewPortY(0)
 {
-    //mode = mode3;
     _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
@@ -102,7 +101,7 @@ void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 
 void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol)
 {
-    // TODO lsz is mode.cw,
+    // lsz is mode.cw,
     //      start make sense spliting to a VgaTerminalRender, all the 
     //      rendering functions.
     constexpr auto lsz = 8;
@@ -168,7 +167,7 @@ uint8_t VgaTerminal::getY() const noexcept
 
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    // todo make sense to have a _getCursorPosition method.
+    // TODO: make sense to have a _getCursorPosition method.
     int pos = _curX + _curY * mode.tw;
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;

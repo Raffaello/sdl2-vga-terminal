@@ -14,6 +14,7 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 	EXPECT_EQ(vp.h, exp.h);
 }
 
+// expect around ~1% tolerance on the given value to be matched
 void cmpTicks(const uint32_t start, const uint32_t end, const uint16_t value)
 {
 	double te = static_cast<double>(value) * 0.01;
@@ -191,8 +192,6 @@ TEST(VgaTerminal, Idle)
 	EXPECT_TRUE(term.isIdle());
 	term.write("X", 7, 1);
 	EXPECT_FALSE(term.isIdle());
-
-
 }
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};

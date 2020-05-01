@@ -24,7 +24,7 @@ int main(int argc, char* args[])
 	VGA_Terminal* term = VGA_TERMINAL_init();
 
 	VGA_TERMINAL_writeXY(term, 0, 0, "GREETINGS PROFESSOR FALKEN.", 10, 0);
-	// emulating the main even loop 3 times
+	// emulating the main even loop few times
 	// just to show the cursor blinking....
 	int quit = 6;
 	SDL_Event e;

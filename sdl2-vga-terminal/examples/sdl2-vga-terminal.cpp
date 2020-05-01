@@ -96,9 +96,9 @@ int main(int argc, char* args[])
 	term1.writeXY(40, 12, "Again!", 9, 15);
 	term1.render();
 	SDL_Delay(500);
-	term1.writeXY(10, 15, "ษอออออออออป", 14 , 2);
-	term1.writeXY(10, 16, "บ         บ", 14 , 2);
-	term1.writeXY(10, 17, "ศอออออออออผ", 14 , 2);
+	term1.writeXY(10, 15, "รรรรรรรรรรยป", 14 , 2);
+	term1.writeXY(10, 16, "ยบ         ยบ", 14 , 2);
+	term1.writeXY(10, 17, "รรรรรรรรรรยผ", 14 , 2);
 	term1.gotoXY(12, 16); term1.write(3, 4, 15);
 	term1.gotoXY(14, 16); term1.write(4, 15, 4);
 	term1.gotoXY(16, 16); term1.write(5, 0, 15);
@@ -129,8 +129,9 @@ int main(int argc, char* args[])
 		break;
 		case SDL_USEREVENT:
 			userevent = event.user;
-			// TODO at some point a better event name should be used
+			//  at some point a better event name should be used
 			if (userevent.type == SDL_USEREVENT && userevent.code == 0) {
+                              // the commented code below is intended as an example
 				//std::cout << "cursor event!" << endl;
 			}
 			else {
@@ -200,7 +201,6 @@ int main(int argc, char* args[])
 				term->cursor_mode = static_cast<VgaTerminal::CURSOR_MODE>(cs);
 			}
 			else if ((event.key.keysym.sym == SDLK_EQUALS && event.key.keysym.mod & KMOD_SHIFT) || keyname == "Keypad +") {
-				
 				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 0.9));
 				cout << "incresing cursor speed (decrease cursor_time) ~10% = " << term->cursor_time << endl;
 			}
