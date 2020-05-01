@@ -16,7 +16,7 @@ TEST(VgaTerminalSO, simpleRunningTest)
 	VGA_TERMINAL_destroy(term);
 
 	SDL_Quit();
-	// @todo: bot testing
+	// @todo: bot testing reply
 	// @body: Hello.
 
 }
