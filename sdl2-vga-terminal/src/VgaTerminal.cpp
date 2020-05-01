@@ -511,7 +511,7 @@ const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 {
     return mode;
 }
-const bool VgaTerminal::isIdle() const noexcept
+bool VgaTerminal::isIdle() const noexcept
 {
     return _onIdle;
 }

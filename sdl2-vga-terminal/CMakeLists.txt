@@ -9,9 +9,9 @@ find_package(SDL2 CONFIG REQUIRED)
 configure_file(version.h.in version.h)
 
 if(WITH_SDL2_STATIC)
-    set(LIB_SDL2 SDL2::SDL2)
-else()
     set(LIB_SDL2 SDL2::SDL2-static)
+else()
+    set(LIB_SDL2 SDL2::SDL2)
 endif()
 
 if (WIN32)
