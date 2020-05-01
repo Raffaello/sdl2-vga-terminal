@@ -313,7 +313,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     else {
         // alredy in 0,0 ... what should i do? :)
     }
-    _busy();
+    _setBusy();
 }
 
 void VgaTerminal::moveCursorRight() noexcept
@@ -329,7 +329,7 @@ void VgaTerminal::moveCursorUp() noexcept
     else {
         // no scroll yet
     }
-    _busy();
+    _setBusy();
 }
 
 void VgaTerminal::moveCursorDown() noexcept
@@ -338,7 +338,7 @@ void VgaTerminal::moveCursorDown() noexcept
         ++_curY;
     }
     
-    _busy();
+    _setBusy();
 }
 
 void VgaTerminal::newLine() noexcept
@@ -405,7 +405,7 @@ void VgaTerminal::resetViewport() noexcept
     setViewPort(0, 0, mode.tw, mode.th);
 }
 
-void VgaTerminal::_busy() noexcept
+void VgaTerminal::_setBusy() noexcept
 {
     _onIdle = false;
     // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
@@ -471,7 +471,7 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
         //already at the max
     }
 
-    _busy();
+    _setBusy();
 }
 
 void VgaTerminal::_scrollDownGrid() noexcept
@@ -510,4 +510,8 @@ void VgaTerminal::_scrollDownGrid() noexcept
 const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 {
     return mode;
+}
+const bool VgaTerminal::isIdle() const noexcept
+{
+    return _onIdle;
 }

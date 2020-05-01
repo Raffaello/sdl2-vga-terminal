@@ -84,6 +84,7 @@ public:
     void resetViewport() noexcept;
 
     const videoMode_t getMode() const noexcept;
+    const bool isIdle() const noexcept;
     
     uint8_t cursorDefaultCol = 7;
     std::atomic<uint16_t> cursor_time = 500; /// ms
@@ -118,8 +119,7 @@ private:
     std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
     std::atomic<bool> _onIdle = true;
-    // TODO: find a better name for the method.
-    void _busy() noexcept;
+    void _setBusy() noexcept;
     static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
     uint32_t _timerCallBack(uint32_t interval);
 

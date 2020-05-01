@@ -183,6 +183,17 @@ TEST(VgaTerminal, resetViewport)
 	cmpViewportCheck(vp, term.getViewport());
 }
 
+TEST(VgaTerminal, Idle)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	term.cursor_time = 1000;
+	EXPECT_TRUE(term.isIdle());
+	term.write("X", 7, 1);
+	EXPECT_FALSE(term.isIdle());
+
+
+}
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};
 TEST_P(CursorBlinkingTests, cursorBlinking)
