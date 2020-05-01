@@ -15,9 +15,10 @@ TEST(VgaTerminalSO, simpleRunningTest)
 	ASSERT_STRCASEEQ("0.2", VGA_TERMINAL_version());
 	VGA_TERMINAL_destroy(term);
 
+	SDL_Quit();
 	// @todo: bot testing
 	// @body: Greetings Professor Falken.
-	SDL_Quit();
+
 }
 
 
