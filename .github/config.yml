@@ -1,5 +1,5 @@
 todo:
 	keyword: "@makeAnIssue"
 	label:
-		- "bot-todo :spiral_notepad:"
+		- "todo :spiral_notepad:"
 	autoAssign: false
