@@ -23,7 +23,6 @@ endif()
 
 
 ################## C example using SO/DLL run-time loading ##################
-
 add_executable (${PROJECT_NAME}-load-so "sdl2-vga-terminal-load-so.c")
 target_link_libraries(${PROJECT_NAME}-load-so PUBLIC ${LIB_SDL2} ${LIB_SDL2main} ${CMAKE_DL_LIBS})
 add_custom_command(TARGET "${PROJECT_NAME}-load-so" POST_BUILD
