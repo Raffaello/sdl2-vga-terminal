@@ -15,7 +15,6 @@ option(BUILD_SNAPSHOT "build snapshot test" OFF)
 include(CMakeDependentOption)
 CMAKE_DEPENDENT_OPTION(TEST_DUMP_SNAPSHOT "build test to dump the expected output instead of verifing it" OFF
 "BUILD_SNAPSHOT" OFF)
-#option(TEST_DUMP_SNAPSHOT "build test to dump the expected output instead of verifing it" OFF)
 option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 
 enable_testing()
