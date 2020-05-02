@@ -18,21 +18,21 @@ stages:
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
-      - script: |
-          sudo apt-get update
-          sudo apt-get -y install ninja-build  libsdl2-dev libsdl2-image-dev
-        displayName: install Ninja Build SDL2 
+      #- script: |
+      #    sudo apt-get update
+      #    sudo apt-get -y install ninja-build  libsdl2-dev libsdl2-image-dev
+      #  displayName: install Ninja Build SDL2 
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           ./bootstrap-vcpkg.sh
-          ./vcpkg install gtest
+          ./vcpkg install sdl2 sdl2-image gtest
           ./vcpkg integrate install
         displayName: vcpkg
       - script: |
           mkdir build
           cd build
-          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         displayName: cmake generator
       - script: cd build && cmake --build .
         displayName: cmake build
@@ -45,6 +45,7 @@ stages:
           64-bit Debug:
             ARCH: 64
             BuildType: Debug
+            SDL2_STATIC: OFF
             JFlag: -j 2
           
           # 64-bit Release:
@@ -88,7 +89,7 @@ stages:
       - task: CMake@1
         displayName: 'CMake generator'
         inputs:
-          cmakeArgs: '.. -G"Ninja" -Ax%ARCH% -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
+          cmakeArgs: '.. -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cmake --build .
@@ -97,6 +98,9 @@ stages:
       - script: 'ctest -V -C $(BuildType)'
         workingDirectory: build
         displayName: 'Run Ctest'
-      - script: cmake -P cmake_install.cmake
+      - script: cmake --build . --target install
         workingDirectory: build
         displayName: cmake install
+      #- script: cmake --build . --target package
+      #  workingDirectory: build
+      #  displayName: cmake package        
