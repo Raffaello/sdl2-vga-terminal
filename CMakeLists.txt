@@ -9,6 +9,13 @@ endif()
 
 project ("sdl2-vga-terminal" VERSION 0.2.1 DESCRIPTION "Vga Terminal on SDL2")
 
+set(CPACK_SOURCE_GENERATOR "ZIP")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CMAKE_PROJECT_DESCRIPTION})
+include(CPack)
+
+
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 option(BUILD_SNAPSHOT "build snapshot test" OFF)
