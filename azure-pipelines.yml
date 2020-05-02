@@ -59,21 +59,23 @@ stages:
         matrix:
           64-bit Debug:
             ARCH: 64
-            PLATFORM: 64
+            PLATFORM: x64
             BuildType: Debug
             SDL2_STATIC: OFF
             JFlag: -j 2
           64-bit Release:
             ARCH: 64
-            PLATFORM: 64
+            PLATFORM: x64
             BuildType: Release
             JFlag: -j 2
           32-bit Debug:
             ARCH: 32
+            PLATFORM: x86
             BuildType: Debug
             JFlag: -j 2
           32-bit Release:
             ARCH: 32
+            PLATFORM: x86
             BuildType: Release
             JFlag: -j 2
       pool:
@@ -92,7 +94,7 @@ stages:
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
           call bootstrap-vcpkg.bat
-          vcpkg install sdl2 sdl2-image gtest --triplet x%ARCH%-windows
+          vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
           vcpkg integrate install
         displayName: vcpkg
       - script: |
