@@ -14,6 +14,9 @@ trigger:
     - README.md
     - appveyor.yml
 
+pr:
+- master
+
 stages:
 - stage: CI
   jobs:
@@ -56,19 +59,21 @@ stages:
         matrix:
           64-bit Debug:
             ARCH: 64
+            PLATFORM: 64
             BuildType: Debug
             SDL2_STATIC: OFF
             JFlag: -j 2
           64-bit Release:
             ARCH: 64
+            PLATFORM: 64
             BuildType: Release
             JFlag: -j 2
           32-bit Debug:
-            ARCH: 86
+            ARCH: 32
             BuildType: Debug
             JFlag: -j 2
           32-bit Release:
-            ARCH: 86
+            ARCH: 32
             BuildType: Release
             JFlag: -j 2
       pool:
@@ -88,17 +93,15 @@ stages:
           cd vcpkg
           call bootstrap-vcpkg.bat
           vcpkg install sdl2 sdl2-image gtest --triplet x%ARCH%-windows
+          vcpkg integrate install
         displayName: vcpkg
       - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cd vcpkg
-          vcpkg integrate install
-          cd ..
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         displayName: 'CMake generator'
       - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           cmake --build .
         workingDirectory: build
         displayName: cmake build
