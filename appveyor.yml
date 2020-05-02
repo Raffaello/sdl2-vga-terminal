@@ -29,7 +29,7 @@ for:
     matrix:
         only:
             - image: Ubuntu
-    cache: /home/appveyor/vcpkg
+    cache: /home/appveyor/vcpkg/packages
 
 
 skip_commits:
@@ -59,7 +59,7 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-cache: C:\tools\vcpkg\
+cache: C:\tools\vcpkg\pacakges
 
 build_script:
     - mkdir out
