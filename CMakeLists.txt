@@ -15,7 +15,6 @@ set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${CMAKE_PROJECT_DESCRIPTION})
 include(CPack)
 
-
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 option(BUILD_SNAPSHOT "build snapshot test" OFF)

@@ -51,7 +51,7 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-#cache: C:\tools\vcpkg\
+cache: C:\tools\vcpkg\
 
 build_script:
     - mkdir out
@@ -59,15 +59,14 @@ build_script:
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
     - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
-
 test_script:
     - cmake --build .
-    - cmd: ctest -V  # ubuntu image is headleass, no video driver.
+    - cmd: ctest -V  # ubuntu image is headless, no video driver.
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package
 
 artifacts:
-    - path: "out/build/%PLATFORM%-%CONFIGURATION%/*.zip"
+    - path: "out/%PLATFORM%-%CONFIGURATION%/*.zip"
       type: zip
       name: cpack-artifact
 
