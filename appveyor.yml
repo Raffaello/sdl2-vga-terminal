@@ -65,3 +65,21 @@ test_script:
     - ctest -V
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package
+
+artifacts:
+    - path: "out/build/%PLATFORM%-%CONFIGURATION%/*.zip"
+      type: zip
+      name: cpack-artifact
+
+deploy:
+  release: appveyor-test-v$(appveyor_build_version)
+  description: 'Release description'
+  provider: GitHub
+  #auth_token:
+  #  secure: <your encrypted token> # your encrypted token from GitHub
+  artifact: /.*\.zip/            # upload all NuGet packages to release assets
+  draft: true
+  prerelease: false
+  #on:
+    #branch: master                 # release from master branch only
+    #APPVEYOR_REPO_TAG: true        # deploy on tag push only
