@@ -50,7 +50,6 @@ install:
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh : cd /home/appveyor/vcpkg
-    - git checkout -f # clean up before pull
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
