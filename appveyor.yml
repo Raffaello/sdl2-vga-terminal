@@ -6,7 +6,7 @@ skip_branch_with_pr: false
 
 image:
     - Visual Studio 2019
-    #- Ubuntu
+    - Ubuntu
 
 platform:
   - x86
@@ -29,7 +29,15 @@ for:
     matrix:
         only:
             - image: Ubuntu
-    cache: /home/appveyor/vcpkg
+    cache: /home/appveyor/vcpkg/packages
+
+
+skip_commits:
+  files:
+    - .github/*
+    - .gitignore
+    - README.md
+    - azure-pipelines.yml
 
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
@@ -51,16 +59,34 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-cache: C:\tools\vcpkg\
+cache: C:\tools\vcpkg\packages
 
 build_script:
     - mkdir out
     - cd out
-    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -G "Ninja" -DCMAKE_BUILD_TYPE=$CONFIGURATION -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-
+    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
 test_script:
     - cmake --build .
-    - ctest -V
-    - cmake -P cmake_install.cmake
+    - cmd: ctest -V  # ubuntu image is headless, no video driver.
+    - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
+    - cmake --build . --target package 
+
+artifacts:
+    - path: "out/*.zip"
+      type: zip
+      name: cpack-artifact
+
+deploy:
+  release: appveyor-test-v$(appveyor_build_version)
+  description: 'Release description'
+  provider: GitHub
+  #auth_token:
+  #  secure: <your encrypted token> # your encrypted token from GitHub
+  artifact: /.*\.zip/            # upload all NuGet packages to release assets
+  draft: true
+  prerelease: false
+  on:
+    #branch: master                 # release from master branch only
+    APPVEYOR_REPO_TAG: true        # deploy on tag push only
