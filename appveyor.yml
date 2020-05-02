@@ -64,4 +64,4 @@ test_script:
     - cmake --build .
     - ctest -V
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
-    - cmake --build . --target pacakge
+    - cmake --build . --target package
