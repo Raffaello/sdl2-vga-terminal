@@ -6,22 +6,21 @@
 trigger:
 - master
 
-variables:
-  CONFIGURATION: 'Debug'
-
 stages:
 - stage: CI
   jobs:
     - job: Linux
+      strategy:
+        matrix:
+          GCC Debug:
+            CONFIGURATION: Debug
+          GCC Release:
+            CONFIGURATION: Release
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
-      #- script: |
-      #    sudo apt-get update
-      #    sudo apt-get -y install ninja-build  libsdl2-dev libsdl2-image-dev
-      #  displayName: install Ninja Build SDL2 
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
           cd vcpkg
@@ -36,8 +35,13 @@ stages:
         displayName: cmake generator
       - script: cd build && cmake --build .
         displayName: cmake build
-      #- script: cd build && ctest -V
-      #  displayName: cmake test (ctest)
+      - script: cd build && ctest -V
+        displayName: cmake test (ctest)
+      - script: cd build && cmake --build . --target install
+        displayName: cmake --target install
+      - script: cd build && cmake --build . --target package
+        displayName: cmake --target package
+
       
     - job: Windows
       strategy:
@@ -47,21 +51,18 @@ stages:
             BuildType: Debug
             SDL2_STATIC: OFF
             JFlag: -j 2
-          
-          # 64-bit Release:
-          #   ARCH: 64
-          #   BuildType: Release
-          #   JFlag: -j 2
-
-          # 32-bit Debug:
-          #   ARCH: 86
-          #   BuildType: Debug
-          #   JFlag: -j 2
-
-          # 32-bit Release:
-          #   ARCH: 86
-          #   BuildType: Release
-          #   JFlag: -j 2
+          64-bit Release:
+            ARCH: 64
+            BuildType: Release
+            JFlag: -j 2
+          32-bit Debug:
+            ARCH: 86
+            BuildType: Debug
+            JFlag: -j 2
+          32-bit Release:
+            ARCH: 86
+            BuildType: Release
+            JFlag: -j 2
       pool:
         vmImage: 'windows-2019'
       steps:
@@ -84,7 +85,7 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           mkdir build && cd build
-          cmake -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
+          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
         displayName: 'CMake generator'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
@@ -97,6 +98,6 @@ stages:
       - script: cmake --build . --target install
         workingDirectory: build
         displayName: cmake install
-      #- script: cmake --build . --target package
-      #  workingDirectory: build
-      #  displayName: cmake package        
+      - script: cmake --build . --target package
+        workingDirectory: build
+        displayName: cmake package        
