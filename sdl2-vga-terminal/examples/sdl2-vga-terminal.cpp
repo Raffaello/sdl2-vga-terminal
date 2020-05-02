@@ -4,6 +4,7 @@
 #include <iostream>
 #include <VgaTerminal.hpp>
 
+
 using namespace std;
 
 int main(int argc, char* args[])
@@ -52,8 +53,10 @@ int main(int argc, char* args[])
 		}
 	}
 
+	SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LogPriority::SDL_LOG_PRIORITY_DEBUG);
 	// --- end SDL2 system init and info
 	VgaTerminal term2 = VgaTerminal("T2 test", 640, 400, 0, -1, 0);
+	term2.cursor_mode = VgaTerminal::CURSOR_MODE::CURSOR_MODE_BLOCK;
 	term2.write("events: understand which windows is focused...", 10, 0);
 	term2.writeXY(10, 1, "**** Viewporting ****", 10, 0);
 	term2.writeXY(10, 2, "*                   *", 10, 0);
@@ -62,7 +65,6 @@ int main(int argc, char* args[])
 	term2.writeXY(10, 5, "*                   *", 10, 0);
 	term2.writeXY(10, 6, "*                   *", 10, 0);
 	term2.writeXY(10, 7, "*********************", 10, 0);
-
 
 	term2.setViewPort(11, 2, 19, 5);
 	term2.write("Hello ViewPort !!!", 1, 14);
@@ -81,14 +83,22 @@ int main(int argc, char* args[])
 		term1.write((char)i, i, 255 - i);
 	}
 
+	cout << "Keyboards specials on the focused window: " << endl
+		<< "Press F11 to toggle fullscreen" << endl
+		<< "press C to clear"
+		<< "press S to change cursor shape" << endl
+		<< "press + / Keypad + to increase cursor blinking speed" << endl
+		<< "press - / Keypad - to decrease cursor blinkgin speed" << endl
+		<< "[Viewport Window only] up/down/left/right arrows to move the cursor" << endl;
+
 	term1.render();
 	SDL_Delay(500);
 	term1.writeXY(40, 12, "Again!", 9, 15);
 	term1.render();
 	SDL_Delay(500);
-	term1.writeXY(10, 15, "ÉÍÍÍÍÍÍÍÍÍ»", 14 , 2);
-	term1.writeXY(10, 16, "º         º", 14 , 2);
-	term1.writeXY(10, 17, "ÈÍÍÍÍÍÍÍÍÍ¼", 14 , 2);
+	term1.writeXY(10, 15, "Ã‰ÃÃÃÃÃÃÃÃÃÂ»", 14 , 2);
+	term1.writeXY(10, 16, "Âº         Âº", 14 , 2);
+	term1.writeXY(10, 17, "ÃˆÃÃÃÃÃÃÃÃÃÂ¼", 14 , 2);
 	term1.gotoXY(12, 16); term1.write(3, 4, 15);
 	term1.gotoXY(14, 16); term1.write(4, 15, 4);
 	term1.gotoXY(16, 16); term1.write(5, 0, 15);
@@ -99,9 +109,11 @@ int main(int argc, char* args[])
 	
 	Window::handler_t f = [](SDL_Event& event, Window* w) {
 		VgaTerminal* term = reinterpret_cast<VgaTerminal*>(w);
+		SDL_UserEvent userevent;
+		string keyname;
 		switch (event.type) {
 		case SDL_KEYDOWN:
-			string keyname = SDL_GetKeyName(event.key.keysym.sym);
+			keyname = SDL_GetKeyName(event.key.keysym.sym);
 			if (keyname == "Left") {
 				term->moveCursorLeft();
 			}
@@ -115,12 +127,24 @@ int main(int argc, char* args[])
 				term->moveCursorDown();
 			}
 		break;
+		case SDL_USEREVENT:
+			userevent = event.user;
+			//  at some point a better event name should be used
+			if (userevent.type == SDL_USEREVENT && userevent.code == 0) {
+                              // the commented code below is intended as an example
+				//std::cout << "cursor event!" << endl;
+			}
+			else {
+				//cout << userevent.code << endl;
+			}
+		break;
 		}
 
 		return true;
 	};
 
 	term2.handler = f;
+	term2.cursor_time = 100;
 	
 	string keyname;
 	while (!quit) {
@@ -144,12 +168,7 @@ int main(int argc, char* args[])
 		}
 
 		switch (event.type) {
-		case SDL_USEREVENT:
-			userevent = event.user;
-			if (userevent.code == 0) {
-				cout << "cursor!" << endl;
-			}
-			break;
+		
 		case SDL_QUIT:
 			quit = true;
 			break;
@@ -173,6 +192,21 @@ int main(int argc, char* args[])
 			else if (keyname == "C") {
 				cout << "clearing..." << endl;
 				term->clear();
+			}
+			else if (keyname == "S") {
+				cout << "cursor shape..." << endl;
+				// unsafe cursor rotation, please be a little bit more verbose
+				// and handle properly the cases.
+				auto cs = (static_cast<int>(term->cursor_mode) + 1) % VgaTerminal::NUM_CURSOR_MODES;
+				term->cursor_mode = static_cast<VgaTerminal::CURSOR_MODE>(cs);
+			}
+			else if ((event.key.keysym.sym == SDLK_EQUALS && event.key.keysym.mod & KMOD_SHIFT) || keyname == "Keypad +") {
+				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 0.9));
+				cout << "incresing cursor speed (decrease cursor_time) ~10% = " << term->cursor_time << endl;
+			}
+			else if ((keyname == "Keypad -") || (keyname == "-")) {
+				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 1.1));
+				cout << "decresing cursor speed (incresing cursor_time) ~10% = " << term->cursor_time << endl;
 			}
 			else {
 				term->write(keyname, 1, 10);

@@ -1,27 +1,39 @@
 cmake_minimum_required (VERSION 3.16)
 
 
-find_package(GTest CONFIG REQUIRED)
+find_package(GTest 1.10 CONFIG REQUIRED)
 
 if (TEST_DUMP_SNAPSHOT)
-    set (WITH_SNAPSHOT bool ON)
+    set (BUILD_SNAPSHOT bool ON) # ON by dependent option configuration anyway, but not hurting
     add_compile_definitions(TEST_DUMP_SNAPSHOT)
 else()
+    ### VgaTerminal tests ###
     add_executable(runUnitTests "tests.cpp")
     add_test(UnitTestsInMain runUnitTests)
-    target_link_libraries(runUnitTests PRIVATE vga-terminal-obj GTest::gtest GTest::gmock SDL2::SDL2main)
+    target_link_libraries(runUnitTests PRIVATE vga-terminal-static GTest::gtest GTest::gmock ${LIB_SDL2main})
     add_custom_command(TARGET runUnitTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runUnitTests>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runUnitTests>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runUnitTests>
     )
+
+    ### Shared Lib tests ###
+    add_executable(runSOTest "so-test.cpp")
+    add_test(SOTest runSOTest)
+    target_link_libraries(runSOTest PRIVATE vga-terminal GTest::gtest ${LIB_SDL2main})
+    add_custom_command(TARGET runSOTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSOTest>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runSOTest>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vga-terminal> $<TARGET_FILE_DIR:runSOTest>
+    )
 endif()
 
-if (WITH_SNAPSHOT)
+### Snapshot tests ####
+if (BUILD_SNAPSHOT)
     find_package(SDL2-image CONFIG REQUIRED)
-
+    
     add_executable(runSnapshotTests "snapshotTest.cpp")
-    target_link_libraries(runSnapshotTests PRIVATE vga-terminal-obj GTest::gtest SDL2::SDL2_image SDL2::SDL2main)
+    target_link_libraries(runSnapshotTests PRIVATE vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image ${LIB_SDL2main})
     add_test(SnapshotTestsInMain runSnapshotTests)
     add_custom_command(TARGET runSnapshotTests POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSnapshotTests>
@@ -31,14 +43,8 @@ if (WITH_SNAPSHOT)
     )
 endif()
 
-add_executable(runSOTest "so-test.cpp")
-add_test(SOTest runSOTest)
-target_link_libraries(runSOTest PRIVATE vga-terminal GTest::gtest SDL2::SDL2main)
-add_custom_command(TARGET runSOTest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSOTest>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runSOTest>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vga-terminal> $<TARGET_FILE_DIR:runSOTest>
-    )
-
-
-
+### Valgrind tests ###
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_executable(runHelgrindTests "valgrind/helgrind.cpp")
+    target_link_libraries(runHelgrindTests PRIVATE vga-terminal-static ${LIB_SDL2main})
+endif()

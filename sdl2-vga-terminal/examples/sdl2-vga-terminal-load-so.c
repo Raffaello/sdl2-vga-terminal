@@ -45,7 +45,7 @@ void win32()
 	PROCDESTROY ProcAddDestroy = NULL;
 	PROCWRITEXY ProcAddWriteXY = NULL;
 	PROCRENDER ProcAddRender = NULL;
-	BOOL fFreeResult, fRunTimeLinkSuccess = FALSE;
+	BOOL fFreeResult, fRunTimeLinkSuccess = SDL_FALSE;
 	
 	printf("loading library: %s\n", soname);
 
@@ -61,9 +61,9 @@ void win32()
 
 		if (NULL != ProcAddInit && NULL != ProcAddDestroy && NULL != ProcAddWriteXY && NULL != ProcAddRender)
 		{
-			fRunTimeLinkSuccess = TRUE;
+			fRunTimeLinkSuccess = SDL_TRUE;
 			VGA_Terminal* term = ProcAddInit();
-			ProcAddWriteXY(term, 0, 0, "test", 10, 0);
+			ProcAddWriteXY(term, 0, 0, "GREETINGS PROFESSOR FALKENS.", 10, 0);
 			ProcAddRender(term);
 			SDL_Delay(1000);
 			ProcAddDestroy(term);

@@ -1,0 +1,5 @@
+todo:
+	keyword: "@makeAnIssue"
+	label:
+		- "todo :spiral_notepad:"
+	autoAssign: false
