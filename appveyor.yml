@@ -37,6 +37,7 @@ skip_commits:
     - .github/*
     - .gitignore
     - README.md
+    - azure-pipelines.yml
 
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
@@ -59,7 +60,7 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-cache: C:\tools\vcpkg\pacakges
+cache: C:\tools\vcpkg\packages
 
 build_script:
     - mkdir out
@@ -71,10 +72,10 @@ test_script:
     - cmake --build .
     - cmd: ctest -V  # ubuntu image is headless, no video driver.
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
-    - cmake --build . --target package
+    - cmake --build . --target package 
 
 artifacts:
-    - path: "out/%PLATFORM%-%CONFIGURATION%/*.zip"
+    - path: "out/*.zip"
       type: zip
       name: cpack-artifact
 
