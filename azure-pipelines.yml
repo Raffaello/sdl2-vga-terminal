@@ -14,9 +14,6 @@ trigger:
     - README.md
     - appveyor.yml
 
-pr:
-- master
-
 stages:
 - stage: CI
   jobs:
