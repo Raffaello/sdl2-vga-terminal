@@ -31,6 +31,13 @@ for:
             - image: Ubuntu
     cache: /home/appveyor/vcpkg
 
+
+skip_commits:
+  files:
+    - .github/*
+    - .gitignore
+    - README.md
+
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 
@@ -42,6 +49,7 @@ install:
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh : cd /home/appveyor/vcpkg
+    - git checkout -f # clean up before pull
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
