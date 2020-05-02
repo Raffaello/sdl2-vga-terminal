@@ -80,7 +80,7 @@ int main(int argc, char* args[])
 	bool quit = false;
 
 	for (int i = 0; i < 256; i++) {
-		term1.write((char)i, i, 255 - i);
+		term1.write(static_cast<uint8_t>(i), i, 255 - i);
 	}
 
 	cout << "Keyboards specials on the focused window: " << endl
@@ -148,8 +148,6 @@ int main(int argc, char* args[])
 	
 	string keyname;
 	while (!quit) {
-		SDL_UserEvent userevent;
-
 		SDL_WaitEvent(&event);
 		term2.handleEvent(event);
 		term1.handleEvent(event);
