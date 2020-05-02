@@ -30,6 +30,7 @@ include(CPack)
 
 
 ################################# Options ####################################
+option(BUILD_SHARED_LIBS "build shared libs with C inteface" ON)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
 option(BUILD_SNAPSHOT "build snapshot test" OFF)

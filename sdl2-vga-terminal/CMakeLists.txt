@@ -79,93 +79,100 @@ unset(LIB_CONF)
 unset(LIB_VER)
 
 ############################ Shared lib ######################################
-set(LIB_NAME vga-terminal)
-set(LIB_CONF ${LIB_NAME}-config)
-set(LIB_VER ${LIB_CONF}-version)
+if (BUILD_SHARED_LIBS)
+    set(LIB_NAME vga-terminal)
+    set(LIB_CONF ${LIB_NAME}-config)
+    set(LIB_VER ${LIB_CONF}-version)
 
-include(GenerateExportHeader)
+    include(GenerateExportHeader)
 
-add_library(${LIB_NAME} SHARED)
-add_dependencies(${LIB_NAME} vga-terminal-static)
-generate_export_header(
-    ${LIB_NAME}
-    BASE_NAME ${LIB_NAME}
-    EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
-    EXPORT_FILE_NAME ${LIB_NAME}-export.h
-    STATIC_DEFINE ${LIB_NAME}-lib_BUILD_AS_STATIC
-)
-install(
-    TARGETS ${LIB_NAME} 
-    EXPORT  ${LIB_CONF}
-    DESTINATION lib
-    PUBLIC_HEADER DESTINATION include
-)
-install(FILES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
-    $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h 
-    DESTINATION include
-)
-if (NOT (WITH_SDL2_STATIC))
-    install(FILES
-        $<TARGET_FILE:SDL2::SDL2>
-        DESTINATION lib
+    add_library(${LIB_NAME} SHARED)
+    add_dependencies(${LIB_NAME} vga-terminal-static)
+    generate_export_header(
+        ${LIB_NAME}
+        BASE_NAME ${LIB_NAME}
+        EXPORT_MACRO_NAME VGA_TERMINAL_EXPORT
+        EXPORT_FILE_NAME ${LIB_NAME}-export.h
+        STATIC_DEFINE ${LIB_NAME}-lib_BUILD_AS_STATIC
     )
+    install(
+        TARGETS ${LIB_NAME} 
+        EXPORT  ${LIB_CONF}
+        DESTINATION lib
+        PUBLIC_HEADER DESTINATION include
+    )
+    install(FILES 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
+        $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h 
+        DESTINATION include
+    )
+    if (NOT (WITH_SDL2_STATIC))
+        install(FILES
+            $<TARGET_FILE:SDL2::SDL2>
+            DESTINATION lib
+        )
+    endif()
+
+    write_basic_package_version_file(
+      ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
+      VERSION ${CMAKE_PROJECT_VERSION}
+      COMPATIBILITY AnyNewerVersion
+    )
+
+    export(TARGETS vga-terminal 
+        FILE ${CMAKE_BINARY_DIR}/${LIB_NAME}.cmake
+    )
+    install(EXPORT
+        ${LIB_CONF} DESTINATION cmake
+    )
+
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
+        DESTINATION cmake
+    )
+    target_include_directories(${LIB_NAME} PUBLIC 
+        $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+    )
+    target_sources(${LIB_NAME} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
+    )
+    target_link_libraries(${LIB_NAME} vga-terminal-static)
+
+    unset(LIB_NAME)
+    unset(LIB_CONF)
+    unset(LIB_VER)
 endif()
-
-write_basic_package_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
-  VERSION ${CMAKE_PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
-)
-
-export(TARGETS vga-terminal 
-    FILE ${CMAKE_BINARY_DIR}/${LIB_NAME}.cmake
-)
-install(EXPORT
-    ${LIB_CONF} DESTINATION cmake
-)
-
-install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
-    DESTINATION cmake
-)
-target_include_directories(${LIB_NAME} PUBLIC 
-    $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
-target_sources(${LIB_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
-)
-target_link_libraries(${LIB_NAME} vga-terminal-static)
-
-unset(LIB_NAME)
-unset(LIB_CONF)
-unset(LIB_VER)
-
 
 ######################## add compiler options ################################
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
     target_compile_options(vga-terminal-static PRIVATE /W4 /WX)
-    target_compile_options(vga-terminal PRIVATE /W4 /WX)
+    if (BUILD_SHARED_LIBS)
+        target_compile_options(vga-terminal PRIVATE /W4 /WX)
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC) #-Werror)
-    target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic) #-Werror)
+    if (BUILD_SHARED_LIBS)
+        target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic) #-Werror)
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
-
-get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
-get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
-
 message("target compiler options:")
-message(STATUS "vga-terminal " ${vga-terminal_copts})
+get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
-
-unset(vga-terminal_copts)
 unset(vga-terminal-static_copts)
+if (BUILD_SHARED_LIBS)
+    get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
+    message(STATUS "vga-terminal " ${vga-terminal_copts})
+    unset(vga-terminal_copts)
+endif()
+
+
+
 
 
 ################################ Examples ####################################
