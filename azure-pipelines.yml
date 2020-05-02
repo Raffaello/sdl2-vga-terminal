@@ -37,8 +37,8 @@ stages:
         displayName: cmake build
       #- script: cd build && ctest -V
       #  displayName: cmake test (ctest)
-      - script: cd build && cmake --build . --target install
-        displayName: cmake --target install
+      #- script: cd build && cmake --build . --target install
+      #  displayName: cmake --target install
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
@@ -80,10 +80,12 @@ stages:
           cd vcpkg
           call bootstrap-vcpkg.bat
           vcpkg install sdl2 sdl2-image gtest --triplet x%ARCH%-windows
-          vcpkg integrate install
         displayName: vcpkg
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd vcpkg
+          vcpkg integrate install
+          cd ..
           mkdir build && cd build
           cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin/gcc.exe" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:\a\1\s\vcpkg\scripts\buildsystems\vcpkg.cmake ..
         displayName: 'CMake generator'
