@@ -278,9 +278,9 @@ void VgaTerminal::render(const bool force)
 void VgaTerminal::clear() noexcept
 {
     std::lock_guard lck(_pGridMutex);
-    for (int j = _viewPortY; j < _viewportY2; j++) {
+    for (int j = _viewPortY; j < _viewPortY2; j++) {
         int j2 = j * mode.tw;
-        for (int i = _viewPortX; i < _viewportX2; i++) {
+        for (int i = _viewPortX; i < _viewPortX2; i++) {
             _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
         }
     }
@@ -295,7 +295,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     }
     else if(_curY > _viewPortY) {
         --_curY;
-        _curX = _viewportX2 - 1;
+        _curX = _viewPortX2 - 1;
     }
     else {
         // alredy in 0,0 ... what should i do? :)
@@ -321,7 +321,7 @@ void VgaTerminal::moveCursorUp() noexcept
 
 void VgaTerminal::moveCursorDown() noexcept
 {
-    if (_curY < _viewPortY + _viewPortHeight - 1) {
+    if (_curY < _viewPortY2 - 1) {
         ++_curY;
     }
     
@@ -361,8 +361,8 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortY = y;
     _viewPortWidth = width;
     _viewPortHeight = height;
-    _viewportX2 = _viewPortX + _viewPortWidth;
-    _viewportY2 = _viewPortY + _viewPortHeight;
+    _viewPortX2 = _viewPortX + _viewPortWidth;
+    _viewPortY2 = _viewPortY + _viewPortHeight;
     _curX = _viewPortX;
     _curY = _viewPortY;
 
@@ -437,10 +437,10 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 
 void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
 {
-    if (_curX < _viewPortX + _viewPortWidth - 1) {
+    if (_curX < _viewPortX2 - 1) {
         ++_curX;
     }
-    else if (_curY < _viewPortY + _viewPortHeight - 1) {
+    else if (_curY < _viewPortY2 - 1) {
         _curY++;
         _curX = _viewPortX;
     }
@@ -458,12 +458,12 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
 void VgaTerminal::_scrollDownGrid() noexcept
 {
     std::lock_guard lck(_pGridMutex);
-    for (int j = _viewPortY + 1; j < _viewportX2 ; j++)
+    for (int j = _viewPortY + 1; j < _viewPortY2; j++)
     {
         int j2 = j * mode.tw;
         int jj2 = j2 - mode.tw;
         
-        for (int i = _viewPortX; i < _viewportX2; i++)
+        for (int i = _viewPortX; i < _viewPortX2; i++)
         {
             int i2 = i + j2;
             int ii2 = i + jj2;
@@ -478,7 +478,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
     }
 
     // clear line -> TODO: promote to a public method?
-    int j2 = (_viewportY2 - 1) * mode.tw + _viewPortX;
+    int j2 = (_viewPortY2 - 1) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
     }
