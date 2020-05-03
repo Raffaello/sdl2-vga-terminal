@@ -46,8 +46,8 @@ stages:
         displayName: clone vcpkg, mkdir build
       - task: Cache@2
         inputs:
-          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/vcpkg"
+          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | vcpkg'
+          path: "vcpkg/"
         displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
@@ -113,8 +113,8 @@ stages:
         displayName: clone vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/vcpkg.exe"
+          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | vcpkg.exe'
+          path: "vcpkg/"
         displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
