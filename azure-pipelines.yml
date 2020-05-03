@@ -40,13 +40,13 @@ stages:
       steps:
       - bash: |
           git clone https://github.com/Microsoft/vcpkg.git
-          touch vcpkg/vcpkg && echo "touched"
+          touch vcpkg/vcpkg && echo "touched" && ls vcpkg
           mkdir build && echo "builded"
         displayName: clone vcpkg, mkdir build
       - task: Cache@2
         inputs:
           key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | ./vcpkg'
-          path: "vcpkg"
+          path: "vcpkg/"
         displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
@@ -106,7 +106,7 @@ stages:
       steps:
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
-          type nul > vcpkg/vcpkg.exe
+          type nul > vcpkg/vcpkg.exe && echo "typed" && dir vcpkg
         displayName: clone vcpkg
       - task: Cache@2
         inputs:
