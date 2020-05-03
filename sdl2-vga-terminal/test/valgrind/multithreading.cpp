@@ -65,9 +65,9 @@ void vgaTerminalOps(VgaTerminal& term)
 			term.write(" cursor time:", 15, 1);
 			term.write(std::to_string(term.cursor_time).c_str(), 15, 2);
 		}
-	
-		term.render();
 	}
+
+	term.render();
 }
 
 void concurrencyBeginVgaTerm(VgaTerminal& term1) {
@@ -78,7 +78,7 @@ void concurrencyBeginVgaTerm(VgaTerminal& term1) {
 	term1.render();
 
 	SDL_Event e;
-	for (int i = 0; i < 10;) {
+	for (int i = 0; i < 3;) {
 		SDL_WaitEvent(&e);
 		if (e.window.windowID == term1.getWindowId()) {
 			term1.render();

@@ -105,7 +105,6 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     //      start make sense spliting to a VgaTerminalRender, all the 
     //      rendering functions.
     constexpr auto lsz = 8;
-
     SDL_Point points[lsz];
     uint8_t fgi = 0, bgi = lsz;
     for (uint8_t x = 0; x < lsz; x++) {
@@ -243,6 +242,8 @@ void VgaTerminal::render(const bool force)
         return;
     }
 
+    std::lock_guard lck(_renderMutex);
+
     uint8_t curY = _curY;
     uint8_t curX = _curX;
     
@@ -330,7 +331,7 @@ void VgaTerminal::moveCursorDown() noexcept
 
 void VgaTerminal::newLine() noexcept
 {
-    _curX = _viewPortX;
+    _curX.store(_viewPortX.load());
     uint8_t oldY = _curY;
     moveCursorDown();
     // last line
@@ -363,8 +364,8 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortHeight = height;
     _viewPortX2 = _viewPortX + _viewPortWidth;
     _viewPortY2 = _viewPortY + _viewPortHeight;
-    _curX = _viewPortX;
-    _curY = _viewPortY;
+    _curX.store(_viewPortX.load());
+    _curY.store(_viewPortY.load());
 
     return true;
 }
@@ -435,17 +436,17 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     return interval;
 }
 
-void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
+void VgaTerminal::_incrementCursorPosition(const bool increment) noexcept
 {
     if (_curX < _viewPortX2 - 1) {
         ++_curX;
     }
     else if (_curY < _viewPortY2 - 1) {
         _curY++;
-        _curX = _viewPortX;
+        _curX.store(_viewPortX.load());
     }
     else if ((increment) && (autoScroll)) {
-        _curX = _viewPortX;
+        _curX.store(_viewPortX.load());
         _scrollDownGrid();
     }
     else {

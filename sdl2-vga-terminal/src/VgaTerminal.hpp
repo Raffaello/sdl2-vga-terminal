@@ -108,15 +108,16 @@ private:
     std::unique_ptr<_terminalChar_t[]> _pGrid;
     std::mutex _pGridMutex;
     const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });
+    std::mutex _renderMutex;
     
     std::atomic<uint8_t> _curX = 0;
     std::atomic<uint8_t> _curY = 0;
-    uint8_t _viewPortX;
-    uint8_t _viewPortWidth;
-    uint8_t _viewPortY;
-    uint8_t _viewPortHeight;
-    uint8_t _viewPortX2;     /// _viewportX + _viewportWidth derived value
-    uint8_t _viewPortY2;     /// _viewportY + _viewportHeight derived value
+    std::atomic<uint8_t> _viewPortX;
+    std::atomic<uint8_t> _viewPortWidth;
+    std::atomic<uint8_t> _viewPortY;
+    std::atomic<uint8_t> _viewPortHeight;
+    std::atomic<uint8_t> _viewPortX2;     /// _viewportX + _viewportWidth derived value
+    std::atomic<uint8_t> _viewPortY2;     /// _viewportY + _viewportHeight derived value
   
     std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
@@ -125,7 +126,7 @@ private:
     static uint32_t _timerCallBackWrapper(uint32_t interval, void* param);
     uint32_t _timerCallBack(uint32_t interval);
 
-    void _incrementCursorPosition(bool increment = true) noexcept;
+    void _incrementCursorPosition(const bool increment = true) noexcept;
     void _scrollDownGrid() noexcept;
     void _renderFontChar(const SDL_Point& dst, _terminalChar_t& tc);
     void _renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol);
