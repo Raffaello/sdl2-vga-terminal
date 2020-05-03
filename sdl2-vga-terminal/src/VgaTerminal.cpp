@@ -167,13 +167,9 @@ uint8_t VgaTerminal::getY() const noexcept
 
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    int pos = _getCursorPosition();
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[pos] = tc;
-    }
+    _setCursorChar(tc);
     _incrementCursorPosition();
 }
 
@@ -406,12 +402,7 @@ void VgaTerminal::resetViewport() noexcept
 void VgaTerminal::_setBusy() noexcept
 {
     _onIdle = false;
-    // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
-    int icur = _getCursorPosition();
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[icur].rendered = false;
-    }
+    _setNotRenderedCursor();
 }
 
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
@@ -433,12 +424,8 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
         _onIdle = true;
         _drawCursor = true;
     }
-    // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
-    int icur = _getCursorPosition();
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[icur].rendered = false;
-    }
+    
+    _setNotRenderedCursor();
 
     interval = cursor_time;
         
@@ -517,4 +504,16 @@ bool VgaTerminal::isIdle() const noexcept
 const int VgaTerminal::_getCursorPosition() const noexcept
 {
    return _curX + _curY * mode.tw;
+}
+
+void VgaTerminal::_setCursorChar(const _terminalChar_t& tc) noexcept
+{
+    std::lock_guard lck(_pGridMutex);
+    _pGrid[_getCursorPosition()] = tc;
+}
+
+void VgaTerminal::_setNotRenderedCursor() noexcept
+{
+    std::lock_guard lck(_pGridMutex);
+    _pGrid[_getCursorPosition()].rendered = false;
 }
