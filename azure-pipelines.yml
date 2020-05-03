@@ -43,6 +43,8 @@ stages:
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
+      - bash: echo ${VCPKG_ROOT}
+        displayName: vcpkg_ROOT
       - bash: git clone https://github.com/Microsoft/vcpkg.git && mkdir build
         displayName: clone vcpkg, mkdir build
       - task: Cache@2
@@ -59,7 +61,7 @@ stages:
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
           ./vcpkg integrate install
-        workingDirectory: ${VCPKG_ROOT}
+        workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
@@ -119,10 +121,10 @@ stages:
         displayName: "(cache) vcpkg-installed"
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          cd $(VCPKG_ROOT)
           call bootstrap-vcpkg.bat
           vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
           vcpkg integrate install
+        workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
