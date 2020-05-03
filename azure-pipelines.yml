@@ -103,12 +103,12 @@ stages:
         displayName: clone vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
           path: "vcpkg/packages"
         displayName: "(cache) vcpkg-packages"
       - task: Cache@2
         inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
           path: "vcpkg/installed"
         displayName: "(cache) vcpkg-installed"
       - script: |
