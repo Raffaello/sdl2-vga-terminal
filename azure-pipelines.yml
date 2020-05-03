@@ -40,8 +40,8 @@ stages:
       steps:
       - bash: |
           git clone https://github.com/Microsoft/vcpkg.git
-          touch vcpkg/vcpkg
-          mkdir build
+          touch vcpkg/vcpkg && echo "touched"
+          mkdir build && echo "builded"
         displayName: clone vcpkg, mkdir build
       - task: Cache@2
         inputs:
@@ -106,7 +106,7 @@ stages:
       steps:
       - script: |
           git clone https://github.com/Microsoft/vcpkg.git
-          ni vcpkg/vcpkg.exe
+          type nul > vcpkg/vcpkg.exe
         displayName: clone vcpkg
       - task: Cache@2
         inputs:
