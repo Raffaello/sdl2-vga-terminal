@@ -91,8 +91,20 @@ stages:
       steps:
       - script: echo %CD%
         displayName: "check curent dir"
+      - script: echo %VCPKG_ROOT%
+        displayName: "vcpkg root folder"
       - script: echo %PATH%
         displayName: show PATH
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
+          path: "$(VCPKG_ROOT)/packages"
+        displayName: "vcpkg-packages (cache)"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
+          path: "$(VCPKG_ROOT)installed"
+        displayName: "vcpkg-installed (cache)"
       #- script: choco list --local-only
       #  displayName: chocolatey installed packages
       #- script: choco uninstall strawberryperl
