@@ -4,11 +4,8 @@
 
 TEST(VgaTerminalSO, simpleRunningTest)
 {
-	// TODO: Very basic, need improvement
-	//	     just for basic runtime using of SO.
 	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER));
 		
-
 	VGA_Terminal* term = VGA_TERMINAL_init();
 	VGA_TERMINAL_writeXY(term, 0, 0, "test", 10, 0);
 	VGA_TERMINAL_render(term);

@@ -54,9 +54,9 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
 VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
     : Window(title, x, y, width, height, winFlags, drvIndex, renFlags),
-    mode(mode3), _viewPortX(0), _viewPortY(0)
+    mode(mode3)
 {
-    _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
+    resetViewport();
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
         throw std::runtime_error(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
@@ -206,9 +206,7 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) no
         _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
     }
     terminalChar_t tc;
-    tc.c = _tc.c,
-    tc.col = _tc.col,
-    tc.bgCol = _tc.bgCol;
+    tc.c = _tc.c, tc.col = _tc.col, tc.bgCol = _tc.bgCol;
  
     return tc;
 }
@@ -279,16 +277,11 @@ void VgaTerminal::render(const bool force)
 
 void VgaTerminal::clear() noexcept
 {
-    const int vy = _viewPortY + _viewPortHeight;
-    const int vx = _viewPortX + _viewPortWidth;
-
-    {
-        std::lock_guard lck(_pGridMutex);
-        for (int j = _viewPortY; j < vy; j++) {
-            int j2 = j * mode.tw;
-            for (int i = _viewPortX; i < vx; i++) {
-                _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
-            }
+    std::lock_guard lck(_pGridMutex);
+    for (int j = _viewPortY; j < _viewportY2; j++) {
+        int j2 = j * mode.tw;
+        for (int i = _viewPortX; i < _viewportX2; i++) {
+            _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
         }
     }
 
@@ -302,7 +295,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     }
     else if(_curY > _viewPortY) {
         --_curY;
-        _curX =_viewPortX + _viewPortWidth - 1;
+        _curX = _viewportX2 - 1;
     }
     else {
         // alredy in 0,0 ... what should i do? :)
@@ -368,6 +361,8 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortY = y;
     _viewPortWidth = width;
     _viewPortHeight = height;
+    _viewportX2 = _viewPortX + _viewPortWidth;
+    _viewportY2 = _viewPortY + _viewPortHeight;
     _curX = _viewPortX;
     _curY = _viewPortY;
 
@@ -413,7 +408,8 @@ uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
 
 uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 {
-    // TODO review the user event
+    // @TODO review the user event
+    // @BODY at the moment is just using `SDL_USEREVENT`, should be something more specific and unique.
     SDL_Event event;
     SDL_UserEvent userevent;
     
@@ -461,17 +457,13 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
 
 void VgaTerminal::_scrollDownGrid() noexcept
 {
-    // todo can be used as private fields instead of local vars.
-    auto vh = _viewPortY + _viewPortHeight;
-    auto vw = _viewPortWidth + _viewPortWidth;
-
     std::lock_guard lck(_pGridMutex);
-    for (int j = _viewPortY + 1; j < vh ; j++)
+    for (int j = _viewPortY + 1; j < _viewportX2 ; j++)
     {
         int j2 = j * mode.tw;
         int jj2 = j2 - mode.tw;
         
-        for (int i = _viewPortX; i < vw; i++)
+        for (int i = _viewPortX; i < _viewportX2; i++)
         {
             int i2 = i + j2;
             int ii2 = i + jj2;
@@ -486,7 +478,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
     }
 
     // clear line -> TODO: promote to a public method?
-    int j2 = (vh - 1) * mode.tw + _viewPortX;
+    int j2 = (_viewportY2 - 1) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
     }

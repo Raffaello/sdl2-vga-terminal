@@ -1,10 +1,3 @@
-/***************************************************
-*** TODO: potentially these could be used directly instead of
-***       recomputing the palette during the constructor
-***       So would be better define them as static SDL_Color instead ?
-*** ANS:  doesn't matter.
-*****************************************************/
-
 #pragma once
 
 /* N.B: The color format is stored as RGB */
@@ -22,6 +15,7 @@ constexpr auto PALETTE_CHANNELS = 3;
 #define PALETTE_3_COLORS 256
 #define PALETTE_CHANNELS 3
 #endif
+
 static uint8_t palette1[PALETTE_1_COLORS * PALETTE_CHANNELS] =
 {
   0x00,0x00,0x00, 0x00,0x00,0x2a, 0x00,0x2a,0x00, 0x00,0x2a,0x2a, 0x2a,0x00,0x00, 0x2a,0x00,0x2a, 0x2a,0x15,0x00, 0x2a,0x2a,0x2a,

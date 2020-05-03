@@ -115,6 +115,8 @@ private:
     uint8_t _viewPortWidth;
     uint8_t _viewPortY;
     uint8_t _viewPortHeight;
+    uint8_t _viewPortX2;     /// _viewportX + _viewportWidth derived value
+    uint8_t _viewPortY2;     /// _viewportY + _viewportHeight derived value
   
     std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
