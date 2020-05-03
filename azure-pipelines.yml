@@ -47,7 +47,10 @@ stages:
       - task: Cache@2
         inputs:
           key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | vcpkg'
-          path: "vcpkg/"
+          restoreKeys: |
+            'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+            'vcpkg-exe'
+          path: "vcpkg"
         displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
@@ -114,7 +117,10 @@ stages:
       - task: Cache@2
         inputs:
           key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | vcpkg.exe'
-          path: "vcpkg/"
+          restoreKeys: |
+            'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+            'vcpkg-exe'
+          path: "vcpkg"
         displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
