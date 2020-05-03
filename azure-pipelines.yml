@@ -25,6 +25,9 @@ pr:
     - README.md
     - appveyor.yml
 
+variables:
+  VCPKG_ROOT: $(Pipeline.Workspace)/vcpkg
+
 stages:
 - stage: CI
   jobs:
@@ -40,17 +43,27 @@ stages:
       steps:
       - bash: echo ${PWD}
         displayName: "current dir"
+      - bash: git clone https://github.com/Microsoft/vcpkg.git && mkdir build
+        displayName: clone vcpkg, mkdir build
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
+          path: "$(VCPKG_ROOT)/packages"
+        displayName: "(cache) vcpkg-packages"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
+          path: "$(VCPKG_ROOT)/installed"
+        displayName: "(cache) vcpkg-installed"        
       - script: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
           ./vcpkg integrate install
+        workingDirectory: ${VCPKG_ROOT}
         displayName: vcpkg
       - script: |
-          mkdir build
-          cd build
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        workingDirectory: build
         displayName: cmake generator
       - script: cd build && cmake --build .
         displayName: cmake build
@@ -61,7 +74,6 @@ stages:
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
-      
     - job: Windows
       strategy:
         matrix:
@@ -91,28 +103,23 @@ stages:
       steps:
       - script: echo %CD%
         displayName: "check curent dir"
-      - script: echo %VCPKG_ROOT%
-        displayName: "vcpkg root folder"
       - script: echo %PATH%
         displayName: show PATH
+      - script: git clone https://github.com/Microsoft/vcpkg.git
+        displayName: clone vcpkg
       - task: Cache@2
         inputs:
           key: 'vcpkg-packages | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
           path: "$(VCPKG_ROOT)/packages"
-        displayName: "vcpkg-packages (cache)"
+        displayName: "(cache) vcpkg-packages"
       - task: Cache@2
         inputs:
           key: 'vcpkg-installed | "$(Agent.OS)"-"$(Agent.OSArchitecture)"'
           path: "$(VCPKG_ROOT)installed"
-        displayName: "vcpkg-installed (cache)"
-      #- script: choco list --local-only
-      #  displayName: chocolatey installed packages
-      #- script: choco uninstall strawberryperl
-      #  displayName: Remove GCC (StrawBerry Perl) chocolatey installation
+        displayName: "(cache) vcpkg-installed"
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          git clone https://github.com/Microsoft/vcpkg.git
-          cd vcpkg
+          cd $(VCPKG_ROOT)
           call bootstrap-vcpkg.bat
           vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
           vcpkg integrate install
