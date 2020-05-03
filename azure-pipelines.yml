@@ -45,11 +45,6 @@ stages:
         displayName: clone vcpkg, mkdir build
       - task: Cache@2
         inputs:
-          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | ./vcpkg/vcpkg'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg-exe"
-      - task: Cache@2
-        inputs:
           key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg/packages"
         displayName: "(cache) vcpkg-packages"
@@ -108,11 +103,6 @@ stages:
           git clone https://github.com/Microsoft/vcpkg.git
           type nul > vcpkg/vcpkg.exe && echo "typed" && dir vcpkg
         displayName: clone vcpkg
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-exe | "$(Agent.OS)-$(Agent.OSArchitecture)" | vcpkg/vcpkg.exe'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg-exe"
       - task: Cache@2
         inputs:
           key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
