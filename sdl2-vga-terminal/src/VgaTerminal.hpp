@@ -133,7 +133,9 @@ private:
     void _renderCursor(const SDL_Point&dst, _terminalChar_t& tc);
     void _renderGridPartialY(const uint8_t y1, const uint8_t y2, const bool force);
     void _renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force);
+    _terminalChar_t _getCharAt(const size_t pos) noexcept;
     const int _getCursorPosition() const noexcept;
+    _terminalChar_t _getCursorChar() noexcept;
     void _setCursorChar(const _terminalChar_t& tc) noexcept;
     void _setNotRenderedCursor() noexcept;
 };
