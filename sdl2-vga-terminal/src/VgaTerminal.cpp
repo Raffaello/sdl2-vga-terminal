@@ -167,8 +167,7 @@ uint8_t VgaTerminal::getY() const noexcept
 
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    // TODO: make sense to have a _getCursorPosition method.
-    int pos = _curX + _curY * mode.tw;
+    int pos = _getCursorPosition();
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
     {
@@ -408,7 +407,7 @@ void VgaTerminal::_setBusy() noexcept
 {
     _onIdle = false;
     // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
-    int icur = _curY * mode.tw + _curX;
+    int icur = _getCursorPosition();
     {
         std::lock_guard lck(_pGridMutex);
         _pGrid[icur].rendered = false;
@@ -435,7 +434,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
         _drawCursor = true;
     }
     // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
-    int icur = _curY * mode.tw + _curX;
+    int icur = _getCursorPosition();
     {
         std::lock_guard lck(_pGridMutex);
         _pGrid[icur].rendered = false;
@@ -513,4 +512,9 @@ const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 bool VgaTerminal::isIdle() const noexcept
 {
     return _onIdle;
+}
+
+const int VgaTerminal::_getCursorPosition() const noexcept
+{
+   return _curX + _curY * mode.tw;
 }
