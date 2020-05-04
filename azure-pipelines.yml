@@ -141,9 +141,9 @@ stages:
     - job: macOS
       strategy:
         matrix:
-          GCC Debug:
+          Debug:
             CONFIGURATION: Debug
-          GCC Release:
+          Release:
             CONFIGURATION: Release
       pool:
         vmImage: 'macOS-10.15'
