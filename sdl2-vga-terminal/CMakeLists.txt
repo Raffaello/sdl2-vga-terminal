@@ -155,19 +155,20 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     )
     if (BUILD_SHARED_LIBS)
         target_compile_options(vga-terminal PRIVATE /W4 /WX
-            $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>>
+            $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
             $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
         )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
         $<$<CONFIG:DEBUG>:-g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions>
-        $<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
+        #$<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
+        $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
     ) #-Werror)
     if (BUILD_SHARED_LIBS)
         target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic
             $<$<CONFIG:DEBUG>:-g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions>
-            $<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
+            $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
         ) #-Werror)
     endif()
 
