@@ -30,18 +30,20 @@ for:
     matrix:
         only:
             - image: Ubuntu
+    environment:
+        WS = /home/appveyor
     cache:
-        - /home/appveyor/vcpkg/vcpkg
-        - /home/appveyor/vcpkg/packages
-        - /home/appveyor/vcpkg/installed
+        #- $WS/vcpkg/vcpkg
+        - $WS/vcpkg/packages
+        - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 -    
     matrix:
         only:
             - image: macOS
-    init:
-        - sh: brew install ninja
+    #init:
+    #    - sh: brew install ninja
 
 
 skip_commits:
@@ -52,15 +54,14 @@ skip_commits:
     - azure-pipelines.yml
 
 
-
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
     - cmd: if "%PLATFORM%" == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
-    - ninja --version
+    - cmd: ninja --version
 
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh : cd /home/appveyor/vcpkg
+    - sh : cd $WS/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
@@ -71,7 +72,7 @@ before_build:
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
 cache:
-    - C:\tools\vcpkg\vcpkg.exe
+    #- C:\tools\vcpkg\vcpkg.exe
     - C:\tools\vcpkg\packages
     - C:\tools\vcpkg\installed
 
