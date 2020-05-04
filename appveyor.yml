@@ -5,8 +5,8 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    - Visual Studio 2019
-    - Ubuntu
+    #- Visual Studio 2019
+    #- Ubuntu
     - macOS
 
 platform:
@@ -34,6 +34,14 @@ for:
         - /home/appveyor/vcpkg/vcpkg
         - /home/appveyor/vcpkg/packages
         - /home/appveyor/vcpkg/installed
+    init:
+        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+-    
+    matrix:
+        only:
+            - image: macOS
+    init:
+        - sh: brew install ninja
 
 
 skip_commits:
@@ -43,8 +51,7 @@ skip_commits:
     - README.md
     - azure-pipelines.yml
 
-init:
-    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
