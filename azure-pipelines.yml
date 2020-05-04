@@ -169,7 +169,7 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${Agent.BuildDirectory}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
         displayName: cmake generator
       - script: cd build && cmake --build .
