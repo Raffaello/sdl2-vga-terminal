@@ -384,7 +384,7 @@ void VgaTerminal::resetViewport() noexcept
 void VgaTerminal::_setBusy() noexcept
 {
     _onIdle = false;
-    _setNotRenderedCursor();
+    _setCursorNotRendered();
 }
 
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
@@ -408,7 +408,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
         _drawCursor = true;
     }
     
-    _setNotRenderedCursor();
+    _setCursorNotRendered();
 
     interval = cursor_time;
         
@@ -502,7 +502,7 @@ void VgaTerminal::_setCursorChar(const _terminalChar_t& tc) noexcept
     _pGrid[_getCursorPosition()] = tc;
 }
 
-void VgaTerminal::_setNotRenderedCursor() noexcept
+void VgaTerminal::_setCursorNotRendered() noexcept
 {
     std::lock_guard lck(_pGridMutex);
     _pGrid[_getCursorPosition()].rendered = false;

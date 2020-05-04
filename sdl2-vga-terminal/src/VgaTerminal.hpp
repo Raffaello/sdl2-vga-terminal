@@ -137,5 +137,5 @@ private:
     const int _getCursorPosition() const noexcept;
     _terminalChar_t _getCursorChar() noexcept;
     void _setCursorChar(const _terminalChar_t& tc) noexcept;
-    void _setNotRenderedCursor() noexcept;
+    void _setCursorNotRendered() noexcept;
 };
