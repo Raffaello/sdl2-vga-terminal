@@ -73,8 +73,9 @@ before_build:
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
-    - sh : vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
-    - vcpkg integrate install
+    - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
+    - cmd: vcpkg integrate install
+    - sh: ./vcpkg integrate install
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
