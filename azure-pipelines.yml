@@ -169,13 +169,13 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
-          echo "${Agent.BuildDirectory}"
-          echo "${Pipeline.Workspace}"
-          echo "${Build.Repository.LocalPath}"
+          echo "$AGENT_BUILDDIRECTORY"
+          echo "${PIPELINE_WORKSPACE}"
+          echo "${BUILD_REPOSITORY_LOCALPATH}"
           echo "..."
         displayName: build dir
       - script: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${Build.Repository.LocalPath}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${BUILD_REPOSITORY_LOCALPATH}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
         displayName: cmake generator
       - script: cd build && cmake --build .
