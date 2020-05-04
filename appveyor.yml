@@ -47,7 +47,7 @@ for:
     cache:
         - $WS/vcpkg/packages
         - $WS/vcpkg/installed
-    init:
+    install:
     #    - sh: brew install ninja
         - sh: cd $WS
         - sh: git clone https://github.com/Microsoft/vcpkg.git
