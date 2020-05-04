@@ -5,8 +5,8 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    #- Visual Studio 2019
-    #- Ubuntu
+    - Visual Studio 2019
+    - Ubuntu
     - macOS
 
 platform:
@@ -23,7 +23,9 @@ environment:
 matrix:
     allow_failures:
         - platform: x86
-          image: Ubuntu
+          image: 
+            - Ubuntu
+            - macOS
 
 for:
 -
