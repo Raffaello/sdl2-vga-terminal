@@ -169,12 +169,6 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
-          echo "$AGENT_BUILDDIRECTORY"
-          echo "${PIPELINE_WORKSPACE}"
-          echo "${BUILD_REPOSITORY_LOCALPATH}"
-          echo "..."
-        displayName: build dir
-      - script: |
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${BUILD_REPOSITORY_LOCALPATH}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
         displayName: cmake generator
@@ -182,8 +176,8 @@ stages:
         displayName: cmake build
       - script: cd build && ctest -V
         displayName: cmake test (ctest)
-      - script: cd build && cmake --build . --target install
-        displayName: cmake --target install
+      #- script: cd build && cmake --build . --target install
+      #  displayName: cmake --target install
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
