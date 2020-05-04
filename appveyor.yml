@@ -31,7 +31,7 @@ for:
         only:
             - image: Ubuntu
     environment:
-        WS = /home/appveyor
+        WS: /home/appveyor
     cache:
         #- $WS/vcpkg/vcpkg
         - $WS/vcpkg/packages
@@ -42,6 +42,11 @@ for:
     matrix:
         only:
             - image: macOS
+    environment:
+        WS: /Users/appveyor
+    cache:
+        - $WS/vcpkg/packages
+        - $WS/vcpkg/installed
     #init:
     #    - sh: brew install ninja
 
