@@ -32,18 +32,18 @@ for:
             - image: Ubuntu
     environment:
         WS: /home/appveyor
+        TRIPLET: $PLATFORM-linux
     cache:
         #- $WS/vcpkg/vcpkg
         - $WS/vcpkg/packages
         - $WS/vcpkg/installed
-    init:
-        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 -    
     matrix:
         only:
             - image: macOS
     environment:
         WS: /Users/appveyor
+        TRIPLET: $PLATFORM-osx
     cache:
         - $WS/vcpkg/packages
         - $WS/vcpkg/installed
@@ -51,6 +51,8 @@ for:
     #    - sh: brew install ninja
         - sh: cd $WS
         - sh: git clone https://github.com/Microsoft/vcpkg.git
+    test_script:
+        - sh: ctest -V
 
 
 skip_commits:
@@ -60,6 +62,8 @@ skip_commits:
     - README.md
     - azure-pipelines.yml
 
+init:
+    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -73,7 +77,7 @@ before_build:
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
-    - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
+    - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
     - cmd: vcpkg integrate install
     - sh: ./vcpkg integrate install
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
@@ -84,15 +88,19 @@ cache:
     - C:\tools\vcpkg\packages
     - C:\tools\vcpkg\installed
 
-build_script:
+before_build:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+
+build_script:
+    - cmake --build .
 
 test_script:
-    - cmake --build .
-    - cmd: ctest -V  # ubuntu image is headless, no video driver.
+    - cmd: ctest -V  # ubuntu image is headless, no video driver.    
+
+after_test:
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package 
 
