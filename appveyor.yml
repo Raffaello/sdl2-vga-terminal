@@ -62,6 +62,11 @@ skip_commits:
     - README.md
     - azure-pipelines.yml
 
+cache:
+    #- C:\tools\vcpkg\vcpkg.exe
+    - C:\tools\vcpkg\packages
+    - C:\tools\vcpkg\installed
+
 init:
     - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 
@@ -83,18 +88,12 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-cache:
-    #- C:\tools\vcpkg\vcpkg.exe
-    - C:\tools\vcpkg\packages
-    - C:\tools\vcpkg\installed
-
-before_build:
+build_script:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
     - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
 
-build_script:
     - cmake --build .
 
 test_script:
