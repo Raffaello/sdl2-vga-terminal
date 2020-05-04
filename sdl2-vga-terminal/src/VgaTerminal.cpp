@@ -54,9 +54,9 @@ VgaTerminal::VgaTerminal(const std::string &title, const int width, const int he
 
 VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
     : Window(title, x, y, width, height, winFlags, drvIndex, renFlags),
-    mode(mode3), _viewPortX(0), _viewPortY(0)
+    mode(mode3)
 {
-    _viewPortWidth = mode.tw, _viewPortHeight = mode.th;
+    resetViewport();
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
         throw std::runtime_error(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
@@ -105,7 +105,6 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     //      start make sense spliting to a VgaTerminalRender, all the 
     //      rendering functions.
     constexpr auto lsz = 8;
-
     SDL_Point points[lsz];
     uint8_t fgi = 0, bgi = lsz;
     for (uint8_t x = 0; x < lsz; x++) {
@@ -167,14 +166,9 @@ uint8_t VgaTerminal::getY() const noexcept
 
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    // TODO: make sense to have a _getCursorPosition method.
-    int pos = _curX + _curY * mode.tw;
     _terminalChar_t tc;
     tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[pos] = tc;
-    }
+    _setCursorChar(tc);
     _incrementCursorPosition();
 }
 
@@ -205,15 +199,9 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) no
         return _defaultNullChar;
     }
    
-    _terminalChar_t _tc;
-    {
-        std::lock_guard lck(_pGridMutex);
-        _tc = _pGrid[(static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX];
-    }
+    _terminalChar_t _tc = _getCharAt((static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX);
     terminalChar_t tc;
-    tc.c = _tc.c,
-    tc.col = _tc.col,
-    tc.bgCol = _tc.bgCol;
+    tc.c = _tc.c, tc.col = _tc.col, tc.bgCol = _tc.bgCol;
  
     return tc;
 }
@@ -230,11 +218,8 @@ void VgaTerminal::_renderGridPartialY(const uint8_t y1, const uint8_t y2, const 
 void VgaTerminal::_renderGridLinePartialX(const uint8_t x1, const uint8_t x2, const int yw, const int ych, const bool force)
 {
     for (int i = x1, i2 = yw + x1; i < x2; i++, i2++) {
-        _terminalChar_t tc;
-        {
-            std::lock_guard lck(_pGridMutex);
-            tc = _pGrid[i2];
-        }
+        _terminalChar_t tc = _getCharAt(i2);
+        
         if (!force && tc.rendered) {
             continue;
         }
@@ -252,17 +237,12 @@ void VgaTerminal::render(const bool force)
 
     uint8_t curY = _curY;
     uint8_t curX = _curX;
-    
     int yw = curY * mode.tw;
     int ych = curY * mode.ch;
-    int icur = static_cast<int>(curY) * mode.tw + curX;
-    _terminalChar_t tc;
-    {
-        std::lock_guard lck(_pGridMutex);
-        tc = _pGrid[icur];
-    }
     SDL_Point p = { curX * mode.cw, ych };
+    _terminalChar_t tc = _getCursorChar();
     
+    std::lock_guard lck(_renderMutex);
     // top cursor grid
     _renderGridPartialY(0, curY, force);
     // left cursor grid
@@ -284,16 +264,11 @@ void VgaTerminal::render(const bool force)
 
 void VgaTerminal::clear() noexcept
 {
-    const int vy = _viewPortY + _viewPortHeight;
-    const int vx = _viewPortX + _viewPortWidth;
-
-    {
-        std::lock_guard lck(_pGridMutex);
-        for (int j = _viewPortY; j < vy; j++) {
-            int j2 = j * mode.tw;
-            for (int i = _viewPortX; i < vx; i++) {
-                _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
-            }
+    std::lock_guard lck(_pGridMutex);
+    for (int j = _viewPortY; j < _viewPortY2; j++) {
+        int j2 = j * mode.tw;
+        for (int i = _viewPortX; i < _viewPortX2; i++) {
+            _pGrid[static_cast<size_t>(i) + j2] = _defaultNullChar;
         }
     }
 
@@ -307,7 +282,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     }
     else if(_curY > _viewPortY) {
         --_curY;
-        _curX =_viewPortX + _viewPortWidth - 1;
+        _curX = _viewPortX2 - 1;
     }
     else {
         // alredy in 0,0 ... what should i do? :)
@@ -333,7 +308,7 @@ void VgaTerminal::moveCursorUp() noexcept
 
 void VgaTerminal::moveCursorDown() noexcept
 {
-    if (_curY < _viewPortY + _viewPortHeight - 1) {
+    if (_curY < _viewPortY2 - 1) {
         ++_curY;
     }
     
@@ -342,7 +317,7 @@ void VgaTerminal::moveCursorDown() noexcept
 
 void VgaTerminal::newLine() noexcept
 {
-    _curX = _viewPortX;
+    _curX.store(_viewPortX.load());
     uint8_t oldY = _curY;
     moveCursorDown();
     // last line
@@ -373,8 +348,10 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
     _viewPortY = y;
     _viewPortWidth = width;
     _viewPortHeight = height;
-    _curX = _viewPortX;
-    _curY = _viewPortY;
+    _viewPortX2 = _viewPortX + _viewPortWidth;
+    _viewPortY2 = _viewPortY + _viewPortHeight;
+    _curX.store(_viewPortX.load());
+    _curY.store(_viewPortY.load());
 
     return true;
 }
@@ -407,12 +384,7 @@ void VgaTerminal::resetViewport() noexcept
 void VgaTerminal::_setBusy() noexcept
 {
     _onIdle = false;
-    // TODO these 4 lines below should be promoted to a method and reused also in the timer routine
-    int icur = _curY * mode.tw + _curX;
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[icur].rendered = false;
-    }
+    _setCursorNotRendered();
 }
 
 uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
@@ -423,7 +395,8 @@ uint32_t VgaTerminal::_timerCallBackWrapper(uint32_t interval, void* param)
 
 uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 {
-    // TODO review the user event
+    // @TODO review the user event
+    // @BODY at the moment is just using `SDL_USEREVENT`, should be something more specific and unique.
     SDL_Event event;
     SDL_UserEvent userevent;
     
@@ -434,12 +407,8 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
         _onIdle = true;
         _drawCursor = true;
     }
-    // TODO wrap in a cursor function these ops: icur and set rendered flag to false, or in 2
-    int icur = _curY * mode.tw + _curX;
-    {
-        std::lock_guard lck(_pGridMutex);
-        _pGrid[icur].rendered = false;
-    }
+    
+    _setCursorNotRendered();
 
     interval = cursor_time;
         
@@ -453,17 +422,17 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     return interval;
 }
 
-void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
+void VgaTerminal::_incrementCursorPosition(const bool increment) noexcept
 {
-    if (_curX < _viewPortX + _viewPortWidth - 1) {
+    if (_curX < _viewPortX2 - 1) {
         ++_curX;
     }
-    else if (_curY < _viewPortY + _viewPortHeight - 1) {
+    else if (_curY < _viewPortY2 - 1) {
         _curY++;
-        _curX = _viewPortX;
+        _curX.store(_viewPortX.load());
     }
     else if ((increment) && (autoScroll)) {
-        _curX = _viewPortX;
+        _curX.store(_viewPortX.load());
         _scrollDownGrid();
     }
     else {
@@ -475,17 +444,13 @@ void VgaTerminal::_incrementCursorPosition(bool increment) noexcept
 
 void VgaTerminal::_scrollDownGrid() noexcept
 {
-    // todo can be used as private fields instead of local vars.
-    auto vh = _viewPortY + _viewPortHeight;
-    auto vw = _viewPortWidth + _viewPortWidth;
-
     std::lock_guard lck(_pGridMutex);
-    for (int j = _viewPortY + 1; j < vh ; j++)
+    for (int j = _viewPortY + 1; j < _viewPortY2; j++)
     {
         int j2 = j * mode.tw;
         int jj2 = j2 - mode.tw;
         
-        for (int i = _viewPortX; i < vw; i++)
+        for (int i = _viewPortX; i < _viewPortX2; i++)
         {
             int i2 = i + j2;
             int ii2 = i + jj2;
@@ -500,7 +465,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
     }
 
     // clear line -> TODO: promote to a public method?
-    int j2 = (vh - 1) * mode.tw + _viewPortX;
+    int j2 = (_viewPortY2 - 1) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
     }
@@ -513,4 +478,32 @@ const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 bool VgaTerminal::isIdle() const noexcept
 {
     return _onIdle;
+}
+
+VgaTerminal::_terminalChar_t VgaTerminal::_getCharAt(const size_t pos) noexcept
+{
+    std::lock_guard lck(_pGridMutex);
+    return _pGrid[pos];
+}
+
+const int VgaTerminal::_getCursorPosition() const noexcept
+{
+   return _curX + _curY * mode.tw;
+}
+
+VgaTerminal::_terminalChar_t VgaTerminal::_getCursorChar() noexcept
+{
+    return _getCharAt(_getCursorPosition());
+}
+
+void VgaTerminal::_setCursorChar(const _terminalChar_t& tc) noexcept
+{
+    std::lock_guard lck(_pGridMutex);
+    _pGrid[_getCursorPosition()] = tc;
+}
+
+void VgaTerminal::_setCursorNotRendered() noexcept
+{
+    std::lock_guard lck(_pGridMutex);
+    _pGrid[_getCursorPosition()].rendered = false;
 }

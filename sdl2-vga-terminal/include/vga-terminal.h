@@ -1,8 +1,7 @@
-/***********************************************
- *** TODO:  export all the required methods  ***
- ***        just done the bare basic         ***
- ***        as a show case                   ***
- ***********************************************/
+/********************************************************************
+ @TODO  export all the required methods
+ @BODY  it has been done just the bare basic as a show case
+ ********************************************************************/
 
 #pragma once
 
