@@ -39,6 +39,8 @@ for:
         #- $WS/vcpkg/vcpkg
         - $WS/vcpkg/packages
         - $WS/vcpkg/installed
+    init:
+        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 -    
     matrix:
         only:
@@ -49,6 +51,9 @@ for:
     cache:
         - $WS/vcpkg/packages
         - $WS/vcpkg/installed
+    init:
+        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+        - sh: brew install p7zip
     install:
     #    - sh: brew install ninja
         - sh: cd $WS
@@ -69,8 +74,6 @@ cache:
     - C:\tools\vcpkg\packages
     - C:\tools\vcpkg\installed
 
-init:
-    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
@@ -103,7 +106,7 @@ test_script:
 after_test:
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package 
-    - sh: ls $WS/vcpkg/packages
+
 
 artifacts:
     - path: "out/*.zip"
