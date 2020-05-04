@@ -49,7 +49,7 @@ TEST(VgaTerminal, TimerNotInitedWarning)
 		VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
 		std::string output = testing::internal::GetCapturedStderr();
 		EXPECT_THAT(output, testing::EndsWith("TIMER or EVENTS not inited.\n"));
-		EXPECT_THAT(output, testing::Contains("WARN:"));
+		EXPECT_THAT(output, testing::HasSubstr("WARN:"));
 	}
 	Environment::tearDown();
 	Environment::setUp();
@@ -264,7 +264,7 @@ INSTANTIATE_TEST_SUITE_P(
 class SetViewportNullErrTests: public ::testing::TestWithParam<std::tuple<int, int, int, int>> {};
 TEST_P(SetViewportNullErrTests, setViewportNullError)
 {
-	using ::testing::Contains;
+	using ::testing::HasSubstr;
 	using ::testing::EndsWith;
 
 	SDL_Rect vp;
@@ -278,7 +278,7 @@ TEST_P(SetViewportNullErrTests, setViewportNullError)
 	testing::internal::CaptureStderr();
 	EXPECT_FALSE(term.setViewPort(vp));
 	std::string output = testing::internal::GetCapturedStderr();
-	EXPECT_THAT(output, Contains("WARN: ["));
+	EXPECT_THAT(output, HasSubstr("WARN: ["));
 	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport too small.\n"));
 }
 INSTANTIATE_TEST_SUITE_P(
