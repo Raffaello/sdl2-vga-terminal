@@ -29,13 +29,16 @@ for:
     matrix:
         only:
             - image: Ubuntu
-    cache: /home/appveyor/vcpkg/packages
+    cache:
+        - /home/appveyor/vcpkg/vcpkg
+        - /home/appveyor/vcpkg/packages
+        - /home/appveyor/vcpkg/installed
 
 
 skip_commits:
   files:
     - .github/*
-    - .gitignore
+    #- .gitignore
     - README.md
     - azure-pipelines.yml
 
@@ -59,7 +62,10 @@ before_build:
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
 
-cache: C:\tools\vcpkg\packages
+cache:
+    - C:\tools\vcpkg\vcpkg.exe
+    - C:\tools\vcpkg\packages
+    - C:\tools\vcpkg\installed
 
 build_script:
     - mkdir out
