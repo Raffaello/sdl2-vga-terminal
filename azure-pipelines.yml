@@ -136,4 +136,48 @@ stages:
         displayName: cmake install
       - script: cmake --build . --target package
         workingDirectory: build
-        displayName: cmake package        
+        displayName: cmake package
+
+    - job: macOS
+      strategy:
+        matrix:
+          Debug:
+            CONFIGURATION: Debug
+          Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: 'macOS-10.15'
+      steps:
+      - bash: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          mkdir build && echo "create build dir"
+        displayName: clone vcpkg, mkdir build
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/packages"
+        displayName: "(cache) vcpkg-packages"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/installed"
+        displayName: "(cache) vcpkg-installed"        
+      - script: |
+          ./bootstrap-vcpkg.sh
+          ./vcpkg install sdl2 sdl2-image gtest
+          ./vcpkg integrate install
+        workingDirectory: vcpkg
+        displayName: vcpkg
+      - script: |
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${BUILD_REPOSITORY_LOCALPATH}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+        workingDirectory: build
+        displayName: cmake generator
+      - script: cd build && cmake --build .
+        displayName: cmake build
+      - script: cd build && ctest -V
+        displayName: cmake test (ctest)
+      #- script: cd build && cmake --build . --target install
+      #  displayName: cmake --target install
+      - script: cd build && cmake --build . --target package
+        displayName: cmake --target package
+

@@ -2,8 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/83e178fb7d9343b78be651f2797fe3f8)](https://app.codacy.com/manual/Raffaello/sdl2-vga-terminal?utm_source=github.com&utm_medium=referral&utm_content=Raffaello/sdl2-vga-terminal&utm_campaign=Badge_Grade_Settings)
 
-| Windows (x86, x64) / Linux (x64) |
-|----------------------------------|
+| Windows (x86, x64) / Linux (x64) / macOS (x64) |
+|------------------------------------------------|
 |[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)|
 |[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=2&branchName=master)|
 

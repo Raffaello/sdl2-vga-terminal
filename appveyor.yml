@@ -7,6 +7,7 @@ skip_branch_with_pr: false
 image:
     - Visual Studio 2019
     - Ubuntu
+    - macOS
 
 platform:
   - x86
@@ -23,16 +24,41 @@ matrix:
     allow_failures:
         - platform: x86
           image: Ubuntu
+        - platform: x86
+          image: macOS
 
 for:
 -
     matrix:
         only:
             - image: Ubuntu
+    environment:
+        WS: /home/appveyor
+        TRIPLET: $PLATFORM-linux
     cache:
-        - /home/appveyor/vcpkg/vcpkg
-        - /home/appveyor/vcpkg/packages
-        - /home/appveyor/vcpkg/installed
+        #- $WS/vcpkg/vcpkg
+        - $WS/vcpkg/packages
+        - $WS/vcpkg/installed
+    init:
+        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+-    
+    matrix:
+        only:
+            - image: macOS
+    environment:
+        WS: /Users/appveyor/projects
+        TRIPLET: $PLATFORM-osx
+    cache:
+        - $WS/vcpkg/packages
+        - $WS/vcpkg/installed
+    init:
+        - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+        - sh: brew install p7zip
+        - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
+        - sh: cd $APPVEYOR_BUILD_FOLDER
+        
+    test_script:
+        - sh: ctest -V
 
 
 skip_commits:
@@ -42,42 +68,44 @@ skip_commits:
     - README.md
     - azure-pipelines.yml
 
-init:
-    - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+cache:
+    #- C:\tools\vcpkg\vcpkg.exe
+    - C:\tools\vcpkg\packages
+    - C:\tools\vcpkg\installed
+
 
 install:
     - cmd: if "%PLATFORM%" == "x64" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
     - cmd: if "%PLATFORM%" == "x86" call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars32.bat"
-    - ninja --version
+    - cmd: ninja --version
 
 before_build:
     - cmd: cd C:\tools\vcpkg
-    - sh : cd /home/appveyor/vcpkg
+    - sh : cd $WS/vcpkg
     - git pull
     - cmd: .\bootstrap-vcpkg.bat
     - sh : ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
-    - sh : vcpkg install sdl2 sdl2-image gtest --triplet $PLATFORM-linux
-    - vcpkg integrate install
+    - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
+    - cmd: vcpkg integrate install
+    - sh: ./vcpkg integrate install
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
     - sh : cd $APPVEYOR_BUILD_FOLDER
-
-cache:
-    - C:\tools\vcpkg\vcpkg.exe
-    - C:\tools\vcpkg\packages
-    - C:\tools\vcpkg\installed
 
 build_script:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/appveyor/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+    - cmake --build .
 
 test_script:
-    - cmake --build .
-    - cmd: ctest -V  # ubuntu image is headless, no video driver.
+    - cmd: ctest -V  # ubuntu image is headless, no video driver.    
+
+after_test:
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package 
+
 
 artifacts:
     - path: "out/*.zip"
