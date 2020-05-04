@@ -23,9 +23,9 @@ environment:
 matrix:
     allow_failures:
         - platform: x86
-          image: 
-            - Ubuntu
-            - macOS
+          image: Ubuntu
+        - platform: x86
+          image: macOS
 
 for:
 -
