@@ -101,6 +101,7 @@ test_script:
 after_test:
     - cmd: cmake --build . --target install # skip linux, as the current path might not be ok, is more package related.
     - cmake --build . --target package 
+    - sh: ls $WS/vcpkg/packages
 
 artifacts:
     - path: "out/*.zip"
