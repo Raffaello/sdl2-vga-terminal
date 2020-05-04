@@ -3,6 +3,7 @@
 #include <VgaTerminal.hpp>
 #include <SDL2/SDL_image.h>
 #include <algorithm>
+#include <cstring>
 
 
 std::string generateSnapshotFilename()
@@ -58,7 +59,7 @@ void snapShotTest(VgaTerminal& term, const std::string& snapshotFilename)
 	}
 
 	int size = image->pitch * image->h;
-	EXPECT_EQ(0, SDL_memcmp(image->pixels, snapshot->pixels, size));
+	EXPECT_EQ(0, std::memcmp(image->pixels, snapshot->pixels, size));
 
 	SDL_UnlockSurface(image);
 	SDL_UnlockSurface(snapshot);
