@@ -42,7 +42,7 @@ for:
         only:
             - image: macOS
     environment:
-        WS: /Users/appveyor
+        WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
     cache:
         - $WS/vcpkg/packages
@@ -93,7 +93,6 @@ build_script:
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
     - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
-
     - cmake --build .
 
 test_script:
