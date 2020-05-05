@@ -31,7 +31,10 @@ resources:
   pipelines:
   - pipeline: 'Default'   # Name of the pipeline resource
     source: 'Default' # Name of the triggering pipeline
-
+    trigger: 
+      branches:
+        include:
+        - master
 
 stages:
 - stage: sonarCloud
@@ -149,6 +152,7 @@ stages:
         displayName: Prepare sonarCloud
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          dir
           build-wrapper-win-x86/build-wrapper --out-dir bw-output cmake --build .
         workingDirectory: build
         displayName: sonarCloud build
