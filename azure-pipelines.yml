@@ -181,7 +181,6 @@ stages:
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
-
 - stage: sonarCloud
   jobs:
     - job: Windows
@@ -195,7 +194,6 @@ stages:
             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
             CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=ON -DBUILD_SNAPSHOT=ON
             SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
-
       pool:
         vmImage: 'windows-2019'
       steps:
