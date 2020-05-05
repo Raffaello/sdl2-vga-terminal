@@ -82,7 +82,7 @@ void win32()
 	if (!fRunTimeLinkSuccess) {
 		DWORD dw = GetLastError();
 
-		fprintf(stderr, "failed to load the DLL. Error %d\n", dw);
+		fprintf(stderr, "failed to load the DLL. Error %lu\n", dw);
 	}
 }
 #endif
