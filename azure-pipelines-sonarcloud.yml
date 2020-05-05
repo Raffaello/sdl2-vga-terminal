@@ -25,13 +25,13 @@
 #     - README.md
 #     - appveyor.yml
 
+trigger: none 
+pr: none
 resources:
   pipelines:
-  - pipeline: Default   # Name of the pipeline resource
-    source: Default # Name of the triggering pipeline
-    trigger: 
-      branches:
-      - master
+  - pipeline: 'Default'   # Name of the pipeline resource
+    source: 'Default' # Name of the triggering pipeline
+
 
 stages:
 - stage: sonarCloud
@@ -137,7 +137,7 @@ stages:
         inputs:
           targetType: 'inline'
           script: |
-            curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+            cd build && curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
             unzip build-wrapper.zip
         displayName: prepare sonarCloud analysis
       - task: SonarCloudPrepare@1
