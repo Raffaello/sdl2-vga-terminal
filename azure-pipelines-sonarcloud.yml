@@ -110,32 +110,32 @@ stages:
       pool:
         vmImage: 'windows-2019'
       steps:
-      - script: |
-          git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg
-      ### this should be a cache miss first time run, otherwise might be shared with the other pl, check.
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          call bootstrap-vcpkg.bat
-          vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
-          vcpkg integrate install
-        workingDirectory: vcpkg
-        displayName: vcpkg
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
-        displayName: 'CMake generator'
+      # - script: |
+      #     git clone https://github.com/Microsoft/vcpkg.git
+      #   displayName: clone vcpkg
+      # ### this should be a cache miss first time run, otherwise might be shared with the other pl, check.
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
+      #     path: "vcpkg/packages"
+      #   displayName: "(cache) vcpkg-packages"
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
+      #     path: "vcpkg/installed"
+      #   displayName: "(cache) vcpkg-installed"
+      # - script: |
+      #     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+      #     call bootstrap-vcpkg.bat
+      #     vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
+      #     vcpkg integrate install
+      #   workingDirectory: vcpkg
+      #   displayName: vcpkg
+      # - script: |
+      #     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+      #     mkdir build && cd build
+      #     cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+      #   displayName: 'CMake generator'
       - task: Bash@3
         inputs:
           targetType: 'inline'
