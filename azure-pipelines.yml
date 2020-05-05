@@ -181,3 +181,78 @@ stages:
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
+### this one required to rebuild the vcpkgs again
+### unless using cache...
+### ideally should be in the same pool but at the moment not possible
+### need to split 1 pipeline for each OS, that actually make more sense
+### also because give a single badge OS dependant only, now they are all
+### togheter
+- stage: sonarCloud
+  jobs:
+    - job: Windows
+      strategy:
+        matrix:
+          64-bit Debug:
+            ARCH: 64
+            PLATFORM: x64
+            BuildType: Debug
+            SDL2_STATIC: OFF
+            CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+            CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DWITH_TESTING=ON -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=ON -DBUILD_SNAPSHOT=ON
+            SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
+        #   64-bit Release:
+        #     ARCH: 64
+        #     PLATFORM: x64
+        #     BuildType: Release
+
+      pool:
+        vmImage: 'windows-2019'
+      steps:
+      - script: |
+          git clone https://github.com/Microsoft/vcpkg.git
+        displayName: clone vcpkg
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
+          path: "vcpkg/packages"
+        displayName: "(cache) vcpkg-packages"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
+          path: "vcpkg/installed"
+        displayName: "(cache) vcpkg-installed"
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          call bootstrap-vcpkg.bat
+          vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
+          vcpkg integrate install
+        workingDirectory: vcpkg
+        displayName: vcpkg
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          mkdir build && cd build
+          cmake -DCMAKE_IGNORE_PATH=$(CMAKE_IGNORE_PATH) -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake $(CMAKE_ARGS) ..
+        displayName: 'CMake generator'
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            cd build && curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+            unzip build-wrapper.zip
+        displayName: prepare sonarCloud analysis
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'sonarCloud'
+          organization: 'raffaello-github'
+          scannerMode: 'CLI'
+          configMode: 'file'        
+        displayName: Prepare sonarCloud
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build .
+        workingDirectory: build
+        displayName: sonarCloud build
+      - task: SonarCloudAnalyze@1
+      - task: SonarCloudPublish@1
+        inputs:
+          pollingTimeoutSec: '300'
