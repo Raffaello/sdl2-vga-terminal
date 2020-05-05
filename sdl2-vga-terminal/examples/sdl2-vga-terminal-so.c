@@ -8,13 +8,13 @@
 #include <stdio.h>
 
 #ifdef WIN32
-#	include <windows.h>
+#	include <Windows.h>
 #	include <delayimp.h>
 #	pragma comment(lib, "delayimp")
 #endif
 
 
-int main(int argc, char* args[])
+int main(int, char**)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize SDL: %s", SDL_GetError());
@@ -34,7 +34,7 @@ int main(int argc, char* args[])
 			SDL_WaitEvent(&e);
 		} while (e.type != SDL_USEREVENT && e.user.type != SDL_USEREVENT);
 		
-	};
+	}
 
 	VGA_TERMINAL_destroy(term);
 

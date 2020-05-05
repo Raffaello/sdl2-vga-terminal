@@ -5,7 +5,6 @@
 #include "vgapalette.h"
 #include <version.h>
 
-constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
 template<typename T> 
 constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3F); }
@@ -89,7 +88,7 @@ VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, con
 
 void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 {
-    uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
+    const uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
     const int dstx = dst.x + mode.cw;
 
     for (uint8_t y = 0; y < mode.ch; y++) {
@@ -118,7 +117,7 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     SDL_RenderDrawPoints(getRenderer(), &points[fgi], lsz - bgi);
 }
 
-void VgaTerminal::_renderCursor(const SDL_Point& dst, _terminalChar_t& tc)
+void VgaTerminal::_renderCursor(const SDL_Point& dst, const _terminalChar_t& tc)
 {
     const uint8_t col = tc.col == tc.bgCol ? 
         cursorDefaultCol :

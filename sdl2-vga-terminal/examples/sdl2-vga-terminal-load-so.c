@@ -45,7 +45,8 @@ void win32()
 	PROCDESTROY ProcAddDestroy = NULL;
 	PROCWRITEXY ProcAddWriteXY = NULL;
 	PROCRENDER ProcAddRender = NULL;
-	BOOL fFreeResult, fRunTimeLinkSuccess = SDL_FALSE;
+	BOOL fFreeResult;
+	BOOL fRunTimeLinkSuccess = SDL_FALSE;
 	
 	printf("loading library: %s\n", soname);
 
@@ -134,7 +135,7 @@ void lnx()
 }
 #endif
 
-int main(int argc, char* args[])
+int main(int, char**)
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize SDL: %s", SDL_GetError());
