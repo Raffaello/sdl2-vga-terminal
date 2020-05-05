@@ -130,7 +130,7 @@ stages:
           targetType: 'inline'
           script: |
             curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
-            unzip build-wrapper.zip
+            unzip build-wrapper
         displayName: prepare sonarCloud analysis
       - task: SonarCloudPrepare@1
         inputs:
