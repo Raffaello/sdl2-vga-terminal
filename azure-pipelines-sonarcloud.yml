@@ -153,6 +153,7 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           dir
+          dir build-wrapper-win-x86
           build-wrapper-win-x86/build-wrapper --out-dir bw-output cmake --build .
         workingDirectory: build
         displayName: sonarCloud build
