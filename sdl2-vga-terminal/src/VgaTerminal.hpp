@@ -50,6 +50,10 @@ public:
     static const std::string getVersion();
 
     VgaTerminal() = delete;
+    VgaTerminal(const VgaTerminal&) = delete;
+    VgaTerminal(const VgaTerminal&&) = delete;
+    VgaTerminal& operator=(const VgaTerminal&) = delete;
+    VgaTerminal& operator=(const VgaTerminal&&) = delete;
     VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
     VgaTerminal(const std::string &title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags);
