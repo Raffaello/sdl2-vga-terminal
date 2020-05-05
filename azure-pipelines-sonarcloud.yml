@@ -93,28 +93,28 @@ stages:
           mkdir build && cd build
           cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         displayName: 'CMake generator'
-      # - task: Bash@3
-      #   inputs:
-      #     targetType: 'inline'
-      #     script: |
-      #       cd build && curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
-      #       unzip build-wrapper.zip
-      #   displayName: prepare sonarCloud analysis
-      # - task: SonarCloudPrepare@1
-      #   inputs:
-      #     SonarCloud: 'sonarCloud'
-      #     organization: 'raffaello-github'
-      #     scannerMode: 'CLI'
-      #     configMode: 'file'        
-      #   displayName: Prepare sonarCloud
-      # - script: |
-      #     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-      #     dir
-      #     dir build-wrapper-win-x86
-      #     build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build .
-      #   workingDirectory: build
-      #   displayName: sonarCloud build
-      # - task: SonarCloudAnalyze@1
-      # - task: SonarCloudPublish@1
-      #   inputs:
-      #     pollingTimeoutSec: '300'
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            cd build && curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+            unzip build-wrapper.zip
+        displayName: prepare sonarCloud analysis
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'sonarCloud'
+          organization: 'raffaello-github'
+          scannerMode: 'CLI'
+          configMode: 'file'        
+        displayName: Prepare sonarCloud
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          dir
+          dir build-wrapper-win-x86
+          build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build .
+        workingDirectory: build
+        displayName: sonarCloud build
+      - task: SonarCloudAnalyze@1
+      - task: SonarCloudPublish@1
+        inputs:
+          pollingTimeoutSec: '300'
