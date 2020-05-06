@@ -33,29 +33,31 @@ stages:
         vmImage: 'ubuntu-18.04'
       steps:
       - checkout: none
-      - bash: git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
+          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg"
+
+      - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
+        displayName: clone vcpkg
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+      #     path: "vcpkg/packages"
+      #   displayName: "(cache) vcpkg-packages"
       - task: Cache@2
         inputs:
           key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg/installed"
         displayName: "(cache) vcpkg-installed"     
       - script: |
-          ./bootstrap-vcpkg.sh
+          git checkout -f
+          git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
           ./vcpkg install sdl2 sdl2-image gtest
           rm -rf buildtrees/* docs/* downloads/*
         workingDirectory: vcpkg
         displayName: vcpkg
-        ### what is the difference with cache, if this would be in the same, job?
-        ### would be better in cache and just store the vcpkg directory
-        ### hacking if it is a cache miss to clone it and compiling it ...
-      - publish: vcpkg/
-        artifact: vcpkg
+      
 
 - stage: CI
   jobs:
@@ -69,24 +71,22 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: vcpkg
-          path:  vcpkg
-        displayName: vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"
-      - bash: |
-          mkdir build && echo "created build dir"
-          ls
+          key: 'vcpkg | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+      #     path: "vcpkg/packages"
+      #   displayName: "(cache) vcpkg-packages"
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+      #     path: "vcpkg/installed"
+      #   displayName: "(cache) vcpkg-installed"
+      - bash: mkdir build && echo "created build dir"
         displayName: mkdir build
       - script: ./vcpkg integrate install
         workingDirectory: vcpkg
