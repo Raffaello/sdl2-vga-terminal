@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   branches:
     include:
@@ -25,10 +20,71 @@ pr:
     - README.md
     - appveyor.yml
 
+variables:
+  CACHE_VCPKG_KEY: v2 | vcpkg-root
+  VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
+  #ARCH:
+  #TRIPLET:
+  #VCVARS:
+  SDL2_STATIC: ON
+  BUILD_TESTING: ON
+  BUILD_SHARED_LIBS: ON
+  BUILD_EXAMPLES: ON
+  BUiLD_SNAPSHOT: OFF
+  CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
+
 stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Linux:
+            imageName: 'ubuntu-16.04'
+            TRIPLET: x64-linux
+          MacOS:
+            imageName: 'macOS-10.15'
+            TRIPLET: x64-osx
+          Win 32 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x86-windows
+            ARCH: 32
+          Win 64 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x64-windows
+            ARCH: 64
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - checkout: none
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+          cacheHitVar: CACHE_RESTORED
+      - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
+        displayName: clone vcpkg
+      - bash: |
+          ./bootstrap-vcpkg.sh 
+          ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
+          rm -rf buildtrees/* docs/* downloads/* packages/*
+        workingDirectory: vcpkg
+        displayName: vcpkg bash
+        condition: and(ne(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          call bootstrap-vcpkg.bat 
+          vcpkg.exe install sdl2 sdl2-image gtest --triplet %TRIPLET%
+          del /Q /S buildtrees docs downloads packages > NUL
+        workingDirectory: vcpkg
+        displayName: vcpkg win
+        condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
+
 - stage: CI
   jobs:
     - job: Linux
+      variables:
+        TRIPLET: x64-linux
       strategy:
         matrix:
           GCC Debug:
@@ -38,90 +94,74 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - bash: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          mkdir build && echo "create build dir"
-        displayName: clone vcpkg, mkdir build
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"        
-      - script: |
-          ./bootstrap-vcpkg.sh
-          ./vcpkg install sdl2 sdl2-image gtest
-          ./vcpkg integrate install
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      - bash: mkdir build && echo "created build dir"
+        displayName: mkdir build
+      - bash: ./vcpkg integrate install
         workingDirectory: vcpkg
-        displayName: vcpkg
-      - script: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+      - bash: |
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION}  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
         workingDirectory: build
         displayName: cmake generator
-      - script: cd build && cmake --build .
+      - bash: cmake --build .
         displayName: cmake build
+        workingDirectory: build
       #- script: cd build && ctest -V
       #  displayName: cmake test (ctest)
       #- script: cd build && cmake --build . --target install
       #  displayName: cmake --target install
-      - script: cd build && cmake --build . --target package
+      - script: cmake --build . --target package
         displayName: cmake --target package
+        workingDirectory: build
 
     - job: Windows
+      variables:
+        CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+        #SDL2_STATIC: OFF
+        BUILD_SHARED_LIBS: ON
       strategy:
         matrix:
           64-bit Debug:
             ARCH: 64
             PLATFORM: x64
             BuildType: Debug
-            SDL2_STATIC: OFF
-            JFlag: -j 2
+            TRIPLET: x64-windows
           64-bit Release:
             ARCH: 64
             PLATFORM: x64
             BuildType: Release
-            JFlag: -j 2
+            TRIPLET: x64-windows
           32-bit Debug:
             ARCH: 32
             PLATFORM: x86
             BuildType: Debug
-            JFlag: -j 2
+            TRIPLET: x86-windows
           32-bit Release:
             ARCH: 32
             PLATFORM: x86
             BuildType: Release
-            JFlag: -j 2
+            TRIPLET: x86-windows
       pool:
         vmImage: 'windows-2019'
       steps:
-      - script: |
-          git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          call bootstrap-vcpkg.bat
-          vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
           vcpkg integrate install
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
         displayName: 'CMake generator'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
@@ -139,6 +179,8 @@ stages:
         displayName: cmake package
 
     - job: macOS
+      variables:
+        TRIPLET: x64-osx
       strategy:
         matrix:
           Debug:
@@ -148,90 +190,70 @@ stages:
       pool:
         vmImage: 'macOS-10.15'
       steps:
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
       - bash: |
           git clone https://github.com/Microsoft/vcpkg.git
           mkdir build && echo "create build dir"
         displayName: clone vcpkg, mkdir build
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"        
-      - script: |
-          ./bootstrap-vcpkg.sh
-          ./vcpkg install sdl2 sdl2-image gtest
+      - bash: |
           ./vcpkg integrate install
         workingDirectory: vcpkg
         displayName: vcpkg
-      - script: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${BUILD_REPOSITORY_LOCALPATH}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+      - bash: |
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
         workingDirectory: build
         displayName: cmake generator
-      - script: cd build && cmake --build .
+      - bash: cd build && cmake --build .
         displayName: cmake build
-      - script: cd build && ctest -V
+      - bash: cd build && ctest -V
         displayName: cmake test (ctest)
+        condition: eq(variables['Agent.OS'], 'Darwin')
       #- script: cd build && cmake --build . --target install
       #  displayName: cmake --target install
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
-- stage: sonarCloud
+- stage: SonarCloud
   jobs:
     - job: Windows
       strategy:
         matrix:
           64-bit Debug:
+            TRIPLET: x64-windows
             ARCH: 64
-            PLATFORM: x64
             BuildType: Debug
-            SDL2_STATIC: OFF
+            BUILD_SNAPSHOT: ON
             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
-            CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=ON -DBUILD_SNAPSHOT=ON
             SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
       pool:
         vmImage: 'windows-2019'
       steps:
-      - script: |
-          git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg
       - task: Cache@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(PLATFORM)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"
-      # - script: |
-      #     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-      #     call bootstrap-vcpkg.bat
-      #     vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
-      #     vcpkg integrate install
-      #   workingDirectory: vcpkg
-      #   displayName: vcpkg
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
       - script: |
-          echo %CMAKE_IGNORE_PATH%
-          echo %CMAKE_ARGS%
-          echo $(BuildType)
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake %CMAKE_ARGS% ..
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
         displayName: 'CMake generator'
-      - task: Bash@3
+      - task: Cache@2
         inputs:
-          targetType: 'inline'
-          script: |
-            cd build && curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
-            unzip build-wrapper.zip
-        displayName: prepare sonarCloud analysis
+          key: 'build-wrapper | "$(Agent.OS)"'
+          path: "build/build-wrapper-win-x86"
+          cacheHitVar: CACHED_WRAPPER
+        displayName: "(cache) build-wrapper"
+      - bash: |
+          curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+          unzip build-wrapper.zip
+        workingDirectory: build
+        displayName: build-wrapper
+        condition: ne(variables.CACHED_WRAPPER, 'true')
       - task: SonarCloudPrepare@1
         inputs:
           SonarCloud: 'sonarCloud'
@@ -247,4 +269,4 @@ stages:
       - task: SonarCloudAnalyze@1
       - task: SonarCloudPublish@1
         inputs:
-          pollingTimeoutSec: '300'
+          pollingTimeoutSec: '600'
