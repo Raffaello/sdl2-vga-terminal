@@ -19,7 +19,7 @@ void VGA_TERMINAL_destroy(VGA_Terminal* term)
 		return;
 	}
 
-	VgaTerminal* _term = reinterpret_cast<VgaTerminal*>(term);
+	const VgaTerminal* _term = reinterpret_cast<VgaTerminal*>(term);
 	delete _term;
 }
 

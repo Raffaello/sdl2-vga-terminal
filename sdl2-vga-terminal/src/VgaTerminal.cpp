@@ -105,7 +105,9 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     //      rendering functions.
     constexpr auto lsz = 8;
     SDL_Point points[lsz];
-    uint8_t fgi = 0, bgi = lsz;
+    uint8_t fgi = 0;
+    uint8_t bgi = lsz;
+
     for (uint8_t x = 0; x < lsz; x++) {
         if (line.test(x)) points[fgi++] = { dstx - x, dsty };
         else points[--bgi] = { dstx - x, dsty };
@@ -166,7 +168,7 @@ uint8_t VgaTerminal::getY() const noexcept
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
     _terminalChar_t tc;
-    tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
+    tc.bgCol = bgCol;  tc.c = c; tc.col = col; tc.rendered = false;
     _setCursorChar(tc);
     _incrementCursorPosition();
 }
@@ -200,7 +202,7 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) no
    
     _terminalChar_t _tc = _getCharAt((static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX);
     terminalChar_t tc;
-    tc.c = _tc.c, tc.col = _tc.col, tc.bgCol = _tc.bgCol;
+    tc.c = _tc.c; tc.col = _tc.col; tc.bgCol = _tc.bgCol;
  
     return tc;
 }
@@ -357,19 +359,21 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
 
 bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
-    uint8_t x = static_cast<uint8_t>(r.x), y = static_cast<uint8_t>(r.y),
-        w = static_cast<uint8_t>(r.w), h = static_cast<uint8_t>(r.h);
-
-    return setViewPort(x, y, w, h);
+    return setViewPort(
+        static_cast<uint8_t>(r.x),
+        static_cast<uint8_t>(r.y), 
+        static_cast<uint8_t>(r.w),
+        static_cast<uint8_t>(r.h)
+    );
 }
 
 SDL_Rect VgaTerminal::getViewport() const noexcept
 {
     SDL_Rect r;
     
-    r.x = _viewPortX,
-    r.y = _viewPortY,
-    r.w = _viewPortWidth,
+    r.x = _viewPortX;
+    r.y = _viewPortY;
+    r.w = _viewPortWidth;
     r.h = _viewPortHeight;
 
     return r;
