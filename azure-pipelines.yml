@@ -47,11 +47,11 @@ stages:
           Win 32 bits:
             imageName: 'windows-2019'
             TRIPLET: x86-windows
-            VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat"'
+            VCVARS: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars32.bat'
           Win 64 bits:
             imageName: 'windows-2019'
             TRIPLET: x64-windows
-            VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"'
+            VCVARS: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat'
       pool:
         vmImage: $(imageName)
       steps:
@@ -65,9 +65,10 @@ stages:
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
       - bash: |
+          echo $VCVARS
+          test -z $VCVARS || source "$VCVARS"
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
-          test -z $VCVARS || source $VCVARS
           ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
