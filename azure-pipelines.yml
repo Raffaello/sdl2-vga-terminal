@@ -71,7 +71,7 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg bash
         condition: and(ne(Agent.OS, 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
-       - script: |
+      - script: |
           call %VCVARS%
           bootstrap-vcpkg.bat 
           vcpkg install sdl2 sdl2-image gtest --triplet %TRIPLET%
