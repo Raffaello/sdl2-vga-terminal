@@ -25,6 +25,9 @@ pr:
     - README.md
     - appveyor.yml
 
+variables:
+  CACHE_VCPKG_KEY: vcpkg-root
+
 stages:
 - stage: Dep
   jobs:
@@ -33,7 +36,7 @@ stages:
         matrix:
           Linux:
             imageName: 'ubuntu-16.04'
-            TRIPLET: 64-linux
+            TRIPLET: x64-linux
           MacOS:
             imageName: 'macOS-10.15'
             TRIPLET: x64-osx
@@ -43,8 +46,9 @@ stages:
       - checkout: none
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
+          cacheHitVar: CACHE_RESTORED
 
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
@@ -55,9 +59,9 @@ stages:
           rm -rf buildtrees/* docs/* downloads/*
         workingDirectory: vcpkg
         displayName: vcpkg
+        condition: ne(variables.CACHE_RESTORED, 'true')
       
-    - job: Win
-      
+    - job: Win  
       strategy:
         matrix:
           32-bit:
@@ -75,20 +79,24 @@ stages:
       - checkout: none
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
+          cacheHitVar: CACHE_RESTORED
 
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg   
+        displayName: clone vcpkg  
+        condition: ne(variables.CACHE_RESTORED, 'true') 
       - bash: |
-          rm -rf * # clean up caches
-          test -z ${VCVARS} || source ${VCVARS}
+          echo $VCVARS
+          echo "testing..."
+          test -z $VCVARS || source $VCVARS
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.bat
           ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/*
         workingDirectory: vcpkg
         displayName: vcpkg
+        condition: ne(variables.CACHE_RESTORED, 'true')
 
 - stage: CI
   jobs:
@@ -104,7 +112,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: mkdir build && echo "created build dir"
@@ -134,28 +142,24 @@ stages:
             PLATFORM: x64
             BuildType: Debug
             SDL2_STATIC: OFF
-            JFlag: -j 2
           64-bit Release:
             ARCH: 64
             PLATFORM: x64
             BuildType: Release
-            JFlag: -j 2
           32-bit Debug:
             ARCH: 32
             PLATFORM: x86
             BuildType: Debug
-            JFlag: -j 2
           32-bit Release:
             ARCH: 32
             PLATFORM: x86
             BuildType: Release
-            JFlag: -j 2
       pool:
         vmImage: 'windows-2019'
       steps:
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - script: |
@@ -166,7 +170,7 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=$(Pipeline.Workspace)/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         displayName: 'CMake generator'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
@@ -195,7 +199,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: |
@@ -237,7 +241,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: 'vcpkg-root | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - task: Cache@2
