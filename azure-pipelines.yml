@@ -27,6 +27,7 @@ pr:
 
 variables:
   CACHE_VCPKG_KEY: vcpkg-root
+  VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 stages:
 - stage: Dep
@@ -46,7 +47,7 @@ stages:
       - checkout: none
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
           cacheHitVar: CACHE_RESTORED
 
@@ -56,7 +57,7 @@ stages:
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
           ./vcpkg install sdl2 sdl2-image gtest
-          rm -rf buildtrees/* docs/* downloads/*
+          rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
         displayName: vcpkg
         condition: ne(variables.CACHE_RESTORED, 'true')
@@ -79,7 +80,7 @@ stages:
       - checkout: none
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
           cacheHitVar: CACHE_RESTORED
 
@@ -93,7 +94,7 @@ stages:
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.bat
           ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
-          rm -rf buildtrees/* docs/* downloads/*
+          rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
         displayName: vcpkg
         condition: ne(variables.CACHE_RESTORED, 'true')
@@ -112,7 +113,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: mkdir build && echo "created build dir"
@@ -120,7 +121,7 @@ stages:
       - bash: ./vcpkg integrate install
         workingDirectory: vcpkg
       - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE ..
         workingDirectory: build
         displayName: cmake generator
       - bash: cmake --build .
@@ -159,7 +160,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - script: |
@@ -170,7 +171,7 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=$(Pipeline.Workspace)/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% ..
         displayName: 'CMake generator'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
@@ -199,7 +200,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: |
@@ -211,7 +212,7 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg
       - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=${BUILD_REPOSITORY_LOCALPATH}/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE ..
         workingDirectory: build
         displayName: cmake generator
       - bash: cd build && cmake --build .
@@ -241,7 +242,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '${CACHE_VCPKG_KEY} | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - task: Cache@2
