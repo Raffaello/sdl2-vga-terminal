@@ -84,7 +84,7 @@ stages:
       - script: ./vcpkg integrate install
         workingDirectory: vcpkg
         displayName: vcpkg
-        - bash: |
+      - bash: |
           mkdir build && echo "created build dir"
           ls
           ls vcpkg
