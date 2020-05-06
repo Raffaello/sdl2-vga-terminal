@@ -67,7 +67,8 @@ stages:
       - bash: |
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
-          test -z $VCVARS || ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
+          test -z $VCVARS || source $VCVARS
+          ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
         displayName: vcpkg
