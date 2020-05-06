@@ -56,7 +56,6 @@ stages:
           key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
           cacheHitVar: CACHE_RESTORED
-
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
       - bash: |
@@ -74,11 +73,6 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg win
         condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
-      - bash: |
-          ls vcpkg
-          ls vcpkg/installed
-          ./vcpkg/vcpkg list
-        displayName: debug
 
 - stage: CI
   jobs:
@@ -94,7 +88,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: mkdir build && echo "created build dir"
@@ -144,7 +138,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - script: |
@@ -185,7 +179,7 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - bash: |
@@ -215,8 +209,8 @@ stages:
       strategy:
         matrix:
           64-bit Debug:
+            TRIPLET: x64-windows
             ARCH: 64
-            PLATFORM: x64
             BuildType: Debug
             SDL2_STATIC: OFF
             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
@@ -227,13 +221,14 @@ stages:
       steps:
       - task: Cache@2
         inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
       - task: Cache@2
         inputs:
-          key: 'build-wrapper | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: 'build-wrapper | "$(Agent.OS)"'
           path: "build/build-wrapper"
+          cacheHitVar: CACHE_RESTORED
         displayName: "(cache) build-wrapper"
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
@@ -241,9 +236,11 @@ stages:
           cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake %CMAKE_ARGS% ..
         displayName: 'CMake generator'
       - bash: |
-          test -d build-wrapper || curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip && unzip build-wrapper.zip
+          curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+          unzip build-wrapper.zip
         workingDirectory: build
         displayName: build-wrapper
+        condition: ne(variables.CACHE_RESTORED, 'true')
       - task: SonarCloudPrepare@1
         inputs:
           SonarCloud: 'sonarCloud'
