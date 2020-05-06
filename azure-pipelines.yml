@@ -79,6 +79,10 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg win
         condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
+      - bash: |
+          ls vcpkg
+          ls vcpkg/installed
+        displayName: debug
 
 - stage: CI
   jobs:
