@@ -21,11 +21,17 @@ pr:
     - appveyor.yml
 
 variables:
-  CACHE_VCPKG_KEY: test6 | vcpkg-root
+  CACHE_VCPKG_KEY: v2 | vcpkg-root
   VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
   #ARCH:
   #TRIPLET:
   #VCVARS:
+  SDL2_STATIC: ON
+  BUILD_TESTING: ON
+  BUILD_SHARED_LIBS: OFF
+  BUILD_EXAMPLES: ON
+  BUiLD_SNAPSHOT: OFF
+  CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
 
 stages:
 - stage: Dep
@@ -98,7 +104,7 @@ stages:
       - bash: ./vcpkg integrate install
         workingDirectory: vcpkg
       - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION}  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
         workingDirectory: build
         displayName: cmake generator
       - bash: cmake --build .
@@ -113,31 +119,31 @@ stages:
         workingDirectory: build
 
     - job: Windows
+      variables:
+        CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+        #SDL2_STATIC: OFF
+        #BUILD_SHARED_LIBS: ON
       strategy:
         matrix:
           64-bit Debug:
             ARCH: 64
             PLATFORM: x64
             BuildType: Debug
-            SDL2_STATIC: OFF
             TRIPLET: x64-windows
           64-bit Release:
             ARCH: 64
             PLATFORM: x64
             BuildType: Release
-            SDL2_STATIC: OFF
             TRIPLET: x64-windows
           32-bit Debug:
             ARCH: 32
             PLATFORM: x86
             BuildType: Debug
-            SDL2_STATIC: OFF
             TRIPLET: x86-windows
           32-bit Release:
             ARCH: 32
             PLATFORM: x86
             BuildType: Release
-            SDL2_STATIC: OFF
             TRIPLET: x86-windows
       pool:
         vmImage: 'windows-2019'
@@ -150,13 +156,12 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           vcpkg integrate install
-          vcpkg list
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% ..
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
         displayName: 'CMake generator'
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
@@ -199,13 +204,14 @@ stages:
         workingDirectory: vcpkg
         displayName: vcpkg
       - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE ..
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
         workingDirectory: build
         displayName: cmake generator
       - bash: cd build && cmake --build .
         displayName: cmake build
       - bash: cd build && ctest -V
         displayName: cmake test (ctest)
+        condition: eq(variables['Agent.OS'], 'Darwin')
       #- script: cd build && cmake --build . --target install
       #  displayName: cmake --target install
       - script: cd build && cmake --build . --target package
@@ -220,9 +226,8 @@ stages:
             TRIPLET: x64-windows
             ARCH: 64
             BuildType: Debug
-            SDL2_STATIC: OFF
+            BUILD_SNAPSHOT: ON
             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
-            CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=ON -DBUILD_SNAPSHOT=ON
             SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
       pool:
         vmImage: 'windows-2019'
@@ -235,7 +240,7 @@ stages:
       - script: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake %CMAKE_ARGS% ..
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
         displayName: 'CMake generator'
       - task: Cache@2
         inputs:
