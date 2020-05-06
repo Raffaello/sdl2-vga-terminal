@@ -73,7 +73,7 @@ stages:
         condition: and(ne(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
       - script: |
           call %VCVARS%
-          bootstrap-vcpkg.bat 
+          call bootstrap-vcpkg.bat 
           vcpkg.exe install sdl2 sdl2-image gtest --triplet %TRIPLET%
           del /Q /S buildtrees docs downloads packages
         workingDirectory: vcpkg
