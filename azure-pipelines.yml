@@ -54,7 +54,7 @@ stages:
         ### what is the difference with cache, if this would be in the same, job?
         ### would be better in cache and just store the vcpkg directory
         ### hacking if it is a cache miss to clone it and compiling it ...
-      - publish: $(System.DefaultWorkingDirectory)/vcpkg
+      - publish: vcpkg/
         artifact: vcpkg
 
 - stage: CI
@@ -72,22 +72,21 @@ stages:
       - task: DownloadPipelineArtifact@2
         inputs:
           artifact: vcpkg
-          path:  $(Pipeline.Workspace)/vcpkg
-      # - task: Cache@2
-      #   inputs:
-      #     key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-      #     path: "vcpkg/packages"
-      #   displayName: "(cache) vcpkg-packages"
-      # - task: Cache@2
-      #   inputs:
-      #     key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-      #     path: "vcpkg/installed"
-      #   displayName: "(cache) vcpkg-installed"        
+          path:  vcpkg
         displayName: vcpkg
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/packages"
+        displayName: "(cache) vcpkg-packages"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/installed"
+        displayName: "(cache) vcpkg-installed"
       - bash: |
           mkdir build && echo "created build dir"
           ls
-          ls vcpkg
         displayName: mkdir build
       - script: ./vcpkg integrate install
         workingDirectory: vcpkg
