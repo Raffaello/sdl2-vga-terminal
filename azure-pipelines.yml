@@ -44,18 +44,16 @@ stages:
           MacOS:
             imageName: 'macOS-10.15'
             TRIPLET: x64-osx
-          Win:
+          Win 32 bits:
             imageName: 'windows-2019'
-            variables:
-              VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars$(ARCH).bat"'
-            strategy:
-              matrix:
-                32-bit:
-                  ARCH: 32
-                  TRIPLET: x86-windows
-                64-bit:
-                  ARCH: 64
-                  TRIPLET: x64-windows
+            ARCH: 32
+            TRIPLET: x86-windows
+            VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars$(ARCH).bat"'
+          Win 64 bits:
+            imageName: 'windows-2019'
+            ARCH: 64
+            TRIPLET: x64-windows
+            VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars$(ARCH).bat"'
       pool:
         vmImage: $(imageName)
       steps:
