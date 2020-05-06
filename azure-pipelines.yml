@@ -26,8 +26,11 @@ pr:
     - appveyor.yml
 
 variables:
-  CACHE_VCPKG_KEY: vcpkg-root
+  CACHE_VCPKG_KEY: test | vcpkg-root
   VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
+  #ARCH:
+  #TRIPLET:
+  #VCVARS:
 
 stages:
 - stage: Dep
@@ -41,6 +44,18 @@ stages:
           MacOS:
             imageName: 'macOS-10.15'
             TRIPLET: x64-osx
+          Win:
+            imageName: 'windows-2019'
+            variables:
+              VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars$(ARCH).bat"'
+            strategy:
+              matrix:
+                32-bit:
+                  ARCH: 32
+                  TRIPLET: x86-windows
+                64-bit:
+                  ARCH: 64
+                  TRIPLET: x64-windows
       pool:
         vmImage: $(imageName)
       steps:
@@ -56,48 +71,48 @@ stages:
       - bash: |
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
-          ./vcpkg install sdl2 sdl2-image gtest
-          rm -rf buildtrees/* docs/* downloads/* packages/*
-        workingDirectory: vcpkg
-        displayName: vcpkg
-        condition: ne(variables.CACHE_RESTORED, 'true')
-      
-    - job: Win  
-      strategy:
-        matrix:
-          32-bit:
-            ARCH: 32
-            TRIPLET: x86-windows
-            VCVARS:
-          64-bit:
-            ARCH: 64
-            TRIPLET: x64-windows
-      pool:
-        vmImage: 'windows-2019'
-      variables:
-        VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"'
-      steps:
-      - checkout: none
-      - task: Cache@2
-        inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg"
-          cacheHitVar: CACHE_RESTORED
-
-      - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
-        displayName: clone vcpkg  
-        condition: ne(variables.CACHE_RESTORED, 'true') 
-      - bash: |
-          echo $VCVARS
-          echo "testing..."
-          test -z $VCVARS || source $VCVARS
-          git checkout -f
-          git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.bat
           ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
         displayName: vcpkg
         condition: ne(variables.CACHE_RESTORED, 'true')
+      
+    # - job: Win 
+    #   variables:
+    #     VCVARS: '"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars$(ARCH).bat"'
+    #   strategy:
+    #     matrix:
+    #       32-bit:
+    #         ARCH: 32
+    #         TRIPLET: x86-windows
+            
+    #       64-bit:
+    #         ARCH: 64
+    #         TRIPLET: x64-windows
+    #   pool:
+    #     vmImage: 'windows-2019'
+    #   steps:
+    #   - checkout: none
+    #   - task: Cache@2
+    #     inputs:
+    #       key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+    #       path: "vcpkg"
+    #       cacheHitVar: CACHE_RESTORED
+
+    #   - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
+    #     displayName: clone vcpkg  
+    #     condition: ne(variables.CACHE_RESTORED, 'true') 
+    #   - bash: |
+    #       echo $VCVARS
+    #       echo "testing..."
+    #       test -z $VCVARS || source $VCVARS
+    #       git checkout -f
+    #       git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.bat
+    #       ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
+    #       rm -rf buildtrees/* docs/* downloads/* packages/*
+    #     workingDirectory: vcpkg
+    #     displayName: vcpkg
+    #     condition: ne(variables.CACHE_RESTORED, 'true')
 
 - stage: CI
   jobs:
