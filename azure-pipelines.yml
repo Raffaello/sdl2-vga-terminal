@@ -74,7 +74,7 @@ stages:
       - script: |
           call %VCVARS%
           bootstrap-vcpkg.bat 
-          vcpkg install sdl2 sdl2-image gtest --triplet %TRIPLET%
+          vcpkg.exe install sdl2 sdl2-image gtest --triplet %TRIPLET%
           del /Q /S buildtrees docs downloads packages
         workingDirectory: vcpkg
         displayName: vcpkg win
