@@ -26,6 +26,22 @@ pr:
     - appveyor.yml
 
 stages:
+- stage: dependencies
+  jobs:
+    - job: Linux
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - bash: git clone https://github.com/Microsoft/vcpkg.git
+        displayName: clone vcpkg
+      - script: |
+          ./bootstrap-vcpkg.sh
+          ./vcpkg install sdl2 sdl2-image gtest
+        workingDirectory: vcpkg
+        displayName: vcpkg
+      - publish: $(System.DefaultWorkingDirectory)/vcpkg
+        artifact: vcpkg
+
 - stage: CI
   jobs:
     - job: Linux
@@ -38,38 +54,38 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - bash: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          mkdir build && echo "create build dir"
-        displayName: clone vcpkg, mkdir build
-      - task: Cache@2
+      - bash: mkdir build && echo "created build dir"
+        displayName: mkdir build
+      - task: DownloadPipelineArtifact@2
         inputs:
-          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/packages"
-        displayName: "(cache) vcpkg-packages"
-      - task: Cache@2
-        inputs:
-          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
-          path: "vcpkg/installed"
-        displayName: "(cache) vcpkg-installed"        
-      - script: |
-          ./bootstrap-vcpkg.sh
-          ./vcpkg install sdl2 sdl2-image gtest
-          ./vcpkg integrate install
+          artifact: vcpkg
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+      #     path: "vcpkg/packages"
+      #   displayName: "(cache) vcpkg-packages"
+      # - task: Cache@2
+      #   inputs:
+      #     key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+      #     path: "vcpkg/installed"
+      #   displayName: "(cache) vcpkg-installed"        
+      - script: ./vcpkg integrate install
         workingDirectory: vcpkg
         displayName: vcpkg
       - script: |
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
         displayName: cmake generator
-      - script: cd build && cmake --build .
+      - script: cmake --build .
         displayName: cmake build
+        workingDirectory: build
       #- script: cd build && ctest -V
       #  displayName: cmake test (ctest)
       #- script: cd build && cmake --build . --target install
       #  displayName: cmake --target install
-      - script: cd build && cmake --build . --target package
+      - script: cmake --build . --target package
         displayName: cmake --target package
+        workingDirectory: build
 
     - job: Windows
       strategy:
