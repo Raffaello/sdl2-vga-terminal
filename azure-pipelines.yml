@@ -32,6 +32,7 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
+      - checkout: none
       - bash: git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
       - task: Cache@2
@@ -81,14 +82,14 @@ stages:
       #     key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
       #     path: "vcpkg/installed"
       #   displayName: "(cache) vcpkg-installed"        
-      - script: ./vcpkg integrate install
-        workingDirectory: vcpkg
         displayName: vcpkg
       - bash: |
           mkdir build && echo "created build dir"
           ls
           ls vcpkg
         displayName: mkdir build
+      - script: ./vcpkg integrate install
+        workingDirectory: vcpkg
       - script: |
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
