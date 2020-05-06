@@ -34,11 +34,25 @@ stages:
       steps:
       - bash: git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-packages | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/packages"
+        displayName: "(cache) vcpkg-packages"
+      - task: Cache@2
+        inputs:
+          key: 'vcpkg-installed | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          path: "vcpkg/installed"
+        displayName: "(cache) vcpkg-installed"     
       - script: |
           ./bootstrap-vcpkg.sh
           ./vcpkg install sdl2 sdl2-image gtest
+          rm -rf buildtrees/* docs/* downloads/*
         workingDirectory: vcpkg
         displayName: vcpkg
+        ### what is the difference with cache, if this would be in the same, job?
+        ### would be better in cache and just store the vcpkg directory
+        ### hacking if it is a cache miss to clone it and compiling it ...
       - publish: $(System.DefaultWorkingDirectory)/vcpkg
         artifact: vcpkg
 
@@ -54,7 +68,10 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - bash: mkdir build && echo "created build dir"
+      - bash: |
+          mkdir build && echo "created build dir"
+          ls
+          ls vcpkg
         displayName: mkdir build
       - task: DownloadPipelineArtifact@2
         inputs:
