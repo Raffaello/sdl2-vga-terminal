@@ -65,15 +65,20 @@ stages:
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg
       - bash: |
-          echo $VCVARS
-          test -z $VCVARS || source "$VCVARS"
-          git checkout -f
-          git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.sh 
+          ./bootstrap-vcpkg.sh 
           ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
-        displayName: vcpkg
-        condition: ne(variables.CACHE_RESTORED, 'true')
+        displayName: vcpkg bash
+        condition: and(ne(Agent.OS, 'Windows_NT') ne(variables.CACHE_RESTORED, 'true'))
+       - script: |
+          call %VCVARS%
+          bootstrap-vcpkg.bat 
+          vcpkg install sdl2 sdl2-image gtest --triplet %TRIPLET%
+          del /Q /S buildtrees docs downloads packages
+        workingDirectory: vcpkg
+        displayName: vcpkg win
+        condition: and(eq(Agent.OS, 'Windows_NT') ne(variables.CACHE_RESTORED, 'true'))
       
     # - job: Win 
     #   variables:
