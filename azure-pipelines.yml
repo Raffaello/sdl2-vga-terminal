@@ -113,8 +113,6 @@ stages:
         workingDirectory: build
 
     - job: Windows
-      variables:
-        TRIPLET: x64-windows
       strategy:
         matrix:
           64-bit Debug:
@@ -122,21 +120,25 @@ stages:
             PLATFORM: x64
             BuildType: Debug
             SDL2_STATIC: OFF
+            TRIPLET: x64-windows
           64-bit Release:
             ARCH: 64
             PLATFORM: x64
             BuildType: Release
             SDL2_STATIC: OFF
+            TRIPLET: x64-windows
           32-bit Debug:
             ARCH: 32
             PLATFORM: x86
             BuildType: Debug
             SDL2_STATIC: OFF
+            TRIPLET: x86-windows
           32-bit Release:
             ARCH: 32
             PLATFORM: x86
             BuildType: Release
             SDL2_STATIC: OFF
+            TRIPLET: x86-windows
       pool:
         vmImage: 'windows-2019'
       steps:
