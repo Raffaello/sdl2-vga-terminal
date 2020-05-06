@@ -21,7 +21,7 @@ pr:
     - appveyor.yml
 
 variables:
-  CACHE_VCPKG_KEY: test5 | vcpkg-root
+  CACHE_VCPKG_KEY: test6 | vcpkg-root
   VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
   #ARCH:
   #TRIPLET:
@@ -53,7 +53,7 @@ stages:
       - checkout: none
       - task: Cache@2
         inputs:
-          key: '$(CACHE_VCPKG_KEY) | "$(Agent.OS)-$(Agent.OSArchitecture)"'
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
           cacheHitVar: CACHE_RESTORED
 
