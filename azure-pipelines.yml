@@ -77,6 +77,8 @@ stages:
 - stage: CI
   jobs:
     - job: Linux
+      variables:
+        TRIPLET: x64-linux
       strategy:
         matrix:
           GCC Debug:
@@ -111,6 +113,8 @@ stages:
         workingDirectory: build
 
     - job: Windows
+      variables:
+        TRIPLET: x64-windows
       strategy:
         matrix:
           64-bit Debug:
@@ -168,6 +172,8 @@ stages:
         displayName: cmake package
 
     - job: macOS
+      variables:
+        TRIPLET: x64-osx
       strategy:
         matrix:
           Debug:
