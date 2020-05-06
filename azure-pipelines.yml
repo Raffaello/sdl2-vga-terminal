@@ -28,7 +28,7 @@ variables:
   #VCVARS:
   SDL2_STATIC: ON
   BUILD_TESTING: ON
-  BUILD_SHARED_LIBS: OFF
+  BUILD_SHARED_LIBS: ON
   BUILD_EXAMPLES: ON
   BUiLD_SNAPSHOT: OFF
   CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
@@ -122,7 +122,7 @@ stages:
       variables:
         CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
         #SDL2_STATIC: OFF
-        #BUILD_SHARED_LIBS: ON
+        BUILD_SHARED_LIBS: ON
       strategy:
         matrix:
           64-bit Debug:
