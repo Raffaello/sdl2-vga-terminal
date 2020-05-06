@@ -68,11 +68,6 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - bash: |
-          mkdir build && echo "created build dir"
-          ls
-          ls vcpkg
-        displayName: mkdir build
       - task: DownloadPipelineArtifact@2
         inputs:
           artifact: vcpkg
@@ -89,6 +84,11 @@ stages:
       - script: ./vcpkg integrate install
         workingDirectory: vcpkg
         displayName: vcpkg
+        - bash: |
+          mkdir build && echo "created build dir"
+          ls
+          ls vcpkg
+        displayName: mkdir build
       - script: |
           cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=/home/vsts/work/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake ..
         workingDirectory: build
