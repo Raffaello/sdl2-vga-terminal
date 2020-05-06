@@ -26,7 +26,7 @@ pr:
     - appveyor.yml
 
 variables:
-  CACHE_VCPKG_KEY: test | vcpkg-root
+  CACHE_VCPKG_KEY: test2 | vcpkg-root
   VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
   #ARCH:
   #TRIPLET:
