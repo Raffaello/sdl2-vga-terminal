@@ -232,17 +232,17 @@ stages:
           key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
           path: "vcpkg"
         displayName: "(cache) vcpkg"
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          mkdir build && cd build
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake %CMAKE_ARGS% ..
+        displayName: 'CMake generator'
       - task: Cache@2
         inputs:
           key: 'build-wrapper | "$(Agent.OS)"'
           path: "build/build-wrapper"
           cacheHitVar: CACHE_RESTORED
         displayName: "(cache) build-wrapper"
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=D:/a/1/s/vcpkg/scripts/buildsystems/vcpkg.cmake %CMAKE_ARGS% ..
-        displayName: 'CMake generator'
       - bash: |
           curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
           unzip build-wrapper.zip
