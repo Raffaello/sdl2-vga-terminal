@@ -31,9 +31,9 @@ stages:
     - job: Bash
       strategy:
         matrix:
-          linux:
+          Linux:
             imageName: 'ubuntu-16.04'
-          mac:
+          MacOS:
             imageName: 'macOS-10.15'
       pool:
         vmImage: $(imageName)
@@ -59,10 +59,10 @@ stages:
         matrix:
           32-bit:
             ARCH: 32
-            PLATFORM: x86
+            TRIPLET: x86-windows
           64-bit:
             ARCH: 64
-            PLATFORM: x64
+            TRIPLET: x64-windows
       pool:
         vmImage: 'windows-2019'
       steps:
@@ -75,10 +75,10 @@ stages:
       - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
         displayName: clone vcpkg   
       - bash: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          source "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
           git checkout -f
           git pull | grep -q -v 'Already up-to-date.' && test -f vcpkg || ./bootstrap-vcpkg.bat
-          ./vcpkg.exe install sdl2 sdl2-image gtest
+          ./vcpkg.exe install sdl2 sdl2-image gtest --triplet $TRIPLET
           rm -rf buildtrees/* docs/* downloads/*
         workingDirectory: vcpkg
         displayName: vcpkg
