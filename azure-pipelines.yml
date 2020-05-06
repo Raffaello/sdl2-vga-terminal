@@ -70,7 +70,7 @@ stages:
           rm -rf buildtrees/* docs/* downloads/* packages/*
         workingDirectory: vcpkg
         displayName: vcpkg bash
-        condition: and(ne(variables.Agent.OS, 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
+        condition: and(ne(variables.Agent_OS, 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
       - script: |
           call %VCVARS%
           bootstrap-vcpkg.bat 
@@ -78,7 +78,7 @@ stages:
           del /Q /S buildtrees docs downloads packages
         workingDirectory: vcpkg
         displayName: vcpkg win
-        condition: and(eq(variables.Agent.OS, 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
+        condition: and(eq(variables.Agent_OS, 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
       
     # - job: Win 
     #   variables:
