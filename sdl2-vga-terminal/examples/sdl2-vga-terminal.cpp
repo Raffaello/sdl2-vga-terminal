@@ -7,7 +7,7 @@
 
 using namespace std;
 
-int main(int argc, char* args[])
+int main(int argc, char* argv[])
 {
 	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
 		SDL_LogError(SDL_LOG_CATEGORY_SYSTEM, "Unable to initialize SDL: %s", SDL_GetError());
@@ -107,7 +107,7 @@ int main(int argc, char* args[])
 	term1.gotoXY(40, 24);
 	term1.render();
 	
-	Window::handler_t f = [](SDL_Event& event, Window* w) {
+	Window::handler_t f = [](const SDL_Event& event, Window* w) {
 		VgaTerminal* term = reinterpret_cast<VgaTerminal*>(w);
 		SDL_UserEvent userevent;
 		string keyname;
