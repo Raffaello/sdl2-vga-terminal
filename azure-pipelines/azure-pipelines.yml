@@ -1,0 +1,255 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+
+variables:
+  CACHE_VCPKG_KEY: v2 | vcpkg-root
+  VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
+  #ARCH:
+  #TRIPLET:
+  #VCVARS:
+  SDL2_STATIC: ON
+  BUILD_TESTING: ON
+  BUILD_SHARED_LIBS: ON
+  BUILD_EXAMPLES: ON
+  BUiLD_SNAPSHOT: OFF
+  CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
+
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Linux:
+            imageName: 'ubuntu-16.04'
+            TRIPLET: x64-linux
+          MacOS:
+            imageName: 'macOS-10.15'
+            TRIPLET: x64-osx
+          Win 32 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x86-windows
+            ARCH: 32
+          Win 64 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x64-windows
+            ARCH: 64
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - template: templates/dep-steps-vcpkg.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          #packages:
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
+
+- stage: CI
+  jobs:
+    - job: Linux
+      variables:
+        TRIPLET: x64-linux
+      strategy:
+        matrix:
+          GCC Debug:
+            CONFIGURATION: Debug
+          GCC Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      - bash: mkdir build && echo "created build dir"
+        displayName: mkdir build
+      - bash: ./vcpkg integrate install
+        workingDirectory: vcpkg
+      - bash: |
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION}  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
+        workingDirectory: build
+        displayName: cmake generator
+      - bash: cmake --build .
+        displayName: cmake build
+        workingDirectory: build
+      #- script: cd build && ctest -V
+      #  displayName: cmake test (ctest)
+      #- script: cd build && cmake --build . --target install
+      #  displayName: cmake --target install
+      - script: cmake --build . --target package
+        displayName: cmake --target package
+        workingDirectory: build
+
+    - job: Windows
+      variables:
+        CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+        #SDL2_STATIC: OFF
+        BUILD_SHARED_LIBS: ON
+      strategy:
+        matrix:
+          64-bit Debug:
+            ARCH: 64
+            PLATFORM: x64
+            BuildType: Debug
+            TRIPLET: x64-windows
+          64-bit Release:
+            ARCH: 64
+            PLATFORM: x64
+            BuildType: Release
+            TRIPLET: x64-windows
+          32-bit Debug:
+            ARCH: 32
+            PLATFORM: x86
+            BuildType: Debug
+            TRIPLET: x86-windows
+          32-bit Release:
+            ARCH: 32
+            PLATFORM: x86
+            BuildType: Release
+            TRIPLET: x86-windows
+      pool:
+        vmImage: 'windows-2019'
+      steps:
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          vcpkg integrate install
+        workingDirectory: vcpkg
+        displayName: vcpkg
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          mkdir build && cd build
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
+        displayName: 'CMake generator'
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          cmake --build .
+        workingDirectory: build
+        displayName: cmake build
+      - script: 'ctest -V -C $(BuildType)'
+        workingDirectory: build
+        displayName: 'Run Ctest'
+      - script: cmake --build . --target install
+        workingDirectory: build
+        displayName: cmake install
+      - script: cmake --build . --target package
+        workingDirectory: build
+        displayName: cmake package
+
+    - job: macOS
+      variables:
+        TRIPLET: x64-osx
+      strategy:
+        matrix:
+          Debug:
+            CONFIGURATION: Debug
+          Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: 'macOS-10.15'
+      steps:
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      - bash: |
+          git clone https://github.com/Microsoft/vcpkg.git
+          mkdir build && echo "create build dir"
+        displayName: clone vcpkg, mkdir build
+      - bash: |
+          ./vcpkg integrate install
+        workingDirectory: vcpkg
+        displayName: vcpkg
+      - bash: |
+          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
+        workingDirectory: build
+        displayName: cmake generator
+      - bash: cd build && cmake --build .
+        displayName: cmake build
+      - bash: cd build && ctest -V
+        displayName: cmake test (ctest)
+        condition: eq(variables['Agent.OS'], 'Darwin')
+      #- script: cd build && cmake --build . --target install
+      #  displayName: cmake --target install
+      - script: cd build && cmake --build . --target package
+        displayName: cmake --target package
+
+- stage: SonarCloud
+  jobs:
+    - job: Windows
+      strategy:
+        matrix:
+          64-bit Debug:
+            TRIPLET: x64-windows
+            ARCH: 64
+            BuildType: Debug
+            BUILD_SNAPSHOT: ON
+            CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+            SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
+      pool:
+        vmImage: 'windows-2019'
+      steps:
+      - task: Cache@2
+        inputs:
+          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
+          path: "vcpkg"
+        displayName: "(cache) vcpkg"
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          mkdir build && cd build
+          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
+        displayName: 'CMake generator'
+      - task: Cache@2
+        inputs:
+          key: 'build-wrapper | "$(Agent.OS)"'
+          path: "build/build-wrapper-win-x86"
+          cacheHitVar: CACHED_WRAPPER
+        displayName: "(cache) build-wrapper"
+      - bash: |
+          curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
+          unzip build-wrapper.zip
+        workingDirectory: build
+        displayName: build-wrapper
+        condition: ne(variables.CACHED_WRAPPER, 'true')
+      - task: SonarCloudPrepare@1
+        inputs:
+          SonarCloud: 'sonarCloud'
+          organization: 'raffaello-github'
+          scannerMode: 'CLI'
+          configMode: 'file'        
+        displayName: Prepare sonarCloud
+      - script: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
+          build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build .
+        workingDirectory: build
+        displayName: sonarCloud build
+      - task: SonarCloudAnalyze@1
+      - task: SonarCloudPublish@1
+        inputs:
+          pollingTimeoutSec: '600'
