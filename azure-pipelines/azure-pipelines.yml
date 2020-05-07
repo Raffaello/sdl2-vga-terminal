@@ -22,7 +22,7 @@ pr:
 
 variables:
   CACHE_VCPKG_KEY: v2 | vcpkg-root
-  VCPKG_CMAKE: $(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake
+  VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
   #ARCH:
   #TRIPLET:
   #VCVARS:
