@@ -36,8 +36,6 @@ for:
         WS: /home/appveyor
         TRIPLET: $PLATFORM-linux
     cache:
-        #- $WS/vcpkg/vcpkg
-        #- $WS/vcpkg/packages
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
@@ -49,7 +47,6 @@ for:
         WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
     cache:
-        #- $WS/vcpkg/packages
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
@@ -69,8 +66,6 @@ skip_commits:
     - azure-pipelines.yml
 
 cache:
-    #- C:\tools\vcpkg\vcpkg.exe
-    #- C:\tools\vcpkg\packages
     - C:\tools\vcpkg\installed
 
 
@@ -82,9 +77,9 @@ install:
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh : cd $WS/vcpkg
-    - sh: git pull | grep -q -v 'Already up-to-date.' || ./bootstrap-vcpkg.sh 
-    - cmd: 'git pull | findstr /L "Already up to date." & IF NOT %ERRORLEVEL%==0 bootstrap-vcpkg.bat'
-    - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows    
+    - sh: 'git pull | grep -q -v "Already up to date." && ./bootstrap-vcpkg.sh'
+    - cmd: 'git pull | findstr /L "Already up to date." & IF NOT %ERRORLEVEL%==0 call bootstrap-vcpkg.bat'
+    - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
     - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
     - cmd: vcpkg integrate install
     - sh: ./vcpkg integrate install
