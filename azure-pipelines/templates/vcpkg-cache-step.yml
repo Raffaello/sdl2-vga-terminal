@@ -1,0 +1,13 @@
+parameters:
+  - name: vcpkg_key_cache
+    displayName: CACHE_VCPKG_KEY
+    type: string
+    default: ''
+
+
+steps:
+- task: Cache@2
+inputs:
+  key: '${{ parameters.vcpkg_key_cache }} | ${{ parameters.triplet }}'
+  path: "vcpkg"
+  cacheHitVar: CACHE_RESTORED

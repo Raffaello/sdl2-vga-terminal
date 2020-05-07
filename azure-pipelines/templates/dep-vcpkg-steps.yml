@@ -18,18 +18,13 @@ parameters:
     type: string
     default: ''
     
-## TODO: use resource git hub instead of clone, try
-
 steps:
 - checkout: none
-- template: 'vcpkg-cache-step.yml'
-  parameters:
-    vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
-# - task: Cache@2
-#   inputs:
-#     key: '${{ parameters.vcpkg_key_cache }} | ${{ parameters.triplet }}'
-#     path: "vcpkg"
-#     cacheHitVar: CACHE_RESTORED
+- task: Cache@2
+  inputs:
+    key: '${{ parameters.vcpkg_key_cache }} | ${{ parameters.triplet }}'
+    path: "vcpkg"
+    cacheHitVar: CACHE_RESTORED
 - bash: test -d vcpkg || git clone https://github.com/Microsoft/vcpkg.git
   displayName: clone vcpkg
 - script: echo "installing packages ${{ parameters.packages }}"

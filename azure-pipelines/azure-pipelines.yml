@@ -56,7 +56,7 @@ stages:
       pool:
         vmImage: $(imageName)
       steps:
-      - template: templates/dep-steps-vcpkg.yml
+      - template: templates/dep-vcpkg-steps.yml
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
           #packages:
@@ -200,56 +200,25 @@ stages:
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
-- stage: SonarCloud
-  jobs:
-    - job: Windows
-      strategy:
-        matrix:
-          64-bit Debug:
-            TRIPLET: x64-windows
-            ARCH: 64
-            BuildType: Debug
-            BUILD_SNAPSHOT: ON
-            CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
-            SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
-      pool:
-        vmImage: 'windows-2019'
-      steps:
-      - task: Cache@2
-        inputs:
-          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg"
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
-        displayName: 'CMake generator'
-      - task: Cache@2
-        inputs:
-          key: 'build-wrapper | "$(Agent.OS)"'
-          path: "build/build-wrapper-win-x86"
-          cacheHitVar: CACHED_WRAPPER
-        displayName: "(cache) build-wrapper"
-      - bash: |
-          curl $SONAR_CLOUD_WRAPPER_URL --output build-wrapper.zip
-          unzip build-wrapper.zip
-        workingDirectory: build
-        displayName: build-wrapper
-        condition: ne(variables.CACHED_WRAPPER, 'true')
-      - task: SonarCloudPrepare@1
-        inputs:
-          SonarCloud: 'sonarCloud'
-          organization: 'raffaello-github'
-          scannerMode: 'CLI'
-          configMode: 'file'        
-        displayName: Prepare sonarCloud
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir bw-output cmake --build .
-        workingDirectory: build
-        displayName: sonarCloud build
-      - task: SonarCloudAnalyze@1
-      - task: SonarCloudPublish@1
-        inputs:
-          pollingTimeoutSec: '600'
+# - stage: SonarCloud
+#   jobs:
+#     - job: Windows
+#       strategy:
+#         matrix:
+#           64-bit Debug:
+#             TRIPLET: x64-windows
+#             ARCH: 64
+#             BuildType: Debug
+#             BUILD_SNAPSHOT: ON
+#             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+#             SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
+#       pool:
+#         vmImage: 'windows-2019'
+#       steps:
+#       - template: 'templates/sonarcloud-steps.yml'
+#         parameters:
+#           triplet: $(TRIPLET)
+#           arch: $(ARCH)
+#           BUILD_TYPE: ${BuildType}
+#           BUILD_SNAPSHOT: ${BUILD_SNAPSHOT}
+#           # ...
