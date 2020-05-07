@@ -77,89 +77,48 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - task: Cache@2
-        inputs:
-          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg"
-      - bash: mkdir build && echo "created build dir"
-        displayName: mkdir build
-      - bash: ./vcpkg integrate install
-        workingDirectory: vcpkg
-      - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION}  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
-        workingDirectory: build
-        displayName: cmake generator
-      - bash: cmake --build .
-        displayName: cmake build
-        workingDirectory: build
-      #- script: cd build && ctest -V
-      #  displayName: cmake test (ctest)
-      #- script: cd build && cmake --build . --target install
-      #  displayName: cmake --target install
-      - script: cmake --build . --target package
-        displayName: cmake --target package
-        workingDirectory: build
+      - template: 'templates/ci-cmake.steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          test: false
+          install: false
 
     - job: Windows
       variables:
-        CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
         #SDL2_STATIC: OFF
         BUILD_SHARED_LIBS: ON
       strategy:
         matrix:
           64-bit Debug:
             ARCH: 64
-            PLATFORM: x64
             BuildType: Debug
             TRIPLET: x64-windows
           64-bit Release:
             ARCH: 64
-            PLATFORM: x64
             BuildType: Release
             TRIPLET: x64-windows
           32-bit Debug:
             ARCH: 32
-            PLATFORM: x86
             BuildType: Debug
             TRIPLET: x86-windows
           32-bit Release:
             ARCH: 32
-            PLATFORM: x86
             BuildType: Release
             TRIPLET: x86-windows
       pool:
         vmImage: 'windows-2019'
       steps:
-      - task: Cache@2
-        inputs:
-          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg"
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          vcpkg integrate install
-        workingDirectory: vcpkg
-        displayName: vcpkg
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          mkdir build && cd build
-          cmake -DCMAKE_IGNORE_PATH="%CMAKE_IGNORE_PATH%" -G"Ninja" -DCMAKE_BUILD_TYPE=$(BuildType) -DCMAKE_TOOLCHAIN_FILE=%VCPKG_CMAKE% %CMAKE_ARGS% ..
-        displayName: 'CMake generator'
-      - script: |
-          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars%ARCH%.bat"
-          cmake --build .
-        workingDirectory: build
-        displayName: cmake build
-      - script: 'ctest -V -C $(BuildType)'
-        workingDirectory: build
-        displayName: 'Run Ctest'
-      - script: cmake --build . --target install
-        workingDirectory: build
-        displayName: cmake install
-      - script: cmake --build . --target package
-        workingDirectory: build
-        displayName: cmake package
+      - template: 'templates/ci-cmake.steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          cmake_args: $(CMAKE_ARGS)
+          cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+          arch: $(ARCH)
+
 
     - job: macOS
       variables:
@@ -173,32 +132,12 @@ stages:
       pool:
         vmImage: 'macOS-10.15'
       steps:
-      - task: Cache@2
-        inputs:
-          key: '$(CACHE_VCPKG_KEY) | $(TRIPLET)'
-          path: "vcpkg"
-        displayName: "(cache) vcpkg"
-      - bash: |
-          git clone https://github.com/Microsoft/vcpkg.git
-          mkdir build && echo "create build dir"
-        displayName: clone vcpkg, mkdir build
-      - bash: |
-          ./vcpkg integrate install
-        workingDirectory: vcpkg
-        displayName: vcpkg
-      - bash: |
-          cmake -DCMAKE_BUILD_TYPE=${CONFIGURATION} -DCMAKE_TOOLCHAIN_FILE=$VCPKG_CMAKE $CMAKE_ARGS ..
-        workingDirectory: build
-        displayName: cmake generator
-      - bash: cd build && cmake --build .
-        displayName: cmake build
-      - bash: cd build && ctest -V
-        displayName: cmake test (ctest)
-        condition: eq(variables['Agent.OS'], 'Darwin')
-      #- script: cd build && cmake --build . --target install
-      #  displayName: cmake --target install
-      - script: cd build && cmake --build . --target package
-        displayName: cmake --target package
+      - template: 'templates/ci-cmake-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          install: false
 
 - stage: SonarCloud
   jobs:
