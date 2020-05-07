@@ -47,13 +47,13 @@ for:
         WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
     cache:
+        - $WS/vcpkg
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-        - sh: brew install p7zip
+        - sh: brew -q install p7zip
         - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
         - sh: cd $APPVEYOR_BUILD_FOLDER
-        
     test_script:
         - sh: ctest -V
 
