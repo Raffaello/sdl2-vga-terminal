@@ -1,0 +1,100 @@
+### NOTE: working only on windows at the moment
+
+parameters:
+  #- name: imageName
+  #  displayName: Image Name
+  #  type: string
+  #  default: 'windows-2019'
+
+  - name: vcpkg_key_cache
+    displayName: CACHE_VCPKG_KEY
+    type: string
+    default: ''
+  
+  - name: triplet
+    displayName: triplet
+    type: string    
+  
+  - name: arch
+    displayName: arch
+    type: string
+
+  - name: build_type
+    displayName: Build Type
+    type: string
+
+  - name: cmake_ignore_path
+    displayName: CMAKE_IGNORE_PATH
+    type: string
+    default: ''
+
+  ### default to a global var VCPKG_CMAKE
+  - name: vcpkg_cmake
+    displayName: VCPKG_CMAKE
+    type: string
+    default: $(VCPKG_CMAKE)
+  
+  - name: cmake_args
+    displayName: CMAKE_ARGS
+    type: string
+    default: ''
+
+  - name: sonar_wrapper_url
+    displayName: SONAR_WRAPPER_URL
+    type: string
+    default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+
+  - name: build_wrapper
+    displayName: BUILD_WRAPPER
+    type: string
+    default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+
+  - name: publish_timeout
+    displayName: PUBLISH_TIMEOUT
+    type: number
+    default: 600
+
+jobs:
+- job: Windows
+  pool:
+    vmImage: 'windows-2019'
+  
+  steps:
+  - template: 'vcpkg-cache-step.yml'
+    parameters:
+      vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
+      triplet: ${{ parameters.triplet }}
+  - script: |
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+      mkdir build && cd build
+      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+    displayName: 'CMake generator'
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+  - task: Cache@2
+    inputs:
+      key: '${{ parameters.sonar_wrapper_url }} | "$(Agent.OS)"'
+      path: "build/build-wrapper-win-x86"
+      cacheHitVar: CACHED_BUILD_WRAPPER
+    displayName: "(cache) build-wrapper"
+  - bash: |
+      curl ${{ parameters.sonar_wrapper_url }} --output build-wrapper.zip
+      unzip build-wrapper.zip
+    workingDirectory: build
+    displayName: build-wrapper
+    condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
+  - task: SonarCloudPrepare@1
+    inputs:
+      SonarCloud: 'sonarCloud'
+      organization: 'raffaello-github'
+      scannerMode: 'CLI'
+      configMode: 'file'        
+    displayName: Prepare sonarCloud
+  - script: |
+      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+      ${{ parameters.build_wrapper }} --out-dir bw-output cmake --build .
+    workingDirectory: build
+    displayName: sonarCloud build
+  - task: SonarCloudAnalyze@1
+  - task: SonarCloudPublish@1
+    inputs:
+      pollingTimeoutSec: ${{ parameters.publish_timeout }}

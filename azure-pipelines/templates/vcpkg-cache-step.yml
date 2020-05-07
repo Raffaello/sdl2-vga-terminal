@@ -3,11 +3,13 @@ parameters:
     displayName: CACHE_VCPKG_KEY
     type: string
     default: ''
-
+  - name: triplet
+    displayName: triplet
+    type: string
 
 steps:
 - task: Cache@2
-inputs:
-  key: '${{ parameters.vcpkg_key_cache }} | ${{ parameters.triplet }}'
-  path: "vcpkg"
-  cacheHitVar: CACHE_RESTORED
+  inputs:
+    key: '${{ parameters.vcpkg_key_cache }} | ${{ parameters.triplet }}'
+    path: "vcpkg"
+    cacheHitVar: CACHE_RESTORED

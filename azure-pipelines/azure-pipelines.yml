@@ -32,6 +32,7 @@ variables:
   BUILD_EXAMPLES: ON
   BUiLD_SNAPSHOT: OFF
   CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
+  CMAKE_IGNORE_PATH_WIN: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
 
 stages:
 - stage: Dep
@@ -59,7 +60,6 @@ stages:
       - template: templates/dep-vcpkg-steps.yml
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          #packages:
           triplet: $(TRIPLET)
           arch: $(ARCH)
 
@@ -200,25 +200,13 @@ stages:
       - script: cd build && cmake --build . --target package
         displayName: cmake --target package
 
-# - stage: SonarCloud
-#   jobs:
-#     - job: Windows
-#       strategy:
-#         matrix:
-#           64-bit Debug:
-#             TRIPLET: x64-windows
-#             ARCH: 64
-#             BuildType: Debug
-#             BUILD_SNAPSHOT: ON
-#             CMAKE_IGNORE_PATH: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
-#             SONAR_CLOUD_WRAPPER_URL: https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip
-#       pool:
-#         vmImage: 'windows-2019'
-#       steps:
-#       - template: 'templates/sonarcloud-steps.yml'
-#         parameters:
-#           triplet: $(TRIPLET)
-#           arch: $(ARCH)
-#           BUILD_TYPE: ${BuildType}
-#           BUILD_SNAPSHOT: ${BUILD_SNAPSHOT}
-#           # ...
+- stage: SonarCloud
+  jobs:
+    - template: 'templates/sonarcloud-job.yml'
+      parameters:
+        vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+        triplet: x64-windows
+        arch: 64
+        build_type: Debug
+        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+        cmake_args: $(CMAKE_ARGS)
