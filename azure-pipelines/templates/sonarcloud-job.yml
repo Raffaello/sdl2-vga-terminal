@@ -99,6 +99,7 @@ jobs:
       ${{ parameters.build_wrapper }} --out-dir bw-output cmake --build .
     workingDirectory: build
     displayName: sonarCloud build
+  
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:
