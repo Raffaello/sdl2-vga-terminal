@@ -51,7 +51,7 @@ for:
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-        - sh: brew -q install p7zip
+        - sh: brew install p7zip
         - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
         - sh: cd $APPVEYOR_BUILD_FOLDER
     test_script:
