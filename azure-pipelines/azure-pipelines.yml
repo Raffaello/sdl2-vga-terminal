@@ -77,7 +77,7 @@ stages:
       pool:
         vmImage: 'ubuntu-18.04'
       steps:
-      - template: 'templates/ci-cmake.steps.yml'
+      - template: 'templates/ci-cmake-steps.yml'
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
           triplet: $(TRIPLET)
@@ -93,32 +93,30 @@ stages:
         matrix:
           64-bit Debug:
             ARCH: 64
-            BuildType: Debug
+            CONFIGURATION: Debug
             TRIPLET: x64-windows
           64-bit Release:
             ARCH: 64
-            BuildType: Release
+            CONFIGURATION: Release
             TRIPLET: x64-windows
           32-bit Debug:
             ARCH: 32
-            BuildType: Debug
+            CONFIGURATION: Debug
             TRIPLET: x86-windows
           32-bit Release:
             ARCH: 32
-            BuildType: Release
+            CONFIGURATION: Release
             TRIPLET: x86-windows
       pool:
         vmImage: 'windows-2019'
       steps:
-      - template: 'templates/ci-cmake.steps.yml'
+      - template: 'templates/ci-cmake-steps.yml'
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
           triplet: $(TRIPLET)
           build_type: $(CONFIGURATION)
-          cmake_args: $(CMAKE_ARGS)
           cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
           arch: $(ARCH)
-
 
     - job: macOS
       variables:
