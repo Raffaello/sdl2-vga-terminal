@@ -20,7 +20,6 @@ parameters:
     
 variables:
   REMOVABLES: buildtrees docs downloads packages .git .github ports toolsrc
-## TODO: use resource git hub instead of clone, try
 
 steps:
 - checkout: none
