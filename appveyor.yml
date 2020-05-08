@@ -47,7 +47,7 @@ for:
         WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
     cache:
-        - $WS/vcpkg
+        #- $WS/vcpkg
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
