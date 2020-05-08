@@ -1,0 +1,92 @@
+parameters:
+  - name: vcpkg_key_cache
+    displayName: CACHE_VCPKG_KEY
+    type: string
+    default: ''
+  
+  - name: triplet
+    displayName: triplet
+    type: string
+  
+  - name: build_type
+    displayName: Build Type
+    type: string
+  ### default to a global var VCPKG_CMAKE
+  - name: vcpkg_cmake
+    displayName: VCPKG_CMAKE
+    type: string
+    default: $(VCPKG_CMAKE)
+  
+  - name: cmake_args
+    displayName: CMAKE_ARGS
+    type: string
+    default: $(CMAKE_ARGS)
+  
+  - name: cmake_ignore_path
+    displayName: CMAKE_IGNORE_PATH
+    type: string
+    default: ''
+
+  - name: arch
+    displayName: arch
+    type: string
+    default: ''
+  
+  - name: test
+    displayName: Run Test?
+    type: boolean
+    default: true
+ 
+  - name: install
+    displayName: Run install?
+    type: boolean
+    default: true
+ 
+  - name: package
+    displayName: Run pacakge?
+    type: boolean
+    default: true
+
+steps:
+- template: 'vcpkg-cache-step.yml'
+  parameters:
+    vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
+    triplet: ${{ parameters.triplet }}
+
+- bash: |
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+  displayName: cmake generator (UNIX)
+  condition: ne(variables['Agent.OS'], 'Windows_NT')
+- bash: cmake --build .
+  displayName: cmake build (UNIX)
+  workingDirectory: build
+  condition: ne(variables['Agent.OS'], 'Windows_NT')
+
+- script: |
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+    mkdir build && cd build
+    cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+  displayName: 'CMake generator (WIN)'
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
+- script: |
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+    cmake --build .
+  workingDirectory: build
+  displayName: cmake build (WIN)
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
+
+- ${{ if eq(parameters.test, true) }}:
+  - script: ctest -C ${{ parameters.build_type }} -V
+    displayName: cmake test (ctest)
+    workingDirectory: build
+
+- ${{ if eq(parameters.install, true) }}:
+  - script: cmake --build . --target install
+    displayName: cmake --target install
+    workingDirectory: build
+
+- ${{ if eq(parameters.package, true) }}:
+  - script: cmake --build . --target package
+    displayName: cmake --target package
+    workingDirectory: build

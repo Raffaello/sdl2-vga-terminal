@@ -1,0 +1,149 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+
+variables:
+  CACHE_VCPKG_KEY: v3 | vcpkg-root
+  VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
+  #ARCH:
+  #TRIPLET:
+  #VCVARS:
+  SDL2_STATIC: ON
+  BUILD_TESTING: ON
+  BUILD_SHARED_LIBS: ON
+  BUILD_EXAMPLES: ON
+  BUiLD_SNAPSHOT: OFF
+  CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT)
+  CMAKE_IGNORE_PATH_WIN: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
+
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Linux:
+            imageName: 'ubuntu-16.04'
+            TRIPLET: x64-linux
+          MacOS:
+            imageName: 'macOS-10.15'
+            TRIPLET: x64-osx
+          Win 32 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x86-windows
+            ARCH: 32
+          Win 64 bits:
+            imageName: 'windows-2019'
+            TRIPLET: x64-windows
+            ARCH: 64
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
+
+- stage: CI
+  jobs:
+    - job: Linux
+      variables:
+        TRIPLET: x64-linux
+      strategy:
+        matrix:
+          GCC Debug:
+            CONFIGURATION: Debug
+          GCC Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: 'ubuntu-18.04'
+      steps:
+      - template: 'templates/ci-cmake-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          test: false
+          install: false
+
+    - job: Windows
+      variables:
+        #SDL2_STATIC: OFF
+        BUILD_SHARED_LIBS: ON
+      strategy:
+        matrix:
+          64-bit Debug:
+            ARCH: 64
+            CONFIGURATION: Debug
+            TRIPLET: x64-windows
+          64-bit Release:
+            ARCH: 64
+            CONFIGURATION: Release
+            TRIPLET: x64-windows
+          32-bit Debug:
+            ARCH: 32
+            CONFIGURATION: Debug
+            TRIPLET: x86-windows
+          32-bit Release:
+            ARCH: 32
+            CONFIGURATION: Release
+            TRIPLET: x86-windows
+      pool:
+        vmImage: 'windows-2019'
+      steps:
+      - template: 'templates/ci-cmake-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+          arch: $(ARCH)
+
+    - job: macOS
+      variables:
+        TRIPLET: x64-osx
+      strategy:
+        matrix:
+          Debug:
+            CONFIGURATION: Debug
+          Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: 'macOS-10.15'
+      steps:
+      - template: 'templates/ci-cmake-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          install: false
+
+- stage: SonarCloud
+  jobs:
+    - template: 'templates/sonarcloud-job.yml'
+      parameters:
+        vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+        triplet: x64-windows
+        arch: 64
+        build_type: Debug
+        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+        cmake_args: $(CMAKE_ARGS)

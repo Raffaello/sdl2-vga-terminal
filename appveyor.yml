@@ -64,6 +64,7 @@ skip_commits:
     #- .gitignore
     - README.md
     - azure-pipelines.yml
+    - azure-pipelines/*
 
 cache:
     - C:\tools\vcpkg\installed
