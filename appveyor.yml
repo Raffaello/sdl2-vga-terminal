@@ -78,7 +78,7 @@ install:
 before_build:
     - cmd: cd C:\tools\vcpkg
     - sh : cd $WS/vcpkg
-    - git pull
+    - git clean -f && git pull
     - cmd: IF NOT EXIST vcpkg.exe .\bootstrap-vcpkg.bat
     - sh : test -f vcpkg || ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
