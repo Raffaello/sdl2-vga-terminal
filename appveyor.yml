@@ -65,6 +65,7 @@ skip_commits:
     - README.md
     - azure-pipelines.yml
     - azure-pipelines/*
+    - LICENSE
 
 cache:
     - C:\tools\vcpkg\installed

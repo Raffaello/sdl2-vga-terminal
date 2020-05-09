@@ -19,6 +19,7 @@ pr:
     - .github/*
     - README.md
     - appveyor.yml
+    - LICENSE
 
 variables:
   CACHE_VCPKG_KEY: v3 | vcpkg-root
