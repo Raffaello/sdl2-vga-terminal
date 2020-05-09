@@ -16,4 +16,4 @@ pool:
 #       name: sdl2-vga-terminal
 
 steps:
-- script: git push --mirror https://raffaellobertini@dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/sdl2-vga-terminal
+- script: git push --mirror https://3wux72os2bxohgmylzbnuiuryrqmrwrnewkezndnonyqrqanxifq@dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/sdl2-vga-terminal
