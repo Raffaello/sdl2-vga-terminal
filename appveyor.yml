@@ -39,6 +39,7 @@ for:
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+        - sh: apt-get install -y lcov
     after_test:
         - sh: cmake --build . --target package 
         - sh: lcov --capture --directory . --output-file coverage.info
