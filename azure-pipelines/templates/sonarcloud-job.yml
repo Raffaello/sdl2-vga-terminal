@@ -9,6 +9,10 @@ parameters:
       #- 'ubuntu-18.04'
       - 'macOS-10.15'
     #default: 'windows-2019'
+  - name: jobName
+    displayName: Job Name
+    type: string
+    default: sonarCloud
 
   - name: vcpkg_key_cache
     displayName: CACHE_VCPKG_KEY
@@ -63,9 +67,9 @@ parameters:
     default: 600
 
 jobs:
-- job: Windows
+- job: ${{ parameters.jobName }}
   pool:
-    vmImage: 'windows-2019'
+    vmImage: ${{ parameters.imageName }}
   
   steps:
   - template: 'vcpkg-cache-step.yml'
@@ -81,7 +85,7 @@ jobs:
     condition: eq(variables['Agent.OS'], 'Windows_NT')
   - script: |
       mkdir build && cd build
-      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
     displayName: 'CMake generator (UNIX)'
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
