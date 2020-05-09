@@ -6,7 +6,8 @@ parameters:
     type: string
     values:
       - 'windows-2019'
-      - 'ubuntu-18.04'
+      #- 'ubuntu-18.04'
+      - 'macOS-10.15'
     #default: 'windows-2019'
 
   - name: vcpkg_key_cache

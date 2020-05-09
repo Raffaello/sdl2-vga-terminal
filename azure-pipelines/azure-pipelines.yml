@@ -51,7 +51,7 @@ stages:
             imageName: ${{ variables.linux_image }}
             TRIPLET: x64-linux
           MacOS:
-            imageName: $(mac_image)
+            imageName: ${{ variables.mac_image }}
             TRIPLET: x64-osx
           Win 32 bits:
             imageName: ${{ variables.windows_image }}
@@ -148,9 +148,9 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ variables.linux_image }}
+        imageName: ${{ variables.mac_image }}
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-linux
+        triplet: x64-osx
         #arch: 64
         build_type: Debug
         #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
