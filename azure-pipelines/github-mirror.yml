@@ -1,28 +1,19 @@
-triggers:
+trigger:
   branches:
     include:
-    - master
+    - '*'
   tags:
     include:
     - '*'
 
-pr:
-  branches:
-    include:
-    - '*'
-tags:
-    include:
-    - '*'
-
-
 pool:
     vmImage: 'ubuntu-18.04'
 
-resources:
-  repositories:
-    - repository: sdl2-vga-terminal
-      type: git
-      name: sdl2-vga-terminal
+# resources:
+#   repositories:
+#     - repository: sdl2-vga-terminal
+#       type: git
+#       name: sdl2-vga-terminal
 
 steps:
 - script: git push --mirror https://raffaellobertini@dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/sdl2-vga-terminal
