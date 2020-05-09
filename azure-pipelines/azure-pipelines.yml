@@ -148,15 +148,15 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ variables.mac_image }}
-        jobName: SonarCloud_macOSX
-        jobDisplayName: SonarCloud (macOSX)
+        imageName: ${{ variables.windows_image }}
+        jobName: SonarCloud_win
+        jobDisplayName: SonarCloud (WIN)
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-osx
+        triplet: x64-windows
         #arch: 64
         build_type: Debug
         #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
-        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
-        build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
-        build_wrapper_path: build/build-wrapper-macosx-x86
-        #cmake_ignore_path: "/Applications/Xcode_11.4.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+        build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+        build_wrapper_path: build/build-wrapper-win-x86
+        

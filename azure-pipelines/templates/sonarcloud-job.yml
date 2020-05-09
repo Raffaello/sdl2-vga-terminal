@@ -6,7 +6,7 @@ parameters:
     type: string
     values:
       - 'windows-2019'
-      #- 'ubuntu-18.04'
+      - 'ubuntu-18.04'
       - 'macOS-10.15'
     #default: 'windows-2019'
   
@@ -57,23 +57,26 @@ parameters:
   - name: sonar_wrapper_url
     displayName: SONAR_WRAPPER_URL
     type: string
-    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
-    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
-    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
+    values:
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
 
   - name: build_wrapper
     displayName: BUILD_WRAPPER
     type: string
-    #default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
-    #default: 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
-    #default: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
+    values:
+     - 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+     - 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
+     - 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
 
   - name: build_wrapper_path
     displayName: Build Wrapper Path
     type: string
-    #default: build/build-wrapper-win-x86
-    #default: build/build-wrapper-linux-x86-64
-    #default: build/build-wrapper-macosx-x86
+    values:
+      - build/build-wrapper-win-x86
+      - build/build-wrapper-linux-x86-64
+      - build/build-wrapper-macosx-x86
 
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
@@ -100,7 +103,7 @@ jobs:
     condition: eq(variables['Agent.OS'], 'Windows_NT')
   - script: |
       mkdir build && cd build
-      CXX="gcc-8" CC="gcc-8" cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
     displayName: 'CMake generator (UNIX)'
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
