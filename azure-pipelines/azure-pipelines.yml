@@ -61,6 +61,10 @@ stages:
             imageName: ${{ variables.windows_image }}
             TRIPLET: x64-windows
             ARCH: 64
+          Win GCC 64 bits:
+            imageName: ${{ variables.windows_image }}
+            triplet: x64-mingw
+            ARCH: 64
       pool:
         vmImage: $(imageName)
       steps:
@@ -106,6 +110,12 @@ stages:
             ARCH: 64
             CONFIGURATION: Release
             TRIPLET: x64-windows
+          64-bit GCC Debug:
+            ARCH: 64
+            CONFIGURATION: Release
+            TRIPLET: x64-mingw
+            CXX: gcc-8
+            CC: gcc-8
           32-bit Debug:
             ARCH: 32
             CONFIGURATION: Debug
@@ -124,6 +134,8 @@ stages:
           build_type: $(CONFIGURATION)
           cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
           arch: $(ARCH)
+          CXX: $(CXX)
+          CC: $(CC)
 
     - job: macOS
       variables:
@@ -150,13 +162,14 @@ stages:
       parameters:
         imageName: ${{ variables.windows_image }}
         jobName: SonarCloud_win
-        jobDisplayName: SonarCloud (WIN)
+        jobDisplayName: SonarCloud (MinGW)
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-windows
+        triplet: x64-mingw
         #arch: 64
         build_type: Debug
         #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
         sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
         build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
         build_wrapper_path: build/build-wrapper-win-x86
-        
+        CXX: gcc-8
+        CC: gcc-8

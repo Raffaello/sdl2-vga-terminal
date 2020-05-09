@@ -17,6 +17,9 @@ parameters:
     displayName: arch
     type: string
     default: ''
+    #values:
+    #  - 32
+    #  - 64
     
 steps:
 - checkout: none
