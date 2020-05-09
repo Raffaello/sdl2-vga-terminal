@@ -39,6 +39,12 @@ for:
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
+    after_test:
+        - sh: cmake --build . --target package 
+        - sh: lcov --capture --directory . --output-file coverage.info
+        - sh: lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
+        - sh: lcov --list coverage.info # debug info
+        - sh: bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 -    
     matrix:
         only:
@@ -56,12 +62,6 @@ for:
         - sh: cd $APPVEYOR_BUILD_FOLDER
     test_script:
         - sh: ctest -V
-    after_test:
-        - sh: cmake --build . --target package 
-        - sh: lcov --capture --directory . --output-file coverage.info
-        - sh: lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
-        - sh: lcov --list coverage.info # debug info
-        - sh: bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 
 
 skip_commits:
