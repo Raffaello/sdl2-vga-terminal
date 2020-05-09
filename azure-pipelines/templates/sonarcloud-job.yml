@@ -100,7 +100,7 @@ jobs:
     condition: eq(variables['Agent.OS'], 'Windows_NT')
   - script: |
       mkdir build && cd build
-      CXX="gcc-8" cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+      CXX="gcc-8" CC="gcc-8" cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
     displayName: 'CMake generator (UNIX)'
     condition: ne(variables['Agent.OS'], 'Windows_NT')
 
