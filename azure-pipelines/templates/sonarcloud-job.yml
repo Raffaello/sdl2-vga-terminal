@@ -62,7 +62,13 @@ parameters:
     #default: 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
     #default: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
 
-    default: ''
+  - name: build_wrapper_path
+    displayName: Build Wrapper Path
+    type: string
+    #default: build/build-wrapper-win-x86
+    #default: build/build-wrapper-linux-x86-64
+    #default: build/build-wrapper-macosx-x86
+
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
     type: number
@@ -94,7 +100,7 @@ jobs:
   - task: Cache@2
     inputs:
       key: '"${{ parameters.sonar_wrapper_url }}" | "$(Agent.OS)"'
-      path: "build/build-wrapper-win-x86"
+      path: "${{ parameters.build_wrapper_path }}"
       cacheHitVar: CACHED_BUILD_WRAPPER
     displayName: "(cache) build-wrapper"
   
