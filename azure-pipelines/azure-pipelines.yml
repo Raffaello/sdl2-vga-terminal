@@ -23,18 +23,11 @@ pr:
     - README.md
     - appveyor.yml
     - LICENSE
-parameters:
-  - name: windows-image
-    type: string
-    default: 'windows-2019'
-  - name: linux-image
-    type: string
-    default: 'ubuntu-18.04'
-  - name: mac-image
-    type: string
-    default: 'macOS-10.15'
 
 variables:
+  windows-image: 'windows-2019'
+  linux-image: 'ubuntu-18.04'
+  mac-image: 'macOS-10.15'
   CACHE_VCPKG_KEY: v3 | vcpkg-root
   VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
   #ARCH:
@@ -55,17 +48,17 @@ stages:
       strategy:
         matrix:
           Linux:
-            imageName: ${{ parameters.linux-image }}
+            imageName: ${{ linux-image }}
             TRIPLET: x64-linux
           MacOS:
-            imageName: ${{ parameters.mac-image}}
+            imageName: $(mac-image)
             TRIPLET: x64-osx
           Win 32 bits:
-            imageName: ${{ parameters.windows-image }}
+            imageName: ${{ windows-image }}
             TRIPLET: x86-windows
             ARCH: 32
           Win 64 bits:
-            imageName: ${{ parameters.windows-image }}
+            imageName: ${{ windows-image }}
             TRIPLET: x64-windows
             ARCH: 64
       pool:
@@ -89,7 +82,7 @@ stages:
           GCC Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ parameters.linux-image }}
+        vmImage: ${{ linux-image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -122,7 +115,7 @@ stages:
             CONFIGURATION: Release
             TRIPLET: x86-windows
       pool:
-        vmImage: ${{ parameters.windows-image }}
+        vmImage: $ {{ windows-image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -142,7 +135,7 @@ stages:
           Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ parameters.mac-image }}
+        vmImage: ${{ mac-image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -155,7 +148,7 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ parameters.linux-image }}
+        imageName: ${{ linux-image }}
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-linux
         #arch: 64
