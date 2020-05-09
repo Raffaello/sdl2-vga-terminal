@@ -53,30 +53,28 @@ steps:
     vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
     triplet: ${{ parameters.triplet }}
 
-- $[ ne(variables['Agent.OS'], 'Windows_NT') ]:
-  - bash: |
-      mkdir build && cd build
-      cmake -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-    displayName: cmake generator (UNIX)
-    #condition: ne(variables['Agent.OS'], 'Windows_NT')
-  - bash: cmake --build .
-    displayName: cmake build (UNIX)
-    workingDirectory: build
-    #condition: ne(variables['Agent.OS'], 'Windows_NT')
+- bash: |
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+  displayName: cmake generator (UNIX)
+  condition: ne(variables['Agent.OS'], 'Windows_NT')
+- bash: cmake --build .
+  displayName: cmake build (UNIX)
+  workingDirectory: build
+  condition: ne(variables['Agent.OS'], 'Windows_NT')
 
-- $[ eq(variables['Agent.OS'], 'Windows_NT') ]:
-  - script: |
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-      mkdir build && cd build
-      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-    displayName: 'CMake generator (WIN)'
-    #condition: eq(variables['Agent.OS'], 'Windows_NT')
-  - script: |
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-      cmake --build .
-    workingDirectory: build
-    displayName: cmake build (WIN)
-    #condition: eq(variables['Agent.OS'], 'Windows_NT')
+- script: |
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+    mkdir build && cd build
+    cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+  displayName: 'CMake generator (WIN)'
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
+- script: |
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
+    cmake --build .
+  workingDirectory: build
+  displayName: cmake build (WIN)
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
 
 - ${{ if eq(parameters.test, true) }}:
   - script: ctest -C ${{ parameters.build_type }} -V
