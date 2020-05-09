@@ -161,15 +161,28 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
-        $<$<CONFIG:DEBUG>:-g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions>
+        $<$<CONFIG:DEBUG>:
+            -g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
+            -W; -Wshadow; -Wunused-variable;
+            -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
+            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
+        >
         #$<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
         $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
     ) #-Werror)
+    target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage>;)
+    target_link_libraries(vga-terminal-static INTERFACE debug gcov)
     if (BUILD_SHARED_LIBS)
-        target_compile_options(vga-terminal PRIVATE -Wall -Wextra -pedantic
-            $<$<CONFIG:DEBUG>:-g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions>
-            $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
+        target_compile_options(vga-terminal PRIVATE 
+            $<$<CONFIG:DEBUG>:
+                -g;-O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
+                -W; -Wshadow; -Wunused-variable;
+                -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
+                -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
+            >
+            $<$<CONFIG:RELEASE>:-fexceptions;-D_FORTIFY_SOURCE=2>
         ) #-Werror)
+        target_link_options(vga-terminal PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage>;)
     endif()
 
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
