@@ -115,7 +115,7 @@ stages:
             CONFIGURATION: Release
             TRIPLET: x86-windows
       pool:
-        vmImage: $ {{ variables.windows_image }}
+        vmImage: ${{ variables.windows_image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
