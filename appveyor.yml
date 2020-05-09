@@ -107,18 +107,18 @@ artifacts:
       type: zip
       name: cpack-artifact
 
-deploy:
-  #release: $(APPVEYOR_REPO_TAG_NAME)
-  description: |
-    $(APPVEYOR_REPO_COMMIT_MESSAGE) 
-    $(APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)
-  provider: GitHub
-  auth_token:
-    secure: kHD3/jTkrB+XCe1nsPPPPduqAqTJzNPUvtiya65A2YvTuAngru6TYLgNKE3wc85G
-  artifact: /.*\.zip/
-  draft: true
-  prerelease: false
-  force_update: true
-  on:
-    #branch: master                 # release from master branch only
-    APPVEYOR_REPO_TAG: true        # deploy on tag push only
+# deploy:
+#   #release: $(APPVEYOR_REPO_TAG_NAME)
+#   description: |
+#     $(APPVEYOR_REPO_COMMIT_MESSAGE) 
+#     $(APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED)
+#   provider: GitHub
+#   auth_token:
+#     secure: kHD3/jTkrB+XCe1nsPPPPduqAqTJzNPUvtiya65A2YvTuAngru6TYLgNKE3wc85G
+#   artifact: /.*\.zip/
+#   draft: true
+#   prerelease: false
+#   force_update: true
+#   on:
+#     #branch: master                 # release from master branch only
+#     APPVEYOR_REPO_TAG: true        # deploy on tag push only
