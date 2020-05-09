@@ -149,11 +149,11 @@ stages:
     - template: 'templates/sonarcloud-job.yml'
       parameters:
         imageName: ${{ variables.mac_image }}
-        jobName: SonarCloud_macOS
+        jobName: SonarCloud_macOSX
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-osx
         #arch: 64
         build_type: Debug
         #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
-        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
-        build_wrapper: 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
+        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
+        build_wrapper: 'build-wrapper-macosx-x86\build-wrapper-macosx-x86-64.exe'

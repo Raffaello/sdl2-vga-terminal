@@ -53,12 +53,14 @@ parameters:
     type: string
     #default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
     #default: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
+    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
 
   - name: build_wrapper
     displayName: BUILD_WRAPPER
     type: string
     #default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
-    #default: 'build-wrapper-win-x86\build-wrapper-linux-x86-64.exe'
+    #default: 'build-wrapper-linux-x86\build-wrapper-linux-x86-64.exe'
+    #default: 'build-wrapper-macosx-x86\build-wrapper-macosx-x86-64.exe'
 
     default: ''
   - name: publish_timeout
@@ -99,7 +101,6 @@ jobs:
   - bash: |
       curl ${{ parameters.sonar_wrapper_url }} --output build-wrapper.zip
       unzip build-wrapper.zip
-      chmod +x ${{ parameters.build_wrapper }}
     workingDirectory: build
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
