@@ -48,17 +48,17 @@ stages:
       strategy:
         matrix:
           Linux:
-            imageName: ${{ linux-image }}
+            imageName: ${{ variables.linux-image }}
             TRIPLET: x64-linux
           MacOS:
             imageName: $(mac-image)
             TRIPLET: x64-osx
           Win 32 bits:
-            imageName: ${{ windows-image }}
+            imageName: ${{ variables.windows-image }}
             TRIPLET: x86-windows
             ARCH: 32
           Win 64 bits:
-            imageName: ${{ windows-image }}
+            imageName: ${{ variables.windows-image }}
             TRIPLET: x64-windows
             ARCH: 64
       pool:
@@ -82,7 +82,7 @@ stages:
           GCC Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ linux-image }}
+        vmImage: ${{ variables.linux-image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -135,7 +135,7 @@ stages:
           Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ mac-image }}
+        vmImage: ${{ variables.mac-image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -148,7 +148,7 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ linux-image }}
+        imageName: ${{ variables.linux-image }}
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-linux
         #arch: 64
