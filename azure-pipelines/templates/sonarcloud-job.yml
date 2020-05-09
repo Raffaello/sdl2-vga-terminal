@@ -99,6 +99,7 @@ jobs:
   - bash: |
       curl ${{ parameters.sonar_wrapper_url }} --output build-wrapper.zip
       unzip build-wrapper.zip
+      chmod +x ${{ parameters.build_wrapper }}
     workingDirectory: build
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')

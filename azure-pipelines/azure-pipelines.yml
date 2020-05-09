@@ -144,12 +144,12 @@ stages:
           build_type: $(CONFIGURATION)
           install: false
 
-- stage: SonarCloud
+- stage: Analyzer
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
         imageName: ${{ variables.mac_image }}
-        jobName: macOS
+        jobName: SonarCloud_macOS
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-osx
         #arch: 64
