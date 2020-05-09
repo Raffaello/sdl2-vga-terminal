@@ -111,7 +111,7 @@ steps:
       tagSource: 'auto' # Required when action == Create# Options: auto, manual
       #tagPattern: # Optional
       tag: $(Build.SourceBranchName)
-      #title: # Optional
+      title: $(Build.SourceBranchName)
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: # Optional
       #releaseNotes: # Optional
