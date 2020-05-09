@@ -5,8 +5,8 @@ branches:
 skip_branch_with_pr: false
 
 image:
-    #- Visual Studio 2019
-    #- Ubuntu
+    - Visual Studio 2019
+    - Ubuntu
     - macOS
 
 platform:
@@ -57,11 +57,11 @@ for:
         - sh: cd $APPVEYOR_BUILD_FOLDER
     test_script:
         - sh: ctest -V
-        - sh: find . -name *gcda
-        - sh: test $CONFIGURATION = "DEBUG" && lcov --capture --directory . --output-file coverage.info
-        - sh: test $CONFIGURATION = "DEBUG" && lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
-        - sh: test $CONFIGURATION = "DEBUG" && lcov --list coverage.info # debug info
-        - sh: test $CONFIGURATION = "DEBUG" && bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
+        #- sh: find . -name *gcda
+        #- sh: test $CONFIGURATION = "DEBUG" && lcov --capture --directory . --output-file coverage.info
+        #- sh: test $CONFIGURATION = "DEBUG" && lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
+        #- sh: test $CONFIGURATION = "DEBUG" && lcov --list coverage.info # debug info
+        #- sh: test $CONFIGURATION = "DEBUG" && bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 
 
 skip_commits:
@@ -97,7 +97,7 @@ build_script:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : CXX="g++-8" CC="gcc-8" cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
     - cmake --build .
 
 test_script:
