@@ -148,7 +148,7 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: $(linux-image)
+        imageName: 'ubuntu-18.04' #$(linux-image)
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-linux
         #arch: 64
