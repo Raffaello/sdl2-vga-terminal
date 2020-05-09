@@ -90,14 +90,37 @@ steps:
   - script: cmake --build . --target package
     displayName: cmake --target package
     workingDirectory: build
-  ## TODO: clean up, now is for pre-testing
-  #- $[ contains(variables['Build.SourceBranch'], 'refs/tags/') ]:
+  ## TODO: clean up, now is for pre-testing (enable condition)
   - task: CopyFiles@2
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)/build'
       contents: '*.zip'
       targetFolder: '$(Build.ArtifactStagingDirectory)'
+    #condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  ### This step is optional, not needed for the release  
   - task: PublishBuildArtifacts@1
     inputs:
       pathToPublish: '$(Build.ArtifactStagingDirectory)'
-      #artifactName: '$(Agent.OS)' 
+      artifactName: '$(Build.SourceBranchName)'
+    #condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  - task: GitHubRelease@0
+    inputs:
+      gitHubConnection: 'Raffaello'
+      repositoryName: '$(Build.Repository.Name)' 
+      action: 'edit' #'create' # Options: create, edit, delete
+      target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
+      tagSource: 'auto' # Required when action == Create# Options: auto, manual
+      #tagPattern: # Optional
+      #tag: # Required when action == Edit || Action == Delete || TagSource == Manual
+      #title: # Optional
+      #releaseNotesSource: 'file' # Optional. Options: file, input
+      #releaseNotesFile: # Optional
+      #releaseNotes: # Optional
+      assets: '$(Build.ArtifactStagingDirectory)/*.zip' # Optional
+      assetUploadMode: 'replace' #'delete' # Optional. Options: delete, replace
+      isDraft: true # Optional
+      #isPreRelease: false # Optional
+      addChangeLog: true # Optional
+      compareWith: 'lastFullRelease' # Required when addChangeLog == True. Options: lastFullRelease, lastRelease, lastReleaseByTag
+      #releaseTag: # Required when compareWith == LastReleaseByTag
+    #condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
