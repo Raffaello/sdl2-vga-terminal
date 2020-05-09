@@ -7,11 +7,11 @@ parameters:
   - name: triplet
     displayName: triplet
     type: string
-  
+
   - name: build_type
     displayName: Build Type
     type: string
-  ### default to a global var VCPKG_CMAKE
+
   - name: vcpkg_cmake
     displayName: VCPKG_CMAKE
     type: string
@@ -22,27 +22,18 @@ parameters:
     type: string
     default: $(CMAKE_ARGS)
   
+  ## TODO merge with cmake_args
   - name: cmake_ignore_path
     displayName: CMAKE_IGNORE_PATH
     type: string
     default: ''
 
+  ## TODO: can be extracted from triplet?
   - name: arch
     displayName: arch
     type: string
-    #values:
-    #  - 32
-    #  - 64
     default: ''
 
-  - name: CXX
-    type: string
-    #default: ''
-  
-  - name: CC
-    type: string
-    #default: ''
-  
   - name: test
     displayName: Run Test?
     type: boolean
@@ -63,30 +54,14 @@ steps:
   parameters:
     vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
     triplet: ${{ parameters.triplet }}
-
-- bash: |
-    mkdir build && cd build
-     CXX="$(CXX)" CC="$(CC)" cmake -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-  displayName: cmake generator (UNIX)
-  condition: ne(variables['Agent.OS'], 'Windows_NT')
-- bash: cmake --build .
-  displayName: cmake build (UNIX)
-  workingDirectory: build
-  condition: ne(variables['Agent.OS'], 'Windows_NT')
-
-- script: |
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-    mkdir build && cd build
-     cmake -DCMAKE_C_COMPILER="$(CC)" -DCMAKE_CXX_COMPILER="$(CXX)" -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-  displayName: 'CMake generator (WIN)'
-  condition: eq(variables['Agent.OS'], 'Windows_NT')
-- script: |
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-    cmake --build .
-  workingDirectory: build
-  displayName: cmake build (WIN)
-  condition: eq(variables['Agent.OS'], 'Windows_NT')
-
+- template: 'cmake-gen-build-steps.yml'
+  parameters:
+    build_type: ${{ parameters.build_type }}
+    vcpkg_cmake: ${{ parameters.vcpkg_cmake }}
+    cmake_args: ${{ parameters.cmake_args }}
+    cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
+    arch: ${{ parameters.arch }}
+    #build_wrapper:
 - ${{ if eq(parameters.test, true) }}:
   - script: ctest -C ${{ parameters.build_type }} -V
     displayName: cmake test (ctest)
@@ -108,11 +83,11 @@ steps:
       targetFolder: '$(Build.ArtifactStagingDirectory)'
     condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   ### This step is optional, not needed for the release  
-  - task: PublishBuildArtifacts@1
-    inputs:
-      pathToPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: '$(Build.SourceBranchName)'
-    condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     pathToPublish: '$(Build.ArtifactStagingDirectory)'
+  #     artifactName: '$(Build.SourceBranchName)'
+  #   condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   - task: GitHubRelease@0
     inputs:
       gitHubConnection: 'github connection 1'
