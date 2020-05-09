@@ -55,6 +55,8 @@ for:
         - sh: brew install p7zip
         - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
         - sh: cd $APPVEYOR_BUILD_FOLDER
+        - sh: export CC=/usr/bin/gcc
+        - sh: export CXX=/usr/bin/g++
     test_script:
         - sh: ctest -V
         - sh: find . -name *gcda
@@ -97,7 +99,7 @@ build_script:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_C_COMPILER_ID="GNU" -DCMAKE_CXX_COMPILER_ID="GNU" -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
     - cmake --build .
 
 test_script:
