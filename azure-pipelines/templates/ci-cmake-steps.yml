@@ -110,7 +110,7 @@ steps:
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
       tagSource: 'auto' # Required when action == Create# Options: auto, manual
       #tagPattern: # Optional
-      #tag: # Required when action == Edit || Action == Delete || TagSource == Manual
+      tag: $(Build.SourceBranchName)
       #title: # Optional
       #releaseNotesSource: 'file' # Optional. Options: file, input
       #releaseNotesFile: # Optional
