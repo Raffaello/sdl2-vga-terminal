@@ -60,7 +60,7 @@ parameters:
     type: string
     #default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
     #default: 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
-    #default: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86-64'
+    #default: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
 
     default: ''
   - name: publish_timeout
