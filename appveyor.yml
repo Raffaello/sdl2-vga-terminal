@@ -97,7 +97,7 @@ build_script:
     - mkdir out
     - cd out
     - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -DCMAKE_IGNORE_PATH="/Applications/Xcode-11.3.1.app/Contents/Developer/usr/bin/" -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+    - sh : cmake -DCMAKE_IGNORE_PATH="/Applications/Xcode-11.3.1.app/Contents/Developer/usr/bin/:/Applications/Xcode_11.4.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/" -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
     - cmake --build .
 
 test_script:
