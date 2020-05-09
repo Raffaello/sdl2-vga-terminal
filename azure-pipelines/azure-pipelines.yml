@@ -25,6 +25,9 @@ pr:
     - LICENSE
 
 variables:
+  windows-image: 'windows-2019'
+  linux-image: 'ubuntu-18.04'
+  mac-image: 'macOS-10.15'
   CACHE_VCPKG_KEY: v3 | vcpkg-root
   VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
   #ARCH:
@@ -45,17 +48,17 @@ stages:
       strategy:
         matrix:
           Linux:
-            imageName: 'ubuntu-16.04'
+            imageName: $(linux-image)
             TRIPLET: x64-linux
           MacOS:
-            imageName: 'macOS-10.15'
+            imageName: $(mac-image)
             TRIPLET: x64-osx
           Win 32 bits:
-            imageName: 'windows-2019'
+            imageName: $(windows-image)
             TRIPLET: x86-windows
             ARCH: 32
           Win 64 bits:
-            imageName: 'windows-2019'
+            imageName: $(windows-image)
             TRIPLET: x64-windows
             ARCH: 64
       pool:
@@ -79,7 +82,7 @@ stages:
           GCC Release:
             CONFIGURATION: Release
       pool:
-        vmImage: 'ubuntu-18.04'
+        vmImage: $(linux-image)
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -112,7 +115,7 @@ stages:
             CONFIGURATION: Release
             TRIPLET: x86-windows
       pool:
-        vmImage: 'windows-2019'
+        vmImage: $(windows-image)
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -132,7 +135,7 @@ stages:
           Release:
             CONFIGURATION: Release
       pool:
-        vmImage: 'macOS-10.15'
+        vmImage: $(mac-image)
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -142,12 +145,14 @@ stages:
           install: false
 
 - stage: SonarCloud
-  jobs:
+  jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
+        imageName: $(linux-image)
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-windows
-        arch: 64
+        triplet: x64-linux
+        #arch: 64
         build_type: Debug
-        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
-        cmake_args: $(CMAKE_ARGS)
+        #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
+        build_wrapper: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'

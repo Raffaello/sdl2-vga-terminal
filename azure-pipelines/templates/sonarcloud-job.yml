@@ -1,10 +1,13 @@
 ### NOTE: working only on windows at the moment
 
 parameters:
-  #- name: imageName
-  #  displayName: Image Name
-  #  type: string
-  #  default: 'windows-2019'
+  - name: imageName
+    displayName: Image Name
+    type: string
+    values:
+      - 'windows-2019'
+      - 'ubuntu-18.04'
+    #default: 'windows-2019'
 
   - name: vcpkg_key_cache
     displayName: CACHE_VCPKG_KEY
@@ -18,6 +21,7 @@ parameters:
   - name: arch
     displayName: arch
     type: string
+    default: 64
 
   - name: build_type
     displayName: Build Type
@@ -37,18 +41,21 @@ parameters:
   - name: cmake_args
     displayName: CMAKE_ARGS
     type: string
-    default: ''
+    default: $(CMAKE_ARGS)
 
   - name: sonar_wrapper_url
     displayName: SONAR_WRAPPER_URL
     type: string
-    default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+    #default: 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
 
   - name: build_wrapper
     displayName: BUILD_WRAPPER
     type: string
-    default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+    #default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+    #default: 'build-wrapper-win-x86\build-wrapper-linux-x86-64.exe'
 
+    default: ''
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
     type: number
@@ -69,9 +76,14 @@ jobs:
       call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
       mkdir build && cd build
       cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-    displayName: 'CMake generator'
+    displayName: 'CMake generator (WIN)'
     condition: eq(variables['Agent.OS'], 'Windows_NT')
-  
+  - script: |
+      mkdir build && cd build
+      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+    displayName: 'CMake generator (UNIX)'
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+
   - task: Cache@2
     inputs:
       key: '"${{ parameters.sonar_wrapper_url }}" | "$(Agent.OS)"'
@@ -98,7 +110,13 @@ jobs:
       call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
       ${{ parameters.build_wrapper }} --out-dir bw-output cmake --build .
     workingDirectory: build
-    displayName: sonarCloud build
+    displayName: sonarCloud build (WIN)
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+  - script: |
+      ${{ parameters.build_wrapper }} --out-dir bw-output cmake --build .
+    workingDirectory: build
+    displayName: sonarCloud build (UNIX)
+    condition: ne(variables['Agent.OS'], 'Windows_NT') 
   
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
