@@ -43,10 +43,10 @@ for:
     after_test:
         - sh: cmake --build . --target package 
         - sh: find . -name *gcda
-        - sh: lcov --capture --directory . --output-file coverage.info
-        - sh: lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
-        - sh: lcov --list coverage.info # debug info
-        - sh: bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
+        - sh: test $CONFIGURATION = "DEBUG" && lcov --capture --directory . --output-file coverage.info
+        - sh: test $CONFIGURATION = "DEBUG" && lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
+        - sh: test $CONFIGURATION = "DEBUG" && lcov --list coverage.info # debug info
+        - sh: test $CONFIGURATION = "DEBUG" && bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 -    
     matrix:
         only:

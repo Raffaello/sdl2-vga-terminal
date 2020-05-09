@@ -26,7 +26,7 @@ pr:
 
 variables:
   windows-image: 'windows-2019'
-  linux-image: 'ubuntu-18.04'
+  linux_image: 'ubuntu-18.04'
   mac-image: 'macOS-10.15'
   CACHE_VCPKG_KEY: v3 | vcpkg-root
   VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
@@ -48,7 +48,7 @@ stages:
       strategy:
         matrix:
           Linux:
-            imageName: ${{ variables.linux-image }}
+            imageName: ${{ variables.linux_image }}
             TRIPLET: x64-linux
           MacOS:
             imageName: $(mac-image)
