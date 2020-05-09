@@ -25,9 +25,9 @@ pr:
     - LICENSE
 
 variables:
-  windows-image: 'windows-2019'
+  windows_image: 'windows-2019'
   linux_image: 'ubuntu-18.04'
-  mac-image: 'macOS-10.15'
+  mac_image: 'macOS-10.15'
   CACHE_VCPKG_KEY: v3 | vcpkg-root
   VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
   #ARCH:
@@ -51,14 +51,14 @@ stages:
             imageName: ${{ variables.linux_image }}
             TRIPLET: x64-linux
           MacOS:
-            imageName: $(mac-image)
+            imageName: $(mac_image)
             TRIPLET: x64-osx
           Win 32 bits:
-            imageName: ${{ variables.windows-image }}
+            imageName: ${{ variables.windows_image }}
             TRIPLET: x86-windows
             ARCH: 32
           Win 64 bits:
-            imageName: ${{ variables.windows-image }}
+            imageName: ${{ variables.windows_image }}
             TRIPLET: x64-windows
             ARCH: 64
       pool:
@@ -82,7 +82,7 @@ stages:
           GCC Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ variables.linux-image }}
+        vmImage: ${{ variables.linux_image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -115,7 +115,7 @@ stages:
             CONFIGURATION: Release
             TRIPLET: x86-windows
       pool:
-        vmImage: $ {{ windows-image }}
+        vmImage: $ {{ windows_image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -135,7 +135,7 @@ stages:
           Release:
             CONFIGURATION: Release
       pool:
-        vmImage: ${{ variables.mac-image }}
+        vmImage: ${{ variables.mac_image }}
       steps:
       - template: 'templates/ci-cmake-steps.yml'
         parameters:
@@ -148,7 +148,7 @@ stages:
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ variables.linux-image }}
+        imageName: ${{ variables.linux_image }}
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
         triplet: x64-linux
         #arch: 64
