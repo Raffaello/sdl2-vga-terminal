@@ -1,37 +1,28 @@
-# trigger:
-#   branches:
-#     include:
-#     - master
-#   paths:
-#     exclude:
-#     #- .gitignore
-#     - .github/*
-#     - README.md
-#     - appveyor.yml
-#   tags:
-#     include:
-#     - '*'
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+  tags:
+    include:
+    - '*'
 
-# pr:
-#   branches:
-#     include:
-#     - master
-#   paths:
-#     exclude:
-#     #- .gitignore
-#     - .github/*
-#     - README.md
-#     - appveyor.yml
-#     - LICENSE
-
-resources:
-  pipelines:
-  - pipeline: windows-ci   # Name of the pipeline resource
-    source: Raffaello.sdl2-vga-terminal.Windows # Name of the triggering pipeline
-    # trigger: 
-    #   branches:
-    #   - releases/*
-    #   - master
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+    - LICENSE
 
 variables:
   - template: variables.yml
