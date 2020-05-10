@@ -18,8 +18,10 @@ parameters:
     type: string
     default: ''
     
-variables:
-  VCPKG_REMOVABLES: buildtrees docs downloads packages .git .github ports toolsrc triplets
+  - name: VCPKG_REMOVABLES
+    displayName: VCPKG_REMOVABLES
+    type: string
+    default: 'buildtrees docs downloads packages .git .github ports toolsrc triplets'
 
 steps:
 - checkout: none
@@ -35,7 +37,7 @@ steps:
 - bash: |
     ./bootstrap-vcpkg.sh 
     ./vcpkg install ${{ parameters.packages }} --triplet ${{ parameters.triplet }}
-    rm -rf $VCPKG_REMOVABLES
+    rm -rf ${{ parameters.VCPKG_REMOVABLES }}
   workingDirectory: vcpkg
   displayName: vcpkg unix
   condition: and(ne(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))
@@ -43,7 +45,7 @@ steps:
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch}}.bat"
     call bootstrap-vcpkg.bat 
     vcpkg.exe install ${{ parameters.packages }} --triplet ${{ parameters.triplet }}
-    del /Q /S %VCPKG_REMOVABLES% > NUL
+    del /Q /S ${{ parameters.VCPKG_REMOVABLES }} > NUL
   workingDirectory: vcpkg
   displayName: vcpkg win
   condition: and(eq(variables['Agent.OS'], 'Windows_NT'), ne(variables.CACHE_RESTORED, 'true'))

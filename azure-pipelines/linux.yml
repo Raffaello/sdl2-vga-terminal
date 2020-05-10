@@ -1,0 +1,68 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+  tags:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+    - LICENSE
+
+variables:
+  - template: variables.yml
+
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Linux:
+            imageName: ${{ variables.linux_image }}
+            TRIPLET: x64-linux
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
+
+- stage: CI
+  jobs:
+    - job: Linux
+      variables:
+        TRIPLET: x64-linux
+      strategy:
+        matrix:
+          GCC Debug:
+            CONFIGURATION: Debug
+          GCC Release:
+            CONFIGURATION: Release
+      pool:
+        vmImage: ${{ variables.linux_image }}
+      steps:
+      - template: 'templates/ci-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          test: false
+          install: false
