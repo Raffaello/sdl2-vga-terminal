@@ -129,9 +129,7 @@ stages:
           triplet: $(TRIPLET)
           build_type: $(CONFIGURATION)
           install: false
-
-- stage: Analyzer
-  jobs: 
+    
     - template: 'templates/sonarcloud-job.yml'
       parameters:
         imageName: ${{ variables.windows_image }}
@@ -145,3 +143,19 @@ stages:
         build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
         build_wrapper_path: build/build-wrapper-win-x86
         cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+
+# - stage: Analyzer
+#   jobs: 
+#     - template: 'templates/sonarcloud-job.yml'
+#       parameters:
+#         imageName: ${{ variables.windows_image }}
+#         jobName: SonarCloud_win
+#         jobDisplayName: SonarCloud (WIN)
+#         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+#         triplet: x64-windows
+#         arch: 64
+#         build_type: Debug
+#         sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+#         build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+#         build_wrapper_path: build/build-wrapper-win-x86
+#         cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
