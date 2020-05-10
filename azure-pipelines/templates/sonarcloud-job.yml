@@ -1,10 +1,21 @@
-### NOTE: working only on windows at the moment
-
 parameters:
-  #- name: imageName
-  #  displayName: Image Name
-  #  type: string
-  #  default: 'windows-2019'
+  - name: imageName
+    displayName: Image Name
+    type: string
+    values:
+      - 'windows-2019'
+      - 'ubuntu-18.04'
+      - 'macOS-10.15'
+  
+  - name: jobName
+    displayName: Job Name
+    type: string
+    default: sonarCloud
+
+  - name: jobDisplayName
+    displayName: Job Display Name
+    type: string
+    default: sonarCloud
 
   - name: vcpkg_key_cache
     displayName: CACHE_VCPKG_KEY
@@ -13,12 +24,13 @@ parameters:
   
   - name: triplet
     displayName: triplet
-    type: string    
+    type: string   
   
   - name: arch
     displayName: arch
     type: string
-
+    default: ''
+    
   - name: build_type
     displayName: Build Type
     type: string
@@ -28,7 +40,6 @@ parameters:
     type: string
     default: ''
 
-  ### default to a global var VCPKG_CMAKE
   - name: vcpkg_cmake
     displayName: VCPKG_CMAKE
     type: string
@@ -37,17 +48,31 @@ parameters:
   - name: cmake_args
     displayName: CMAKE_ARGS
     type: string
-    default: ''
+    default: $(CMAKE_ARGS)
 
   - name: sonar_wrapper_url
     displayName: SONAR_WRAPPER_URL
     type: string
-    default: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+    values:
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip'
+      - 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
 
   - name: build_wrapper
     displayName: BUILD_WRAPPER
     type: string
-    default: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+    values:
+     - 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+     - 'build-wrapper-linux-x86/build-wrapper-linux-x86-64'
+     - 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
+
+  - name: build_wrapper_path
+    displayName: Build Wrapper Path
+    type: string
+    values:
+      - build/build-wrapper-win-x86
+      - build/build-wrapper-linux-x86-64
+      - build/build-wrapper-macosx-x86
 
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
@@ -55,37 +80,28 @@ parameters:
     default: 600
 
 jobs:
-- job: Windows
+- job: ${{ parameters.jobName }}
+  displayName: ${{ parameters.jobDisplayName }}
   pool:
-    vmImage: 'windows-2019'
+    vmImage: ${{ parameters.imageName }}
   
   steps:
   - template: 'vcpkg-cache-step.yml'
     parameters:
       vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
       triplet: ${{ parameters.triplet }}
-  
-  - script: |
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-      mkdir build && cd build
-      cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
-    displayName: 'CMake generator'
-    condition: eq(variables['Agent.OS'], 'Windows_NT')
-  
   - task: Cache@2
     inputs:
       key: '"${{ parameters.sonar_wrapper_url }}" | "$(Agent.OS)"'
-      path: "build/build-wrapper-win-x86"
+      path: "${{ parameters.build_wrapper_path }}"
       cacheHitVar: CACHED_BUILD_WRAPPER
     displayName: "(cache) build-wrapper"
-  
   - bash: |
+      mkdir -p build && cd build
       curl ${{ parameters.sonar_wrapper_url }} --output build-wrapper.zip
       unzip build-wrapper.zip
-    workingDirectory: build
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
-
   - task: SonarCloudPrepare@1
     inputs:
       SonarCloud: 'sonarCloud'
@@ -93,13 +109,14 @@ jobs:
       scannerMode: 'CLI'
       configMode: 'file'        
     displayName: Prepare sonarCloud
-  
-  - script: |
-      call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
-      ${{ parameters.build_wrapper }} --out-dir bw-output cmake --build .
-    workingDirectory: build
-    displayName: sonarCloud build
-  
+  - template: 'cmake-gen-build-steps.yml'
+    parameters:
+      build_type: ${{ parameters.build_type }}
+      vcpkg_cmake: ${{ parameters.vcpkg_cmake }}
+      cmake_args: ${{ parameters.cmake_args }}
+      cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
+      arch: ${{ parameters.arch }}
+      build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"  
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:

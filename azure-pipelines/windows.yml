@@ -1,0 +1,86 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+  tags:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+    - LICENSE
+
+variables:
+  - template: variables.yml
+
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Win 32 bits:
+            imageName: ${{ variables.windows_image }}
+            TRIPLET: x86-windows
+            ARCH: 32
+          Win 64 bits:
+            imageName: ${{ variables.windows_image }}
+            TRIPLET: x64-windows
+            ARCH: 64
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
+
+- stage: CI
+  jobs:
+    - job: Windows
+      variables:
+        #SDL2_STATIC: OFF
+        BUILD_SHARED_LIBS: ON
+      strategy:
+        matrix:
+          64-bit Debug:
+            ARCH: 64
+            CONFIGURATION: Debug
+            TRIPLET: x64-windows
+          64-bit Release:
+            ARCH: 64
+            CONFIGURATION: Release
+            TRIPLET: x64-windows
+          32-bit Debug:
+            ARCH: 32
+            CONFIGURATION: Debug
+            TRIPLET: x86-windows
+          32-bit Release:
+            ARCH: 32
+            CONFIGURATION: Release
+            TRIPLET: x86-windows
+      pool:
+        vmImage: ${{ variables.windows_image }}
+      steps:
+      - template: 'templates/ci-steps.yml'
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          build_type: $(CONFIGURATION)
+          cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+          arch: $(ARCH)
