@@ -1,0 +1,4 @@
+variables:
+  windows_image: 'windows-2019'
+  linux_image: 'ubuntu-18.04'
+  mac_image: 'macOS-10.15'
