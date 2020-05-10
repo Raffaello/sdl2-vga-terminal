@@ -144,3 +144,4 @@ stages:
         sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
         build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
         build_wrapper_path: build/build-wrapper-win-x86
+        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
