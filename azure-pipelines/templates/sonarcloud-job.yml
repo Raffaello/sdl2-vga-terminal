@@ -90,6 +90,7 @@ jobs:
     parameters:
       vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
       triplet: ${{ parameters.triplet }}
+  
   - task: Cache@2
     inputs:
       key: '"${{ parameters.sonar_wrapper_url }}" | "$(Agent.OS)"'
@@ -102,6 +103,7 @@ jobs:
       unzip build-wrapper.zip
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
+  
   - task: SonarCloudPrepare@1
     inputs:
       SonarCloud: 'sonarCloud'
@@ -109,6 +111,7 @@ jobs:
       scannerMode: 'CLI'
       configMode: 'file'        
     displayName: Prepare sonarCloud
+  
   - template: 'cmake-gen-build-steps.yml'
     parameters:
       build_type: ${{ parameters.build_type }}
@@ -117,6 +120,7 @@ jobs:
       cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
       arch: ${{ parameters.arch }}
       build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"  
+  
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:

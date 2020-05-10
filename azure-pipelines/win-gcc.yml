@@ -1,0 +1,66 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+  tags:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+    - LICENSE
+
+variables:
+  - template: variables/global.yml
+  - template: variables/images.yml
+  - template: variables/build_switches.yml
+
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Win Mingw64:
+            imageName: ${{ variables.windows_image }}
+            TRIPLET: x64-mingw
+            ARCH: 64
+      pool:
+        vmImage: $(imageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
+
+- stage: mingw 
+  jobs: 
+    - template: 'templates/sonarcloud-job.yml'
+      parameters:
+        imageName: ${{ variables.windows_image }}
+        jobName: SonarCloud_win_gcc
+        jobDisplayName: SonarCloud (WIN GCC)
+        vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+        triplet: x64-mingw
+        arch: 64
+        build_type: Debug
+        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+        build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+        build_wrapper_path: build/build-wrapper-win-x86
+        #cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+
