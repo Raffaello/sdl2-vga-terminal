@@ -32,25 +32,17 @@ stages:
 - stage: Dep
   jobs:
     - job: vcpkg
-      strategy:
-        matrix:
-          MacOS:
-            imageName: ${{ variables.mac_image }}
-            TRIPLET: x64-osx
       pool:
-        vmImage: $(imageName)
+        vmImage:  ${{ variables.mac_image }}
       steps:
       - template: templates/dep-vcpkg-steps.yml
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
-          arch: $(ARCH)
+          triplet: x64-osx
 
 - stage: CI
   jobs:
     - job: macOS
-      variables:
-        TRIPLET: x64-osx
       strategy:
         matrix:
           Debug:
@@ -63,6 +55,6 @@ stages:
       - template: 'templates/ci-steps.yml'
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
+          triplet: x64-osx
           build_type: $(CONFIGURATION)
           install: false

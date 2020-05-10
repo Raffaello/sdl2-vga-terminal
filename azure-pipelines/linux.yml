@@ -33,25 +33,17 @@ stages:
 - stage: Dep
   jobs:
     - job: vcpkg
-      strategy:
-        matrix:
-          Linux:
-            imageName: ${{ variables.linux_image }}
-            TRIPLET: x64-linux
       pool:
-        vmImage: $(imageName)
+        vmImage: ${{ variables.linux_image }}
       steps:
       - template: templates/dep-vcpkg-steps.yml
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
-          arch: $(ARCH)
+          triplet: x64-linux
 
 - stage: CI
   jobs:
     - job: Linux
-      variables:
-        TRIPLET: x64-linux
       strategy:
         matrix:
           GCC Debug:
@@ -64,7 +56,7 @@ stages:
       - template: 'templates/ci-steps.yml'
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
+          triplet: x64-linux
           build_type: $(CONFIGURATION)
           test: false
           install: false
