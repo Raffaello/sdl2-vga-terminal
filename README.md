@@ -27,6 +27,9 @@
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=sqale_index)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 
+
+## Synopsis
+
 It is just a VGA font terminal using SDL2.
 
 the VGA fonts are related to [vgabios](http://savannah.nongnu.org/projects/vgabios/) project.
@@ -37,15 +40,25 @@ It should be on 16 colors in the classic way, but can support more thanks to SDL
 
 It is just a matter of fonts and a terminal grid for displaying texts.
 
+
+## Requirements
+
+- `SDL2`
+
 ## Compiling
 
-Use `vcpkg` and install `SDL2`.
+- `cmake 3.16`
+- `C++17`
+- `vcpkg` for dependency management
+- `gtest 1.10` for testing
+
+- `SDL_Image` for snapshot testing
 
 ## Usage
 
 SDL2 Video sub-system has to be initialized before using `VgaTerminal` class.
 
-There are few examples usage as part of this cmake compilation too.
+There are few examples too in `examples` folder.
 
 ## Screenshot
 
@@ -68,3 +81,9 @@ please note if you are dumping the snapshot, you have to copy back to the `test/
 The filename generated are based on the test that are running, ideally: `[Test-suite.Test-name].png`
 
 Just as a convention.
+
+
+## Projects Idea to be done in the future
+
+- `VgaTerminal Snake`  (retro-gaming style snake in an emulated DOS Text mode)
+- `VgaTerminal Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
