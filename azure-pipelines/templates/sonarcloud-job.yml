@@ -115,6 +115,7 @@ jobs:
   - template: 'cmake-gen-build-steps.yml'
     parameters:
       build_type: ${{ parameters.build_type }}
+      triplet: ${{ parameters.triplet }}
       vcpkg_cmake: ${{ parameters.vcpkg_cmake }}
       cmake_args: ${{ parameters.cmake_args }}
       cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
