@@ -97,9 +97,9 @@ jobs:
       cacheHitVar: CACHED_BUILD_WRAPPER
     displayName: "(cache) build-wrapper"
   - bash: |
+      mkdir -p build && cd build
       curl ${{ parameters.sonar_wrapper_url }} --output build-wrapper.zip
       unzip build-wrapper.zip
-    workingDirectory: build
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
   - task: SonarCloudPrepare@1
