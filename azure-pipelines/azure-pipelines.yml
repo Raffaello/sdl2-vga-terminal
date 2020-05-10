@@ -131,6 +131,7 @@ stages:
           install: false
 
 - stage: Analyzer
+  dependsOn: Dep
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
