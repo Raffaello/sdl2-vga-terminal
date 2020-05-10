@@ -39,7 +39,6 @@ for:
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-        - sh: sudo apt-get install -y lcov       
 -    
     matrix:
         only:
@@ -57,11 +56,6 @@ for:
         - sh: cd $APPVEYOR_BUILD_FOLDER
     test_script:
         - sh: ctest -V
-        #- sh: find . -name *gcda
-        #- sh: test $CONFIGURATION = "DEBUG" && lcov --capture --directory . --output-file coverage.info
-        #- sh: test $CONFIGURATION = "DEBUG" && lcov --remove coverage.info '/usr/*' --output-file coverage.info # filter system-files
-        #- sh: test $CONFIGURATION = "DEBUG" && lcov --list coverage.info # debug info
-        #- sh: test $CONFIGURATION = "DEBUG" && bash <(curl -s https://codecov.io/bash) -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 
 
 skip_commits:

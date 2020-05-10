@@ -171,7 +171,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
     ) #-Werror)
     target_link_options(vga-terminal-static INTERFACE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage --coverage>;)
-    #target_link_libraries(vga-terminal-static INTERFACE debug gcov)
     if (BUILD_SHARED_LIBS)
         target_compile_options(vga-terminal PRIVATE 
             $<$<CONFIG:DEBUG>:

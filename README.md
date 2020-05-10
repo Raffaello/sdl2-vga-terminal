@@ -2,10 +2,10 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/83e178fb7d9343b78be651f2797fe3f8)](https://app.codacy.com/manual/Raffaello/sdl2-vga-terminal?utm_source=github.com&utm_medium=referral&utm_content=Raffaello/sdl2-vga-terminal&utm_campaign=Badge_Grade_Settings)
 
-| Monolithic CI |
-|:-------------:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)|
-|[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=4&branchName=master)|
+| Monolithic CI | Note |
+|:-------------:|-----:|
+|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| secondary check|
+|[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=4&branchName=master)| disabled|
 
 | Linux (x64) | Windows (x86, x64) | macOS (x64) | Analyzer (WIN) |
 |:-----------:|:------------------:|:-----------:|:--------------:|
@@ -13,7 +13,7 @@
 
 ## SonarCloud
 
-**NOTE:** Code Coverage is still not computed
+**NOTE:** Code Coverage is not yet computed
 
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=bugs)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=code_smells)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
@@ -47,12 +47,14 @@ It is just a matter of fonts and a terminal grid for displaying texts.
 
 ## Compiling
 
-- `cmake 3.16`
-- `C++17`
-- `vcpkg` for dependency management
-- `gtest 1.10` for testing
 
-- `SDL_Image` for snapshot testing
+These are the requirements to compile the project from source:
+
+-   `cmake 3.16`
+-   `C++17`
+-   `vcpkg` for dependency management
+-   `gtest 1.10` for testing
+-   `SDL_Image` for snapshot testing
 
 ## Usage
 
@@ -85,5 +87,5 @@ Just as a convention.
 
 ## Projects Idea to be done in the future
 
-- `VgaTerminal Snake`  (retro-gaming style snake in an emulated DOS Text mode)
-- `VgaTerminal Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
+-   `VgaTerminal Snake`  (retro-gaming style snake in an emulated DOS Text mode)
+-   `VgaTerminal Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)

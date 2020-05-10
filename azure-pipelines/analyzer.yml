@@ -33,16 +33,6 @@ stages:
     - job: vcpkg
       strategy:
         matrix:
-        #   Linux:
-        #     imageName: ${{ variables.linux_image }}
-        #     TRIPLET: x64-linux
-        #   MacOS:
-        #     imageName: ${{ variables.mac_image }}
-        #     TRIPLET: x64-osx
-        #   Win 32 bits:
-        #     imageName: ${{ variables.windows_image }}
-        #     TRIPLET: x86-windows
-        #     ARCH: 32
           Win 64 bits:
             imageName: ${{ variables.windows_image }}
             TRIPLET: x64-windows
