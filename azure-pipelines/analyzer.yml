@@ -49,6 +49,8 @@ stages:
           arch: $(ARCH)
 
 - stage: Analyzer
+  variables:
+    BUILD_EXAMPLES: OFF
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:

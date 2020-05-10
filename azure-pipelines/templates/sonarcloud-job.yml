@@ -74,6 +74,11 @@ parameters:
       - build/build-wrapper-linux-x86-64
       - build/build-wrapper-macosx-x86
 
+  - name: test
+    displayName: Run Test?
+    type: boolean
+    default: true
+
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
     type: number
@@ -120,7 +125,12 @@ jobs:
       cmake_args: ${{ parameters.cmake_args }}
       cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
       arch: ${{ parameters.arch }}
-      build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"  
+      build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"
+  
+  - ${{ if eq(parameters.test, true) }}:  
+    - script: ctest -C ${{ parameters.build_type }} -V
+      displayName: cmake test (ctest)
+      workingDirectory: build
   
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1

@@ -49,6 +49,9 @@ stages:
           arch: $(ARCH)
 
 - stage: mingw 
+  variables:
+    BUILD_EXAMPLES: OFF
+    #BUILD_SHARED_LIBS: OFF
   jobs: 
     - template: 'templates/sonarcloud-job.yml'
       parameters:
