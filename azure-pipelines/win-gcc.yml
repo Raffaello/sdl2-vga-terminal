@@ -30,53 +30,61 @@ variables:
   - template: variables/build_switches.yml
 
 stages:
-- stage: Dep
-  jobs:
-    - job: vcpkg
-      strategy:
-        matrix:
-          Win Mingw64:
-            imageName: ${{ variables.windows_image }}
-            TRIPLET: x64-mingw
-            ARCH: 64
-          osx:
-            imageName: ${{ variables.mac_image }}
-            TRIPLET: x64-osx
-      pool:
-        vmImage: $(imageName)
-      steps:
-      - template: templates/dep-vcpkg-steps.yml
-        parameters:
-          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
-          arch: $(ARCH)
+# - stage: Dep
+#   jobs:
+#     - job: vcpkg
+#       strategy:
+#         matrix:
+#           Win Mingw64:
+#             imageName: ${{ variables.windows_image }}
+#             TRIPLET: x64-mingw
+#             ARCH: 64
+#           osx:
+#             imageName: ${{ variables.mac_image }}
+#             TRIPLET: x64-osx
+#       pool:
+#         vmImage: $(imageName)
+#       steps:
+#       - template: templates/dep-vcpkg-steps.yml
+#         parameters:
+#           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+#           triplet: $(TRIPLET)
+#           arch: $(ARCH)
 
 - stage: mingw 
   variables:
     BUILD_EXAMPLES: OFF
     BUILD_SHARED_LIBS: OFF
   jobs: 
-    - template: 'templates/sonarcloud-job.yml'
-      parameters:
-        imageName: ${{ variables.windows_image }}
-        jobName: SonarCloud_win_gcc
-        jobDisplayName: SonarCloud (WIN GCC)
-        vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-mingw
-        arch: 64
-        build_type: Debug
-        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
-        build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
-        build_wrapper_path: build/build-wrapper-win-x86
+    # - template: 'templates/sonarcloud-job.yml'
+    #   parameters:
+    #     imageName: ${{ variables.windows_image }}
+    #     jobName: SonarCloud_win_gcc
+    #     jobDisplayName: SonarCloud (WIN GCC)
+    #     vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+    #     triplet: x64-mingw
+    #     arch: 64
+    #     build_type: Debug
+    #     sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+    #     build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+    #     build_wrapper_path: build/build-wrapper-win-x86
 
-    - template: 'templates/sonarcloud-job.yml'
-      parameters:
-        imageName: ${{ variables.mac_image }}
-        jobName: SonarCloud_macos
-        jobDisplayName: SonarCloud (macOS)
-        vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-osx
-        build_type: Debug
-        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
-        build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
-        build_wrapper_path: build/build-wrapper-macosx-x86
+    # - template: 'templates/sonarcloud-job.yml'
+    #   parameters:
+    #     imageName: ${{ variables.mac_image }}
+    #     jobName: SonarCloud_macos
+    #     jobDisplayName: SonarCloud (macOS)
+    #     vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+    #     triplet: x64-osx
+    #     build_type: Debug
+    #     sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
+    #     build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
+    #     build_wrapper_path: build/build-wrapper-macosx-x86
+    - job: container
+      pool:
+        vmImage: ${{ variables.windows_image }}
+      container: ubuntu:16.04
+      steps:
+        - script: echo "hello"
+        - script: cat /proc/cpu
+        
