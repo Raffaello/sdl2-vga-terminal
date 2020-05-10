@@ -27,7 +27,9 @@ pr:
     - LICENSE
 
 variables:
-  - template: variables.yml
+  - template: variables/global.yml
+  - template: variables/images.yml
+  - template: variables/build_switches.yml
 
 stages:
 - stage: Dep
