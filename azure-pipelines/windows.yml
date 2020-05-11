@@ -55,9 +55,6 @@ stages:
     - job: Windows
       variables:
         #SDL2_STATIC: OFF
-        # TODO remove the line below
-        # BODY [..] when done the build-matrix configuration
-        BUILD_SHARED_LIBS: ON
       strategy:
         matrix:
           64-bit Debug:

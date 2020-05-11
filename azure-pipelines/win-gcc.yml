@@ -80,11 +80,11 @@ stages:
     #     sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
     #     build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
     #     build_wrapper_path: build/build-wrapper-macosx-x86
-    - job: container
-      pool:
-        vmImage: ${{ variables.windows_image }}
-      container: ubuntu:16.04
-      steps:
-        - script: echo "hello"
-        - script: cat /proc/cpu
+    # - job: container
+    #   pool:
+    #     vmImage: ${{ variables.windows_image }}
+    #   container: ubuntu:16.04
+    #   steps:
+    #     - script: echo "hello"
+    #     - script: cat /proc/cpu
         
