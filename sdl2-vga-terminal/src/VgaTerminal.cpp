@@ -416,7 +416,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     interval = cursor_time;
         
     userevent.code = 0;
-    userevent.data1 = userevent.data2 = NULL;
+    userevent.data1 = userevent.data2 = nullptr;
     event.type = userevent.type = SDL_USEREVENT;
     event.user = userevent;
     userevent.windowID = event.window.windowID = getWindowId();

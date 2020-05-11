@@ -53,8 +53,6 @@ stages:
 - stage: CI
   jobs:
     - job: Windows
-      variables:
-        #SDL2_STATIC: OFF
       strategy:
         matrix:
           64-bit Debug:
