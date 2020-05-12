@@ -31,14 +31,14 @@
 
 ## Azure Pipelines
 
-there are 4 pipelines, 1 for each OS and one dedicated to "Analysis".
+there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for matrix build.
 
 - the CI pipelines related to each os are building multiple time based on the below matrix.
 The result of the tests are publish in Azure Devops as well through `ctest -T Test` flag.
 - the Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud
+- the Matrix pipeline is an overkill so it is just triggered manually when required.
 
-
-The build is reflecting this matrix:
+The Matrix build is reflecting this table:
 
 | FLAGS\OS             | Windows            | Linux              | macos              |
 |:--------------------:|:------------------:|:------------------:|:------------------:|
