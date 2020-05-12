@@ -28,7 +28,7 @@ variables:
   - template: variables/global.yml
   - template: variables/images.yml
   - template: variables/build_switches.yml
-
+  
 stages:
 - stage: Dep
   jobs:
@@ -43,12 +43,13 @@ stages:
 
 - stage: CI
   jobs:
-    - job: Linux
+    - job: linux
+      displayName: Linux GCC
       strategy:
         matrix:
-          GCC Debug:
+          Debug:
             CONFIGURATION: Debug
-          GCC Release:
+          Release:
             CONFIGURATION: Release
       pool:
         vmImage: ${{ variables.linux_image }}

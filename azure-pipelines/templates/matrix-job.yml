@@ -1,0 +1,43 @@
+parameters:
+  configuration: ['Debug', 'Release']
+  sdl2_static: ['ON', 'OFF']
+  build_testing:  ['ON', 'OFF']
+  build_shared_libs: ['ON', 'OFF']
+  build_examples: ['ON', 'OFF']
+  build_snapshot: ['ON', 'OFF']
+  enable_code_coverage: ['ON', 'OFF']
+  vmImageName: ''
+  triplet: ''
+  jobDisplayName: 'Build Matrix'
+  
+jobs:
+- job: build_matrix
+  displayName: ${{ parameters.jobDisplayName }}
+  strategy:
+    matrix:
+      ${{ each configuration in parameters.configuration }}:
+        ${{ each sdl2_static in parameters.sdl2_static}}:
+          ${{ each build_testing in parameters.build_testing }}:
+            ${{ each build_shared_libs in parameters.build_shared_libs }}:
+              ${{ each build_examples in parameters.build_examples }}:
+                ${{ each build_snapshot in parameters.build_snapshot}}:
+                  ${{ each enable_code_coverage in parameters.enable_code_coverage}}:
+                    ${{ format('{0}-{1}-{2}-{3}-{4}-{5}-{6}', configuration, sdl2_static, build_testing, build_shared_libs, build_examples, build_snapshot, enable_code_coverage) }}:
+                    CONFIGURATION: ${{ configuration }}
+                    SDL2_STATIC: ${{ sdl2_static }}
+                    BUILD_TESTING: ${{ build_testing }}
+                    BUILD_SHARED_LIBS: ${{ build_shared_libs }}
+                    BUILD_EXAMPLES: ${{ build_examples }}
+                    BUILD_SNAPSHOT: ${{ build_snapshot }}
+                    ENABLE_CODE_COVERAGE: ${{ enable_code_coverage }}
+  pool:
+    vmImage: ${{ parameters.vmImageName }}
+  steps:
+  - template: 'ci-steps.yml'
+    parameters:
+      vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+      triplet: ${{ parameters.triplet }}
+      build_type: $(CONFIGURATION)
+      test: false
+      install: false
+      package: false

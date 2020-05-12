@@ -1,0 +1,75 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+  tags:
+    include:
+    - '*'
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    #- .gitignore
+    - .github/*
+    - README.md
+    - appveyor.yml
+    - LICENSE
+
+variables:
+  - template: variables/global.yml
+  - template: variables/images.yml
+  - template: variables/build_switches.yml
+  
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          linux:
+            vmImageName: ${{ variables.linux_image }}
+            triplet: x64-linux
+          windows:
+            vmImageName: ${{ variables.windows_image }}
+            triplet: x64-windows
+          macos:
+            vmImageName: ${{ variables.macos_image }}
+            triplet: x64-osx
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(triplet)
+
+- stage: Build Matrix
+  jobs:
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobDisplayName: "linux"
+        vmImageName: ${{ variables.linux_image }}
+        triplet: x64-linux
+        sdl2_static: ['ON']
+        enable_code_coverage: ['OFF']
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobDisplayName: "windows"
+        vmImageName: ${{ variables.windows_image }}
+        triplet: x64-windows
+        enable_code_coverage: ['OFF']
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobDisplayName: "macos"
+        vmImageName: ${{ variables.macos_image }}
+        triplet: x64-osx
+        sdl2_static: ['ON']

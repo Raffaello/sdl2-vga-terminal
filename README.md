@@ -29,6 +29,33 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 
 
+## Azure Pipelines
+
+there are 4 pipelines, 1 for each OS and one dedicated to "Analysis".
+
+- the CI pipelines related to each os are building multiple time based on the below matrix.
+The result of the tests are publish in Azure Devops as well through `ctest -T Test` flag.
+- the Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud
+
+
+The build is reflecting this matrix:
+
+| FLAGS\OS             | Windows            | Linux              | macos              |
+|:--------------------:|:------------------:|:------------------:|:------------------:|
+| Debug                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Release              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_SHARED_LIBS    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| WITH_SDL2_STATIC     | :heavy_check_mark: | only               | only               |
+| BUILD_TESTING        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_EXAMPLES       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_SNAPSHOT       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| TEST_DUMP_SNAPSHOT   | :no_entry:         | :no_entry:         | :no_entry:         |
+| ENABLE_CODE_COVERAGE | :no_entry_sign:    | :no_entry_sign:    | :heavy_check_mark: |
+
+- code coverage available only with LLVM and GCC in `cmake`, on CI working only on macos
+- `TEST_DUMP_SNAPSHOT` is "forbidden" to test for the build as an helper flag only.
+
+
 ## Synopsis
 
 It is just a VGA font terminal using SDL2.
