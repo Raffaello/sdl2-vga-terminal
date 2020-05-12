@@ -35,10 +35,9 @@ stages:
     - job: vcpkg
       strategy:
         matrix:
-          Win 64 bits:
-            imageName: ${{ variables.windows_image }}
-            TRIPLET: x64-windows
-            ARCH: 64
+          osx:
+            imageName: ${{ variables.mac_image }}
+            TRIPLET: x64-osx
       pool:
         vmImage: $(imageName)
       steps:
@@ -48,20 +47,34 @@ stages:
           triplet: $(TRIPLET)
           arch: $(ARCH)
 
+
 - stage: Analyzer
   variables:
     BUILD_EXAMPLES: OFF
+    BUILD_SHARED_LIBS: ON
+    ENABLE_CODE_COVERAGE: ON    
   jobs: 
+    # - template: 'templates/sonarcloud-job.yml'
+    #   parameters:
+    #     imageName: ${{ variables.windows_image }}
+    #     jobName: SonarCloud_win
+    #     jobDisplayName: SonarCloud (WIN)
+    #     vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+    #     triplet: x64-windows
+    #     arch: 64
+    #     build_type: Debug
+    #     sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
+    #     build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
+    #     build_wrapper_path: build/build-wrapper-win-x86
+    #     cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
     - template: 'templates/sonarcloud-job.yml'
       parameters:
-        imageName: ${{ variables.windows_image }}
-        jobName: SonarCloud_win
-        jobDisplayName: SonarCloud (WIN)
+        imageName: ${{ variables.mac_image }}
+        jobName: SonarCloud_macos
+        jobDisplayName: SonarCloud (macOS)
         vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-        triplet: x64-windows
-        arch: 64
+        triplet: x64-osx
         build_type: Debug
-        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-win-x86.zip'
-        build_wrapper: 'build-wrapper-win-x86\build-wrapper-win-x86-64.exe'
-        build_wrapper_path: build/build-wrapper-win-x86
-        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+        sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
+        build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
+        build_wrapper_path: build/build-wrapper-macosx-x86

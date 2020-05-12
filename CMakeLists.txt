@@ -28,6 +28,7 @@ include(CPack)
 option(BUILD_SHARED_LIBS "build shared libs with C inteface" ON)
 option(BUILD_EXAMPLES "build examples" ON)
 include(CTest)
+option(ENABLE_CODE_COVERAGE "compile Debug with code coverage" OFF)
 option(BUILD_SNAPSHOT "build snapshot test" OFF)
 include(CMakeDependentOption)
 CMAKE_DEPENDENT_OPTION(TEST_DUMP_SNAPSHOT "build test to dump the expected output instead of verifing it" OFF

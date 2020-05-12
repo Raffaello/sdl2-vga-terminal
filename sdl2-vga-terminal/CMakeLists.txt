@@ -153,28 +153,35 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
-    target_compile_options(vga-terminal-static PUBLIC /W4 /WX
+    target_compile_options(vga-terminal-static PRIVATE /W4  #/WX
         $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
         $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
     )
-    #if (BUILD_SHARED_LIBS)
-    #    target_compile_options(vga-terminal PRIVATE /W4 /WX
-    #        $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
-    #        $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
-    #    )
-    #endif()
+    if (BUILD_SHARED_LIBS)
+        target_compile_options(vga-terminal PRIVATE /W4 #/WX
+            $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
+            $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
+        )
+    endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
-    target_compile_options(vga-terminal-static PUBLIC -Wall -Wextra -pedantic -fPIC 
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
             -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
-            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
+            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings;
         >
         #$<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
         $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
     ) #-Werror)
-    target_link_options(vga-terminal-static INTERFACE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+
+    if (ENABLE_CODE_COVERAGE)
+     target_compile_options(vga-terminal-static PRIVATE
+        $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>
+    )
+    target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+    endif()
+    
     #if (BUILD_SHARED_LIBS)
     #    target_compile_options(vga-terminal INTERAFCE 
     #        $<$<CONFIG:DEBUG>:
@@ -190,36 +197,26 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
 
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
     target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
-        -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
-        -fPIC 
-        $<$<CONFIG:DEBUG>:
-            -g;
-        >
-        $<$<CONFIG:RELEASE>:
-            -O2;
-        >
-    ) #-Weverything #-Werror
-    
-    
-    ### This if Clang is shipped with VS2019 CE
+            -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
+    )
+
     if (WIN32)
         set(LINK_SUBSYS_WIN /subsystem:windows)
         message(STATUS ${LINK_SUBSYS_WIN})
-        target_link_options(vga-terminal-static INTERFACE ${LINK_SUBSYS_WIN})
+        target_link_options(vga-terminal-static PUBLIC ${LINK_SUBSYS_WIN})
     elseif(UNIX)
-        #target_compile_options(vga-terminal-static PUBLIC -fprofile-instr-generate -fcoverage-mapping)
-        target_compile_options(vga-terminal-static INTERFACE 
-            $<$<CONFIG:DEBUG>:
-                #-flto; -fsanitize=address; -fsanitize=thread; -fsanitize=memory; -fsanitize=undefined; -fsanitize=dataflow;
-                #-fsanitize=cfi; -fsanitize=safe-stack;
-                #-fprofile-instr-generate; -fcoverage-mapping; 
-                -c -ftest-coverage;
-            >
-            $<$<CONFIG:RELEASE>:
-            >
+        target_compile_options(vga-terminal-static PRIVATE -fPIC 
+            $<$<CONFIG:DEBUG>: -g;>
+            $<$<CONFIG:RELEASE>:-O2;>
         )
+        
+        if(ENABLE_CODE_COVERAGE)
+            target_compile_options(vga-terminal-static PRIVATE
+                $<$<CONFIG:DEBUG>:-c;-fprofile-arcs; -ftest-coverage;>
+            )
+            target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -ftest-coverage;-fprofile-arcs; --coverage;>)
         #target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -fprofile-instr-generate; -fcoverage-mapping;>)
-        target_link_options(vga-terminal-static INTERFACE $<$<CONFIG:DEBUG>: -ftest-coverage; --coverage;>)
+        endif()
     else()
         message(ERROR "Unknown OS")
     endif()

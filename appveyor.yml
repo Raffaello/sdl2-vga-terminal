@@ -19,6 +19,7 @@ configuration:
 
 environment:
     VCPKG_SCRIPT: scripts/buildsystems/vcpkg.cmake
+    ENABLE_CODE_COVERAGE: OFF
 
 matrix:
     allow_failures:
@@ -46,17 +47,29 @@ for:
     environment:
         WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
+        ENABLE_CODE_COVERAGE: ON
     cache:
         #- $WS/vcpkg
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-        - sh: brew install p7zip
+        - sh: brew install p7zip lcov
         - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
         - sh: cd $APPVEYOR_BUILD_FOLDER
+        # /Library/Developer/CommandLineTools/usr/bin/llvm-cov
+        #- sh: sudo find / -name llvm-cov 2> /dev/null
+        #- sh: llvm-cov --help
     test_script:
         - sh: ctest -V
-
+        #- sh: find . -name *.gcda
+        #- sh:  echo '#!/bin/bash' > g.sh
+        #- sh: echo 'exec  /Library/Developer/CommandLineTools/usr/bin/llvm-cov gcov "$@"' >> g.sh
+        #- sh: chmod +x g.sh
+        #- sh: ./g.sh -f -b -u $(find . -name *.gcda)
+        #- sh: lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
+        #- sh: lcov --remove cov.info '/Applications/*' --output-file coverage.info
+        #- sh: lcov --list coverage.info
+        #- sh: bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80
 
 skip_commits:
   files:
@@ -90,8 +103,8 @@ before_build:
 build_script:
     - mkdir out
     - cd out
-    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
-    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
+    - cmd: cmake -G "Ninja" -DCMAKE_BUILD_TYPE=%CONFIGURATION% -DWITH_SDL2_STATIC=OFF -DBUILD_SNAPSHOT=OFF  -DCMAKE_TOOLCHAIN_FILE=c:/tools/vcpkg/%VCPKG_SCRIPT% ..
+    - sh : cmake -DCMAKE_BUILD_TYPE=$CONFIGURATION -DWITH_SDL2_STATIC=ON -DBUILD_SNAPSHOT=OFF -DENABLE_CODE_COVERAGE=$ENABLE_CODE_COVERAGE -DCMAKE_TOOLCHAIN_FILE=$WS/vcpkg/$VCPKG_SCRIPT ..   
     - cmake --build .
 
 test_script:
