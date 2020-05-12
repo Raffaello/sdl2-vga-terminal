@@ -145,10 +145,6 @@ if (BUILD_SHARED_LIBS)
     unset(LIB_VER)
 endif()
 
-### TODO include GCC/CLang sanitizers [refactor the blocks belows]
-### BODY: make valgrind test to be compiled in UNIX systems
-###       so they can be tested with the sanitizer too and not just with valgrind.
-
 ######################## add compiler options ################################
 if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
@@ -181,20 +177,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
     )
     target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
     endif()
-    
-    #if (BUILD_SHARED_LIBS)
-    #    target_compile_options(vga-terminal INTERAFCE 
-    #        $<$<CONFIG:DEBUG>:
-    #            -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
-    #            -W; -Wshadow; -Wunused-variable;
-    #            -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
-    #            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
-    #        >
-    #        $<$<CONFIG:RELEASE>:-fexceptions;-D_FORTIFY_SOURCE=2>
-    #    ) #-Werror)
-    #    target_link_options(vga-terminal INTERFACE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage>;)
-    #endif()
-
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
     target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
             -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
@@ -228,11 +210,6 @@ message("target interface compiler options:")
 get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 unset(vga-terminal-static_copts)
-#if (BUILD_SHARED_LIBS)
-#    get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
-#    message(STATUS "vga-terminal " ${vga-terminal_copts})
-#    unset(vga-terminal_copts)
-#endif()
 
 
 

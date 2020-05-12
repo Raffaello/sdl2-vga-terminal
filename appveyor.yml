@@ -47,13 +47,13 @@ for:
     environment:
         WS: /Users/appveyor/projects
         TRIPLET: $PLATFORM-osx
-        ENABLE_CODE_COVERAGE: ON
+#        ENABLE_CODE_COVERAGE: ON
     cache:
         #- $WS/vcpkg
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
-        - sh: brew install p7zip lcov
+        - sh: brew install p7zip #lcov
         - sh: cd $WS && git clone https://github.com/Microsoft/vcpkg.git
         - sh: cd $APPVEYOR_BUILD_FOLDER
         # /Library/Developer/CommandLineTools/usr/bin/llvm-cov
