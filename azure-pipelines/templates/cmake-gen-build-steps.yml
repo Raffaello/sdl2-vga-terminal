@@ -2,6 +2,10 @@ parameters:
   - name: build_type
     displayName: Build Type
     type: string
+  
+  - name: triplet
+    displayName: triplet
+    type: string
 
   - name: vcpkg_cmake
     displayName: VCPKG_CMAKE
@@ -31,7 +35,7 @@ parameters:
 steps:
 - bash: |
     mkdir -p build && cd build
-    cmake -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+    cmake -DVCPKG_TARGET_TRIPLET=${{ parameters.triplet }} -DCMAKE_BUILD_TYPE=${{ parameters.build_type }}  -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
   displayName: cmake generator (UNIX)
   condition: ne(variables['Agent.OS'], 'Windows_NT')
 - bash: ${{ parameters.build_wrapper }} cmake --build .
@@ -42,7 +46,7 @@ steps:
 - script: |
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars${{ parameters.arch }}.bat"
     mkdir build & cd build
-    cmake -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
+    cmake -DVCPKG_TARGET_TRIPLET=${{ parameters.triplet }} -DCMAKE_IGNORE_PATH="${{ parameters.cmake_ignore_path }}" -G"Ninja" -DCMAKE_BUILD_TYPE=${{ parameters.build_type }} -DCMAKE_TOOLCHAIN_FILE=${{ parameters.vcpkg_cmake }} ${{ parameters.cmake_args }} ..
   displayName: 'CMake generator (WIN)'
   condition: eq(variables['Agent.OS'], 'Windows_NT')
 - script: |

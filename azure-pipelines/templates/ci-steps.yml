@@ -57,15 +57,27 @@ steps:
 - template: 'cmake-gen-build-steps.yml'
   parameters:
     build_type: ${{ parameters.build_type }}
+    triplet: ${{ parameters.triplet }}
     vcpkg_cmake: ${{ parameters.vcpkg_cmake }}
     cmake_args: ${{ parameters.cmake_args }}
     cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
     arch: ${{ parameters.arch }}
     #build_wrapper:
 - ${{ if eq(parameters.test, true) }}:
-  - script: ctest -C ${{ parameters.build_type }} -V
+  - script: ctest -C ${{ parameters.build_type }} -v -V -T Test
     displayName: cmake test (ctest)
     workingDirectory: build
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFiles: '**/Test.xml' 
+      searchFolder: build # Optional
+      #mergeTestResults: false # Optional
+      #failTaskOnFailedTests: false # Optional
+      #testRunTitle: # Optional
+      #buildPlatform: # Optional
+      #buildConfiguration: # Optional
+      #publishRunAttachments: true # Optional
 
 - ${{ if eq(parameters.install, true) }}:
   - script: cmake --build . --target install

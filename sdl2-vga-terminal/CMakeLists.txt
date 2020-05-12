@@ -146,56 +146,70 @@ if (BUILD_SHARED_LIBS)
 endif()
 
 ######################## add compiler options ################################
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
-    target_compile_options(vga-terminal-static PRIVATE /W4 /WX
+    target_compile_options(vga-terminal-static PRIVATE /W4  #/WX
         $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
         $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
     )
     if (BUILD_SHARED_LIBS)
-        target_compile_options(vga-terminal PRIVATE /W4 /WX
+        target_compile_options(vga-terminal PRIVATE /W4 #/WX
             $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
             $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
         )
     endif()
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
     target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
             -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
-            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
+            -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings;
         >
         #$<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
         $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
     ) #-Werror)
-    target_link_options(vga-terminal-static INTERFACE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage --coverage>;)
-    if (BUILD_SHARED_LIBS)
-        target_compile_options(vga-terminal PRIVATE 
-            $<$<CONFIG:DEBUG>:
-                -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
-                -W; -Wshadow; -Wunused-variable;
-                -Wunused-parameter; -Wunused-function; -Wunused; -Wno-system-headers;
-                -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings; -fprofile-arcs; -ftest-coverage;
-            >
-            $<$<CONFIG:RELEASE>:-fexceptions;-D_FORTIFY_SOURCE=2>
-        ) #-Werror)
-        target_link_options(vga-terminal PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage>;)
-    endif()
 
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if (ENABLE_CODE_COVERAGE)
+     target_compile_options(vga-terminal-static PRIVATE
+        $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>
+    )
+    target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+    endif()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
+    target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
+            -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
+    )
+
+    if (WIN32)
+        set(LINK_SUBSYS_WIN /subsystem:windows)
+        message(STATUS ${LINK_SUBSYS_WIN})
+        target_link_options(vga-terminal-static PUBLIC ${LINK_SUBSYS_WIN})
+    elseif(UNIX)
+        target_compile_options(vga-terminal-static PRIVATE -fPIC 
+            $<$<CONFIG:DEBUG>: -g;>
+            $<$<CONFIG:RELEASE>:-O2;>
+        )
+        
+        if(ENABLE_CODE_COVERAGE)
+            target_compile_options(vga-terminal-static PRIVATE
+                $<$<CONFIG:DEBUG>:-c;-fprofile-arcs; -ftest-coverage;>
+            )
+            target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -ftest-coverage;-fprofile-arcs; --coverage;>)
+        #target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -fprofile-instr-generate; -fcoverage-mapping;>)
+        endif()
+    else()
+        message(ERROR "Unknown OS")
+    endif()
+else()
+    message(WARNING ${CMAKE_CXX_COMPILER_ID})
 endif()
 
-message("target compiler options:")
+message("target interface compiler options:")
 get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 unset(vga-terminal-static_copts)
-if (BUILD_SHARED_LIBS)
-    get_target_property(vga-terminal_copts vga-terminal COMPILE_OPTIONS)
-    message(STATUS "vga-terminal " ${vga-terminal_copts})
-    unset(vga-terminal_copts)
-endif()
 
 
 

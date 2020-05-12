@@ -74,6 +74,11 @@ parameters:
       - build/build-wrapper-linux-x86-64
       - build/build-wrapper-macosx-x86
 
+  - name: test
+    displayName: Run Test?
+    type: boolean
+    default: true
+
   - name: publish_timeout
     displayName: PUBLISH_TIMEOUT
     type: number
@@ -90,6 +95,7 @@ jobs:
     parameters:
       vcpkg_key_cache: ${{ parameters.vcpkg_key_cache }}
       triplet: ${{ parameters.triplet }}
+  
   - task: Cache@2
     inputs:
       key: '"${{ parameters.sonar_wrapper_url }}" | "$(Agent.OS)"'
@@ -102,6 +108,7 @@ jobs:
       unzip build-wrapper.zip
     displayName: build-wrapper
     condition: ne(variables.CACHED_BUILD_WRAPPER, 'true')
+  
   - task: SonarCloudPrepare@1
     inputs:
       SonarCloud: 'sonarCloud'
@@ -109,14 +116,49 @@ jobs:
       scannerMode: 'CLI'
       configMode: 'file'        
     displayName: Prepare sonarCloud
+  
   - template: 'cmake-gen-build-steps.yml'
     parameters:
       build_type: ${{ parameters.build_type }}
+      triplet: ${{ parameters.triplet }}
       vcpkg_cmake: ${{ parameters.vcpkg_cmake }}
       cmake_args: ${{ parameters.cmake_args }}
       cmake_ignore_path: ${{ parameters.cmake_ignore_path }}
       arch: ${{ parameters.arch }}
-      build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"  
+      build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"
+  
+  - ${{ if eq(parameters.test, true) }}:  
+    - script: ctest -C ${{ parameters.build_type }}
+      displayName: ctest
+      workingDirectory: build
+  # /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov
+  - bash: |
+      echo '#!/bin/bash' > g.sh
+      echo 'exec /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov gcov "$@"' >> g.sh
+      chmod +x g.sh
+      cat g.sh
+    displayName: llvm-cov gcov wrapper
+    workingDirectory: build
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
+    
+  #- bash: sudo find / -name llvm-cov 2> /dev/null
+  #  displayName: llvm-cov DEBUG
+  #  condition: ne(variables['Agent.OS'], 'Windows_NT')
+  - bash: |
+      echo $OSTYPE
+      test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov 
+      #brew install lcov
+      #echo "finding..."
+      #find . -name *.gcda
+      #echo "...."
+      ./g.sh -f -b -u $(find . -name *.gcda)
+      lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
+      lcov --remove cov.info '/Applications/*' --output-file coverage.info
+      lcov --list coverage.info
+      bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80
+    displayName: collect coverage data
+    workingDirectory: build
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:
