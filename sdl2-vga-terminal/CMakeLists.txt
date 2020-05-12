@@ -145,11 +145,15 @@ if (BUILD_SHARED_LIBS)
     unset(LIB_VER)
 endif()
 
+### TODO include GCC/CLang sanitizers [refactor the blocks belows]
+### BODY: make valgrind test to be compiled in UNIX systems
+###       so they can be tested with the sanitizer too and not just with valgrind.
+
 ######################## add compiler options ################################
 if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
 
-    target_compile_options(vga-terminal-static PRIVATE /W4 /WX
+    target_compile_options(vga-terminal-static PUBLIC /W4 /WX
         $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
         $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
     )
@@ -160,7 +164,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
     #    )
     #endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
+    target_compile_options(vga-terminal-static PUBLIC -Wall -Wextra -pedantic -fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
@@ -189,40 +193,42 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
         -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
         -fPIC 
         $<$<CONFIG:DEBUG>:
-            -g; -c --coverage; -fprofile-arcs; -ftest-coverage;
+            -g;
         >
         $<$<CONFIG:RELEASE>:
             -O2;
         >
     ) #-Weverything #-Werror
-    target_link_options(vga-terminal-static  INTERFACE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
     
+    
+    ### This if Clang is shipped with VS2019 CE
     if (WIN32)
         set(LINK_SUBSYS_WIN /subsystem:windows)
         message(STATUS ${LINK_SUBSYS_WIN})
         target_link_options(vga-terminal-static INTERFACE ${LINK_SUBSYS_WIN})
-    elseif()
-        target_compile_options(vga-terminal-static PRIVATE 
+    elseif(UNIX)
+        #target_compile_options(vga-terminal-static PUBLIC -fprofile-instr-generate -fcoverage-mapping)
+        target_compile_options(vga-terminal-static INTERFACE 
             $<$<CONFIG:DEBUG>:
-                -flto; -fsanitize=address; -fsanitize=thread; -fsanitize=memory; -fsanitize=undefined; -fsanitize=dataflow;
-                -fsanitize=cfi; -fsanitize=safe-stack;
+                #-flto; -fsanitize=address; -fsanitize=thread; -fsanitize=memory; -fsanitize=undefined; -fsanitize=dataflow;
+                #-fsanitize=cfi; -fsanitize=safe-stack;
+                #-fprofile-instr-generate; -fcoverage-mapping; 
+                -c -ftest-coverage;
             >
             $<$<CONFIG:RELEASE>:
             >
         )
-        target_compile_options(vga-terminal-static INTERFACE
-            $<$<CONFIG:DEBUG>:
-               -fsanitize=address; -fsanitize=thread; -fsanitize=memory; -fsanitize=undefined; -fsanitize=dataflow;
-               -fsanitize=cfi; -fsanitize=safe-stack;
-            >
-        )
+        #target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -fprofile-instr-generate; -fcoverage-mapping;>)
+        target_link_options(vga-terminal-static INTERFACE $<$<CONFIG:DEBUG>: -ftest-coverage; --coverage;>)
+    else()
+        message(ERROR "Unknown OS")
     endif()
 else()
     message(WARNING ${CMAKE_CXX_COMPILER_ID})
 endif()
 
 message("target interface compiler options:")
-get_target_property(vga-terminal-static_copts vga-terminal-static INTERFACE_COMPILE_OPTIONS)
+get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
 message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 unset(vga-terminal-static_copts)
 #if (BUILD_SHARED_LIBS)

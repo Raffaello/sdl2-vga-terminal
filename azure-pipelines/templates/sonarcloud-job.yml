@@ -131,7 +131,9 @@ jobs:
     - script: ctest -C ${{ parameters.build_type }} -V
       displayName: cmake test (ctest)
       workingDirectory: build
-  
+  - bash: llvm-cov gcov -f -b -u $(find . -name *.gcda)
+    displayName: collect coverage data
+    workingDirectory: build
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:
