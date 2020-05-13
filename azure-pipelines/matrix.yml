@@ -1,0 +1,94 @@
+### Trigger only on tags or on github pre-release and make the other depending on this one?
+### this is succeful by default if not running..
+
+# trigger:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     exclude:
+#     #- .gitignore
+#     - .github/*
+#     - README.md
+#     - appveyor.yml
+#   tags:
+#     include:
+#     - '*'
+
+# pr:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     exclude:
+#     #- .gitignore
+#     - .github/*
+#     - README.md
+#     - appveyor.yml
+#     - LICENSE
+
+trigger: none
+pr: none
+
+variables:
+  - template: variables/global.yml
+  - template: variables/images.yml
+  - template: variables/build_switches.yml
+  
+stages:
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          linux:
+            vmImageName: ${{ variables.linux_image }}
+            triplet: x64-linux
+          windows:
+            vmImageName: ${{ variables.windows_image }}
+            triplet: x64-windows
+          macos:
+            vmImageName: ${{ variables.mac_image }}
+            triplet: x64-osx
+      pool:
+        vmImage: $(vmImageName)
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(triplet)
+
+### split in stages for each OS depending on stage dep 
+- stage: matrix_linux
+  displayName: Matrix Linux
+  dependsOn: Dep
+  jobs:
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobName: "linux"
+        vmImageName: ${{ variables.linux_image }}
+        triplet: x64-linux
+        sdl2_static: ['ON']
+        enable_code_coverage: ['OFF']
+- stage: matrix_windows
+  displayName: Matrix Windows
+  dependsOn: Dep
+  jobs:    
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobName: "windows"
+        vmImageName: ${{ variables.windows_image }}
+        triplet: x64-windows
+        arch: 64
+        enable_code_coverage: ['OFF']
+        cmake_ignore_path: $(CMAKE_IGNORE_PATH_WIN)
+- stage: matrix_macos
+  displayName: Matrix MacOS
+  dependsOn: Dep
+  jobs:    
+    - template: 'templates/matrix-job.yml'
+      parameters:
+        jobName: "macos"
+        vmImageName: ${{ variables.mac_image }}
+        triplet: x64-osx
+        sdl2_static: ['ON']

@@ -15,6 +15,13 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 	EXPECT_EQ(vp.h, exp.h);
 }
 
+void cmpTerminalChar(const VgaTerminal::terminalChar_t& tc1, const VgaTerminal::terminalChar_t& tc2)
+{
+	EXPECT_EQ(tc1.bgCol, tc2.bgCol);
+	EXPECT_EQ(tc1.c, tc2.c);
+	EXPECT_EQ(tc1.col, tc2.col);
+}
+
 // expect around ~1% tolerance on the given value to be matched
 void cmpTicks(const uint32_t start, const uint32_t end, const uint16_t value)
 {
@@ -85,12 +92,83 @@ TEST(VgaTerminal, ScrollDown) {
 	EXPECT_EQ(title[6], term.at(5, term.getMode().th - 1).c);
 }
 
+TEST(VgaTerminal, scrollDownReusingSameGridChar)
+{
+	// TODO how to verify? 
+	// BODY mocks and call some private method once?
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	term.writeXY(0, 24, "a", 7, 1);
+	term.writeXY(0, 23, "a", 7, 1);
+	VgaTerminal::terminalChar_t tc = term.at(0, 23);
+	term.newLine();
+	cmpTerminalChar(tc, term.at(0, 23));
+	cmpTerminalChar(VgaTerminal::terminalChar_t{ 0, 0, 0 }, term.at(0, 25));
+}
+
+TEST(VgaTerminal, doNotRenderTwiceIfAlreadyRendered)
+{
+	// TODO: how to verify without mocking?
+	// BODY only with mocking at the moment i have a solution but require some restructure...
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	term.write("Hello", 7, 1);
+	term.render();
+	// here the expect internal method should not be used...
+	term.render();
+}
+
+TEST(VgaTerminal, notRenderingWhenWindowHidden)
+{
+	// This test makes the reported code coverage not correct
+	// or is related to some other code, but not for this test suite,
+	// because render is never call.
+	// TODO: how to verify without mocking?
+	// BODY only with mocking at the moment i have a solution but require some restructure...
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	term.write("Hello", 7, 1);
+	term.render();
+	// expect term.renderPresent() to be called once
+}
+
+TEST(VgaTerminal, forceReRendering)
+{
+	// TODO: how to verify without mocking?
+	// BODY only with mocking at the moment i have a solution but require some restructure...
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
+	term.write("Hello", 7, 1);
+	term.render();
+	term.render(true);
+}
+
+TEST(VgaTerminal, atOutOfViewport)
+{
+	// TODO _defaultChar_t consideration
+	// BODY this test might bring the consideration to return/have something different
+	// rather that {0, 0, 0} when wrong input for .at
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	SDL_Rect vp = term.getViewport();
+	for (int i = 1; i < vp.w * vp.h; i++) {
+		term.write('X', 7, 1);
+	}
+	
+	cmpTerminalChar(term.at(vp.w + 1, 0), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
+
+	cmpTerminalChar(term.at(11, 6), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
+	term.setViewPort(VgaTerminal::position_t(0, 0), 10, 5);
+	cmpTerminalChar(term.at(11, 6), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
+}	
+
+
 TEST(VgaTerminal, moveCursorClockWise)
 {
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
 	
-	term.gotoXY(10, 10);
+	term.gotoXY(VgaTerminal::position_t(10, 10));
 	term.moveCursorLeft();
 	EXPECT_EQ(9, term.getX());
 	EXPECT_EQ(10, term.getY());
@@ -183,6 +261,22 @@ TEST(VgaTerminal, resetViewport)
 	cmpViewportCheck(vp2, term.getViewport());
 	term.resetViewport();
 	cmpViewportCheck(vp, term.getViewport());
+}
+
+TEST(VgaTerminal, setViewportLargerThanTerminalMode)
+{
+	using ::testing::HasSubstr;
+	using ::testing::EndsWith;
+
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	SDL_Rect vp = { 0, 0, term.getMode().tw + 1, term.getMode().th };
+
+	testing::internal::CaptureStderr();
+	EXPECT_FALSE(term.setViewPort(vp));
+	std::string output = testing::internal::GetCapturedStderr();
+	EXPECT_THAT(output, HasSubstr("WARN: ["));
+	EXPECT_THAT(output, EndsWith("VgaTerminal] setViewPort: viewport larger than terminal.\n"));
 }
 
 TEST(VgaTerminal, Idle)

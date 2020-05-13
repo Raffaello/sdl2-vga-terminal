@@ -8,8 +8,8 @@
 |[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| secondary check|
 |[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=4&branchName=master)| disabled|
 
-| Linux (x64) | Windows (x86, x64) | macOS (x64) | Analyzer (WIN) |
-|:-----------:|:------------------:|:-----------:|:--------------:|
+| Linux (x64) | Windows (x86, x64) | macOS (x64) | Analyzer  |
+|:-----------:|:------------------:|:-----------:|:---------:|
 |[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal.Linux?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=6&branchName=master)|[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal.Windows?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=7&branchName=master)|[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal.MacOS?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=8&branchName=master)|[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal.Analyzer?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=9&branchName=master)|
 
 ## SonarCloud
@@ -27,6 +27,34 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=security_rating)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=sqale_index)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
+
+
+## Azure Pipelines
+
+there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for matrix build.
+
+- the CI pipelines related to each OS are building multiple times based on the below matrix.
+  The result of the tests are published in Azure Devops as well through `ctest -T Test` flag.
+
+- the Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud
+- the Matrix pipeline is an overkill so it is just triggered manually when required.
+
+The Matrix build is reflecting this table:
+
+| FLAGS\OS             | Windows            | Linux              | macos              |
+|:--------------------:|:------------------:|:------------------:|:------------------:|
+| Debug                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| Release              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_SHARED_LIBS    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| WITH_SDL2_STATIC     | :heavy_check_mark: | only               | only               |
+| BUILD_TESTING        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_EXAMPLES       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| BUILD_SNAPSHOT       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| TEST_DUMP_SNAPSHOT   | :no_entry:         | :no_entry:         | :no_entry:         |
+| ENABLE_CODE_COVERAGE | :no_entry_sign:    | :no_entry_sign:    | :heavy_check_mark: |
+
+- code coverage available only with LLVM and GCC in `cmake`, on CI working only on macos
+- `TEST_DUMP_SNAPSHOT` is "forbidden" to test for the build as an helper flag only.
 
 
 ## Synopsis
@@ -88,5 +116,6 @@ Just as a convention.
 
 ## Projects Idea to be done in the future
 
--   `VgaTerminal Snake`  (retro-gaming style snake in an emulated DOS Text mode)
--   `VgaTerminal Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
+-   `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
+-   `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
+-   `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)
