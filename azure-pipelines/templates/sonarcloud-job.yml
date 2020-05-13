@@ -24,7 +24,7 @@ parameters:
   
   - name: triplet
     displayName: triplet
-    type: string   
+    type: string
   
   - name: arch
     displayName: arch
