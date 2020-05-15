@@ -33,13 +33,15 @@
 
 there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for matrix build.
 
-- the CI pipelines related to each OS are building multiple times based on the below matrix.
-  The result of the tests are published in Azure Devops as well through `ctest -T Test` flag.
+- The CI pipelines related to each OS are building and generating the artifacts.
+  
+  Only Linux is not runnig the tests due to missing video driver on CI.
+  
+  The test results are published in Azure Devops through `ctest -T Test` flag.
 
-- the Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud
-- the Matrix pipeline is an overkill so it is just triggered manually when required.
-
-The Matrix build is reflecting this table:
+- The Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud.
+- The Matrix pipeline is an overkill so it is just triggered manually when required.
+  It is reflecting this table:
 
 | FLAGS\OS             | Windows            | Linux              | macos              |
 |:--------------------:|:------------------:|:------------------:|:------------------:|
@@ -116,6 +118,6 @@ Just as a convention.
 
 ## Projects Idea to be done in the future
 
--   `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
--   `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
--   `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)
+- `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
+- `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
+- `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)
