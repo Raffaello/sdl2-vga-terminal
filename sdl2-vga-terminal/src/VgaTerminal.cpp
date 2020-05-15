@@ -5,7 +5,6 @@
 #include "vgapalette.h"
 #include <version.h>
 
-constexpr auto VGA_TERMINAL_NUM_CHARS = VGA_FONT_CHARS;
 
 template<typename T> 
 constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3F); }
@@ -89,7 +88,7 @@ VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, con
 
 void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 {
-    uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
+    const uint8_t* font = &mode.font[static_cast<uint16_t>(tc.c) * mode.ch];
     const int dstx = dst.x + mode.cw;
 
     for (uint8_t y = 0; y < mode.ch; y++) {
@@ -106,7 +105,9 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     //      rendering functions.
     constexpr auto lsz = 8;
     SDL_Point points[lsz];
-    uint8_t fgi = 0, bgi = lsz;
+    uint8_t fgi = 0;
+    uint8_t bgi = lsz;
+
     for (uint8_t x = 0; x < lsz; x++) {
         if (line.test(x)) points[fgi++] = { dstx - x, dsty };
         else points[--bgi] = { dstx - x, dsty };
@@ -118,7 +119,7 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
     SDL_RenderDrawPoints(getRenderer(), &points[fgi], lsz - bgi);
 }
 
-void VgaTerminal::_renderCursor(const SDL_Point& dst, _terminalChar_t& tc)
+void VgaTerminal::_renderCursor(const SDL_Point& dst, const _terminalChar_t& tc)
 {
     const uint8_t col = tc.col == tc.bgCol ? 
         cursorDefaultCol :
@@ -167,17 +168,13 @@ uint8_t VgaTerminal::getY() const noexcept
 void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
     _terminalChar_t tc;
-    tc.bgCol = bgCol, tc.c = c, tc.col = col, tc.rendered = false;
-    // @TODO refactor name not clear
-    // @BODY _setCursorChar -> _setCharAtCursorPosition (?)
+    tc.bgCol = bgCol;  tc.c = c; tc.col = col; tc.rendered = false;
     _setCursorChar(tc);
     _incrementCursorPosition();
 }
 
 void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    // @TODO refactor in a C++ way
-    // @BODY using foreach construct.
     size_t sz = str.size();
     for (size_t i = 0; i < sz; i++) {
         write(str[i], col, bgCol);
@@ -205,7 +202,7 @@ VgaTerminal::terminalChar_t VgaTerminal::at(const uint8_t x, const uint8_t y) no
    
     _terminalChar_t _tc = _getCharAt((static_cast<size_t>(y) + _viewPortY) * mode.tw + x + _viewPortX);
     terminalChar_t tc;
-    tc.c = _tc.c, tc.col = _tc.col, tc.bgCol = _tc.bgCol;
+    tc.c = _tc.c; tc.col = _tc.col; tc.bgCol = _tc.bgCol;
  
     return tc;
 }
@@ -362,19 +359,21 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
 
 bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
-    uint8_t x = static_cast<uint8_t>(r.x), y = static_cast<uint8_t>(r.y),
-        w = static_cast<uint8_t>(r.w), h = static_cast<uint8_t>(r.h);
-
-    return setViewPort(x, y, w, h);
+    return setViewPort(
+        static_cast<uint8_t>(r.x),
+        static_cast<uint8_t>(r.y), 
+        static_cast<uint8_t>(r.w),
+        static_cast<uint8_t>(r.h)
+    );
 }
 
 SDL_Rect VgaTerminal::getViewport() const noexcept
 {
     SDL_Rect r;
     
-    r.x = _viewPortX,
-    r.y = _viewPortY,
-    r.w = _viewPortWidth,
+    r.x = _viewPortX;
+    r.y = _viewPortY;
+    r.w = _viewPortWidth;
     r.h = _viewPortHeight;
 
     return r;
@@ -417,7 +416,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
     interval = cursor_time;
         
     userevent.code = 0;
-    userevent.data1 = userevent.data2 = NULL;
+    userevent.data1 = userevent.data2 = nullptr;
     event.type = userevent.type = SDL_USEREVENT;
     event.user = userevent;
     userevent.windowID = event.window.windowID = getWindowId();
