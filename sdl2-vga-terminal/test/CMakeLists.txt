@@ -8,13 +8,13 @@ if (TEST_DUMP_SNAPSHOT)
     add_compile_definitions(TEST_DUMP_SNAPSHOT)
 else()
     ### VgaTerminal tests ###
-    add_executable(runUnitTests "tests.cpp")
-    add_test(UnitTestsInMain runUnitTests)
-    target_link_libraries(runUnitTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock)
-    add_custom_command(TARGET runUnitTests POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runUnitTests>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runUnitTests>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runUnitTests>
+    add_executable(runVgaTerminalTests "VgaTerminalTest.cpp")
+    add_test(VgaTerminalTest runVgaTerminalTests)
+    target_link_libraries(runVgaTerminalTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock)
+    add_custom_command(TARGET runVgaTerminalTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runVgaTerminalTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runVgaTerminalTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runVgaTerminalTests>
     )
 
     

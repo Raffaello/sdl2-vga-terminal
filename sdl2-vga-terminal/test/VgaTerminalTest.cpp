@@ -106,6 +106,46 @@ TEST(VgaTerminal, scrollDownReusingSameGridChar)
 	cmpTerminalChar(VgaTerminal::terminalChar_t{ 0, 0, 0 }, term.at(0, 25));
 }
 
+TEST(VgaTerminal, clearLine)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+
+	term.write(title, 7, 1);
+	cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 'c', 7, 1 }));
+	term.clearLine(0);
+	cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
+}
+
+TEST(VgaTerminal, clearLineViewport)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+
+	term.writeXY(9, 2, "X", 7, 1);
+	term.writeXY(21, 2, "X", 7, 1);
+	EXPECT_TRUE(term.setViewPort(10, 2, 10, 2));
+	term.write(title, 7, 1);
+	term.clearLine(0);
+	cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 0 ,0, 0 }));
+	term.resetViewport();
+	cmpTerminalChar(term.at(9, 2), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
+	cmpTerminalChar(term.at(21, 2), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
+}
+
+TEST(VgaTerminal, clearLineOutsideViewport)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+
+	testing::internal::CaptureStderr();
+	term.clearLine(100);
+	std::string output = testing::internal::GetCapturedStderr();
+	EXPECT_THAT(output, testing::HasSubstr("WARN: ["));
+	EXPECT_THAT(output, testing::EndsWith("VgaTerminal] clearLine: y outside viewport\n"));
+
+}
+
 TEST(VgaTerminal, doNotRenderTwiceIfAlreadyRendered)
 {
 	// TODO: how to verify without mocking?

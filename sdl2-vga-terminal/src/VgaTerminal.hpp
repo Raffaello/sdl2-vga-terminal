@@ -73,6 +73,7 @@ public:
 
     void render(const bool force = false);
     void clear() noexcept;
+    void clearLine(const uint8_t y) noexcept;
   
     void moveCursorLeft() noexcept;
     void moveCursorRight() noexcept;

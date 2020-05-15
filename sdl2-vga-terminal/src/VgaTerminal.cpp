@@ -452,7 +452,7 @@ void VgaTerminal::_scrollDownGrid() noexcept
     {
         int j2 = j * mode.tw;
         int jj2 = j2 - mode.tw;
-        
+
         for (int i = _viewPortX; i < _viewPortX2; i++)
         {
             int i2 = i + j2;
@@ -461,14 +461,28 @@ void VgaTerminal::_scrollDownGrid() noexcept
             if (_pGrid[i2].rendered && _pGrid[i2] == _pGrid[ii2]) {
                 continue;
             }
-            
+
             _pGrid[ii2] = _pGrid[i2];
             _pGrid[ii2].rendered = false;
         }
     }
+    // kept because of mutex.  
+    const int j2 = (_viewPortY2 - 1) * mode.tw + _viewPortX;
+    for (int i = 0; i < _viewPortWidth; i++) {
+        _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
+    }
+}
 
-    // clear line -> TODO: promote to a public method?
-    int j2 = (_viewPortY2 - 1) * mode.tw + _viewPortX;
+void VgaTerminal::clearLine(const uint8_t y) noexcept
+{
+    if (y >= _viewPortHeight) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: y outside viewport", typeid(*this).name(), __func__);
+        return;
+    }
+
+    std::lock_guard lck(_pGridMutex);
+
+    const int j2 = (y + _viewPortY) * mode.tw + _viewPortX;
     for (int i = 0; i < _viewPortWidth; i++) {
         _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
     }
