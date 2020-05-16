@@ -4,6 +4,7 @@
 #include "vgafonts.h"
 #include "vgapalette.h"
 #include <version.h>
+#include <algorithm>
 
 
 template<typename T> 
@@ -175,9 +176,8 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
 
 void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept
 {
-    size_t sz = str.size();
-    for (size_t i = 0; i < sz; i++) {
-        write(str[i], col, bgCol);
+    for (const char c : str) {
+        write(c, col, bgCol);
     }
 }
 
