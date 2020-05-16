@@ -212,15 +212,13 @@ message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 unset(vga-terminal-static_copts)
 
 
-
-
-
 ################################ Examples ####################################
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
 endif()
 
+
 ############################### tests ########################################
 if(BUILD_TESTING)
-add_subdirectory("test")
+    add_subdirectory("test")
 endif()

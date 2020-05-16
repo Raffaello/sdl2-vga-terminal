@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.16)
 
-
 find_package(GTest 1.10 CONFIG REQUIRED)
 
 if (TEST_DUMP_SNAPSHOT)
@@ -16,6 +15,8 @@ else()
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runWindowTests>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runWindowTests>
     )
+
+
     ### VgaTerminal tests ###
     add_executable(runVgaTerminalTests "VgaTerminalTest.cpp")
     add_test(VgaTerminalTest runVgaTerminalTests)
