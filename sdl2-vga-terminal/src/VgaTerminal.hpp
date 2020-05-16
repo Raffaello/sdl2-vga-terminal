@@ -141,6 +141,6 @@ private:
     _terminalChar_t _getCharAt(const size_t pos) noexcept;
     const int _getCursorPosition() const noexcept;
     _terminalChar_t _getCursorChar() noexcept;
-    void _setCursorChar(const _terminalChar_t& tc) noexcept;
+    void _setCharAtCursorPosition(const _terminalChar_t& tc) noexcept;
     void _setCursorNotRendered() noexcept;
 };

@@ -170,7 +170,7 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
 {
     _terminalChar_t tc;
     tc.bgCol = bgCol;  tc.c = c; tc.col = col; tc.rendered = false;
-    _setCursorChar(tc);
+    _setCharAtCursorPosition(tc);
     _incrementCursorPosition();
 }
 
@@ -513,7 +513,7 @@ VgaTerminal::_terminalChar_t VgaTerminal::_getCursorChar() noexcept
     return _getCharAt(_getCursorPosition());
 }
 
-void VgaTerminal::_setCursorChar(const _terminalChar_t& tc) noexcept
+void VgaTerminal::_setCharAtCursorPosition(const _terminalChar_t& tc) noexcept
 {
     std::lock_guard lck(_pGridMutex);
     _pGrid[_getCursorPosition()] = tc;
