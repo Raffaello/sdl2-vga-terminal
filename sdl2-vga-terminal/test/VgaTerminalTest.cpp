@@ -146,6 +146,30 @@ TEST(VgaTerminal, clearLineOutsideViewport)
 
 }
 
+TEST(VgaTerminal, fill)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+
+	EXPECT_TRUE(term.setViewPort(1, 1, 5, 2));
+	term.fill('X', 7, 1);
+	term.resetViewport();
+	cmpTerminalChar(term.at(1, 1), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
+	cmpTerminalChar(term.at(0, 1), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
+}
+
+
+TEST(VgaTerminal, fillRestoreAndNoAutoScroll)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	
+	term.autoScroll = false;
+	term.fill('X', 7, 1);
+	cmpTerminalChar(term.at(79, 24), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
+	EXPECT_FALSE(term.autoScroll);
+}
+
 TEST(VgaTerminal, doNotRenderTwiceIfAlreadyRendered)
 {
 	// TODO: how to verify without mocking?

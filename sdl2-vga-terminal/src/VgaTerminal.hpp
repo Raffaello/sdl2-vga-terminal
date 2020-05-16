@@ -74,6 +74,7 @@ public:
     void render(const bool force = false);
     void clear() noexcept;
     void clearLine(const uint8_t y, const uint8_t bgCol = 0) noexcept;
+    void fill(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
   
     void moveCursorLeft() noexcept;
     void moveCursorRight() noexcept;

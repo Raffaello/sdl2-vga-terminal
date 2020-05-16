@@ -489,6 +489,20 @@ void VgaTerminal::clearLine(const uint8_t y, const uint8_t bgCol) noexcept
     }
 }
 
+void VgaTerminal::fill(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
+{
+    gotoXY(0, 0);
+    const bool old = autoScroll;
+    autoScroll = false;
+    for (int j = 0; j < _viewPortHeight; j++) {
+        for (int i = 0; i < _viewPortWidth; i++) {
+            write(c, col, bgCol);
+        }
+    }
+    gotoXY(0, 0);
+    autoScroll = old;
+}
+
 const VgaTerminal::videoMode_t VgaTerminal::getMode() const noexcept
 {
     return mode;
