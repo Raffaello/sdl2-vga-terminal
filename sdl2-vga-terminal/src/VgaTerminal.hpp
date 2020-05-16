@@ -92,9 +92,11 @@ public:
     const videoMode_t getMode() const noexcept;
     bool isIdle() const noexcept;
     
+    // TODO not really sure what is this for anymore...
     uint8_t cursorDefaultCol = 7;
     std::atomic<uint16_t> cursor_time = 500; /// ms
     bool showCursor = true;
+    bool blinkCursor = true;
     bool autoScroll = true;
 protected:
 

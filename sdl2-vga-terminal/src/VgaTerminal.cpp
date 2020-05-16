@@ -398,28 +398,31 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 {
     // @TODO review the user event
     // @BODY at the moment is just using `SDL_USEREVENT`, should be something more specific and unique.
-    SDL_Event event;
-    SDL_UserEvent userevent;
-    
-    if (_onIdle) {
-        _drawCursor = !_drawCursor;
-    }
-    else {
-        _onIdle = true;
-        _drawCursor = true;
-    }
-    
-    _setCursorNotRendered();
+    if (blinkCursor) {
+        SDL_Event event;
+        SDL_UserEvent userevent;
 
-    interval = cursor_time;
-        
-    userevent.code = 0;
-    userevent.data1 = userevent.data2 = nullptr;
-    event.type = userevent.type = SDL_USEREVENT;
-    event.user = userevent;
-    userevent.windowID = event.window.windowID = getWindowId();
+        if (_onIdle) {
+            _drawCursor = !_drawCursor;
+        }
+        else {
+            _onIdle = true;
+            _drawCursor = true;
+        }
 
-    SDL_PushEvent(&event);
+        _setCursorNotRendered();
+
+        interval = cursor_time;
+
+        userevent.code = 0;
+        userevent.data1 = userevent.data2 = nullptr;
+        event.type = userevent.type = SDL_USEREVENT;
+        event.user = userevent;
+        userevent.windowID = event.window.windowID = getWindowId();
+
+        SDL_PushEvent(&event);
+    }
+    
     return interval;
 }
 

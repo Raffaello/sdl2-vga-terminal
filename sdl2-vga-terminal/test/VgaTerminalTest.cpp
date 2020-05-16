@@ -225,7 +225,6 @@ TEST(VgaTerminal, atOutOfViewport)
 	cmpTerminalChar(term.at(11, 6), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
 }	
 
-
 TEST(VgaTerminal, moveCursorClockWise)
 {
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
@@ -350,6 +349,19 @@ TEST(VgaTerminal, Idle)
 	EXPECT_TRUE(term.isIdle());
 	term.write("X", 7, 1);
 	EXPECT_FALSE(term.isIdle());
+}
+
+TEST(VgaTerminal, cursorNoBlinking)
+{
+	SDL_Event e;
+	std::memset(&e, 0, sizeof(SDL_Event));
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+	term.cursor_time = 100;
+	term.blinkCursor = false;
+	// flush the SDL_event queue too...
+	SDL_FlushEvents(0, 0xFFFFFFFF);
+	EXPECT_EQ(0, SDL_WaitEventTimeout(&e, 500));
 }
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};
