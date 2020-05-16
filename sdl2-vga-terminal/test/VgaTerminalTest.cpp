@@ -361,7 +361,7 @@ TEST(VgaTerminal, cursorNoBlinking)
 	term.blinkCursor = false;
 	// flush the SDL_event queue too...
 	SDL_FlushEvents(0, 0xFFFFFFFF);
-	EXPECT_EQ(0, SDL_WaitEventTimeout(&e, 500));
+	EXPECT_EQ(0, SDL_WaitEventTimeout(&e, 1000));
 }
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};
@@ -373,7 +373,7 @@ TEST_P(CursorBlinkingTests, cursorBlinking)
 
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
-	
+	SDL_FlushEvents(0, 0xFFFFFFFF);
 	uint32_t init = SDL_GetTicks();
 	uint16_t old_time = term.cursor_time;
 	term.cursor_time = cursorTime;
@@ -393,6 +393,14 @@ TEST_P(CursorBlinkingTests, cursorBlinking)
 	cmpTicks(start, end, cursorTime);
 	cmpTicks(init, start, old_time);
 }
+INSTANTIATE_TEST_SUITE_P(
+	VgaTerminal,
+	CursorBlinkingTests,
+	::testing::Values(
+		500,
+		VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_NORMAL
+	)
+);
 
 class  SetViewportParameterTests: public ::testing::TestWithParam<std::tuple<int, int, int, int, bool, int, int>> {};
 TEST_P(SetViewportParameterTests, SetVieport)

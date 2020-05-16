@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
 		<< "Press F11 to toggle fullscreen" << endl
 		<< "press C to clear"
 		<< "press S to change cursor shape" << endl
+		<< "press B to toggle blinking cursor" << endl
 		<< "press + / Keypad + to increase cursor blinking speed" << endl
 		<< "press - / Keypad - to decrease cursor blinkgin speed" << endl
 		<< "[Viewport Window only] up/down/left/right arrows to move the cursor" << endl;
@@ -145,6 +146,7 @@ int main(int argc, char* argv[])
 
 	term2.handler = f;
 	term2.cursor_time = 100;
+	//term2.setCursorSpeed(VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_FAST);
 	
 	string keyname;
 	while (!quit) {
@@ -197,6 +199,10 @@ int main(int argc, char* argv[])
 				// and handle properly the cases.
 				auto cs = (static_cast<int>(term->cursor_mode) + 1) % VgaTerminal::NUM_CURSOR_MODES;
 				term->cursor_mode = static_cast<VgaTerminal::CURSOR_MODE>(cs);
+			}
+			else if (keyname == "B") {
+				cout << "toggle cursor blinking..." << endl;
+				term->blinkCursor = !term->blinkCursor;
 			}
 			else if ((event.key.keysym.sym == SDLK_EQUALS && event.key.keysym.mod & KMOD_SHIFT) || keyname == "Keypad +") {
 				term->cursor_time = static_cast<uint16_t>(round(term->cursor_time * 0.9));

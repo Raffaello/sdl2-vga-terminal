@@ -44,8 +44,14 @@ public:
         CURSOR_MODE_VERTICAL = 3,
     };
     static constexpr uint8_t NUM_CURSOR_MODES = 4;
-
     CURSOR_MODE cursor_mode = CURSOR_MODE::CURSOR_MODE_NORMAL;
+
+    enum class CURSOR_SPEED : uint16_t {
+        CURSOR_SPEED_NORMAL = 500,
+        CURSOR_SPEED_FAST = 250,
+        CURSOR_SPEED_SLOW = 750
+    };
+    static constexpr uint8_t NUM_CURSOR_SPEEDS = 3;
 
     static const std::string getVersion();
 
@@ -92,9 +98,13 @@ public:
     const videoMode_t getMode() const noexcept;
     bool isIdle() const noexcept;
     
+    // NOTE: if you are using the methods do not use cursor_time field.
+    void setCursorSpeed(const CURSOR_SPEED speed) noexcept;
+    CURSOR_SPEED getCursorSpeed() const noexcept;
     // TODO not really sure what is this for anymore...
     uint8_t cursorDefaultCol = 7;
-    std::atomic<uint16_t> cursor_time = 500; /// ms
+    // @deprecated to be remove in 1
+    std::atomic<uint16_t> cursor_time = static_cast<uint16_t>(CURSOR_SPEED::CURSOR_SPEED_NORMAL); /// ms
     bool showCursor = true;
     bool blinkCursor = true;
     bool autoScroll = true;
@@ -127,6 +137,8 @@ private:
     std::atomic<uint8_t> _viewPortX2;     /// _viewportX + _viewportWidth derived value
     std::atomic<uint8_t> _viewPortY2;     /// _viewportY + _viewportHeight derived value
   
+    CURSOR_SPEED _cursor_speed = CURSOR_SPEED::CURSOR_SPEED_NORMAL;
+    //std::atomic<uint16_t> _cursor_time = static_cast<uint16_t>(_cursor_speed); /// ms
     std::atomic<bool> _drawCursor = true; 
     SDL_TimerID _cursorTimerId = 0;
     std::atomic<bool> _onIdle = true;

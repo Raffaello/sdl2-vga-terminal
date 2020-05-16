@@ -513,6 +513,17 @@ bool VgaTerminal::isIdle() const noexcept
     return _onIdle;
 }
 
+void VgaTerminal::setCursorSpeed(const CURSOR_SPEED speed) noexcept
+{
+    _cursor_speed = speed;
+    cursor_time = static_cast<uint16_t>(_cursor_speed);
+}
+
+VgaTerminal::CURSOR_SPEED VgaTerminal::getCursorSpeed() const noexcept
+{
+    return _cursor_speed;
+}
+
 VgaTerminal::_terminalChar_t VgaTerminal::_getCharAt(const size_t pos) noexcept
 {
     std::lock_guard lck(_pGridMutex);
