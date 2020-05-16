@@ -40,37 +40,44 @@ Window::Window(const std::string& title, const int x, const int y, const int wid
 	renderPresent();
 }
 
-SDL_Window* Window::getWindow() const
+SDL_Window* Window::getWindow() const noexcept
 {
 	return _pWindow;
 }
 
- SDL_Renderer* Window::getRenderer() const {
+SDL_Renderer* Window::getRenderer() const noexcept
+{
 	return _pRenderer;
 }
 
-void Window::setRendererDrawColor(const uint8_t r, const  uint8_t g, const  uint8_t b, const  uint8_t a) const
+void Window::setRendererDrawColor(const uint8_t r, const  uint8_t g, const  uint8_t b, const  uint8_t a) const noexcept
 {
 	SDL_SetRenderDrawColor(_pRenderer, r, g, b, a);
 }
 
-void Window::renderClear() const
+void Window::renderDrawPoints(const SDL_Color& color, const SDL_Point points[], int count) const noexcept
+{
+	SDL_SetRenderDrawColor(getRenderer(), color.r, color.g, color.b, color.a);
+	SDL_RenderDrawPoints(getRenderer(), points, count);
+}
+
+void Window::renderClear() const noexcept
 {
 	SDL_RenderClear(_pRenderer);
 }
 
-void Window::renderPresent() const
+void Window::renderPresent() const noexcept
 {
 	SDL_RenderPresent(_pRenderer);
 }
 
-void Window::toggleFullscreenDesktop()
+void Window::toggleFullscreenDesktop() noexcept
 {
 	_bFullScreenDesktop = !_bFullScreenDesktop;
 	SDL_SetWindowFullscreen(getWindow(), _bFullScreenDesktop ? 0 : SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 
-uint32_t Window::getWindowId() const
+uint32_t Window::getWindowId() const noexcept
 {
 	return _windowId;
 }

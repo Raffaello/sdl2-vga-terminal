@@ -7,6 +7,15 @@ if (TEST_DUMP_SNAPSHOT)
     set (BUILD_SNAPSHOT bool ON) # ON by dependent option configuration anyway, but not hurting
     add_compile_definitions(TEST_DUMP_SNAPSHOT)
 else()
+    ### Window tests ###
+    add_executable(runWindowTests "WindowTest.cpp")
+    add_test(WindowTest runWindowTests)
+    target_link_libraries(runWindowTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock)
+    add_custom_command(TARGET runWindowTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runWindowTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runWindowTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runWindowTests>
+    )
     ### VgaTerminal tests ###
     add_executable(runVgaTerminalTests "VgaTerminalTest.cpp")
     add_test(VgaTerminalTest runVgaTerminalTests)

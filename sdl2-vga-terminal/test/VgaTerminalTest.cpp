@@ -158,7 +158,6 @@ TEST(VgaTerminal, fill)
 	cmpTerminalChar(term.at(0, 1), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
 }
 
-
 TEST(VgaTerminal, fillRestoreAndNoAutoScroll)
 {
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();

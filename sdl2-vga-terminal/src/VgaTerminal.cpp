@@ -101,9 +101,9 @@ void VgaTerminal::_renderFontChar(const SDL_Point& dst, _terminalChar_t& tc)
 
 void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, const int dsty, const uint8_t col, const uint8_t bgCol)
 {
-    // lsz is mode.cw,
-    //      start make sense spliting to a VgaTerminalRender, all the 
-    //      rendering functions.
+    // TODO lsz is mode.cw,
+    // BODY start make sense spliting to a VgaTerminalRender, all the 
+    // BODY rendering functions.
     constexpr auto lsz = 8;
     SDL_Point points[lsz];
     uint8_t fgi = 0;
@@ -114,10 +114,8 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
         else points[--bgi] = { dstx - x, dsty };
     }
 
-    SDL_SetRenderDrawColor(getRenderer(), _pal.colors[col].r, _pal.colors[col].g, _pal.colors[col].b, _pal.colors[col].a);
-    SDL_RenderDrawPoints(getRenderer(), points, fgi);
-    SDL_SetRenderDrawColor(getRenderer(), _pal.colors[bgCol].r, _pal.colors[bgCol].g, _pal.colors[bgCol].b, _pal.colors[bgCol].a);
-    SDL_RenderDrawPoints(getRenderer(), &points[fgi], lsz - bgi);
+    renderDrawPoints(_pal.colors[col], points, fgi);
+    renderDrawPoints(_pal.colors[bgCol], &points[fgi], lsz - bgi);
 }
 
 void VgaTerminal::_renderCursor(const SDL_Point& dst, const _terminalChar_t& tc)
