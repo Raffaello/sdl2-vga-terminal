@@ -22,12 +22,14 @@ void cmpTerminalChar(const VgaTerminal::terminalChar_t& tc1, const VgaTerminal::
 	EXPECT_EQ(tc1.col, tc2.col);
 }
 
-// expect around ~1% tolerance on the given value to be matched
-void cmpTicks(const uint32_t start, const uint32_t end, const uint16_t value)
+// expect around ~10% tolerance on the given value to be matched
+void cmpTicks(const uint64_t start, const uint64_t end, const uint16_t value)
 {
-	double te = static_cast<double>(value) * 0.01;
-	double t = abs(static_cast<double>(end - start) - value) - te;
-	EXPECT_LE(t, 1);
+	double te = ceil(static_cast<double>(value) * 0.10);
+	double diff = static_cast<double>(end - start)/ (SDL_GetPerformanceFrequency()/1000.0);
+	double dt = abs(diff - static_cast<double>(value));
+	std::cout << "value=" << value << " --- diff=" << diff << " --- te=" << te << " --- dt=" << dt << std::endl;
+	EXPECT_LE(dt, te);
 }
 
 TEST(VgaTerminal, checkVersion)
@@ -355,32 +357,40 @@ TEST(VgaTerminal, cursorNoBlinking)
 {
 	SDL_Event e;
 	std::memset(&e, 0, sizeof(SDL_Event));
+	SDL_EventState(SDL_WINDOWEVENT, SDL_DISABLE);
+
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
-	term.cursor_time = 100;
 	term.blinkCursor = false;
+	term.setCursorSpeed(VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_FAST);
+	uint16_t cursorWaitTime = static_cast<uint32_t>(term.getCursorSpeed()) * 2;
+	
 	// flush the SDL_event queue too...
 	SDL_FlushEvents(0, 0xFFFFFFFF);
-	EXPECT_EQ(0, SDL_WaitEventTimeout(&e, 1000));
+	EXPECT_EQ(0, SDL_WaitEventTimeout(&e, cursorWaitTime));
+	EXPECT_EQ(e.type, 0);
 }
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};
 TEST_P(CursorBlinkingTests, cursorBlinking)
 {
 	uint16_t cursorTime = GetParam();
+	uint16_t cursorWaitTime = cursorTime * 4;
 	SDL_Event e;
 	std::memset(&e, 0, sizeof(SDL_Event));
+	SDL_EventState(SDL_WINDOWEVENT, SDL_DISABLE);
 
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
-	SDL_FlushEvents(0, 0xFFFFFFFF);
-	uint32_t init = SDL_GetTicks();
 	uint16_t old_time = term.cursor_time;
 	term.cursor_time = cursorTime;
-	ASSERT_EQ(1, SDL_WaitEventTimeout(&e, 1000));
-	uint32_t start = SDL_GetTicks();
-	ASSERT_EQ(1, SDL_WaitEventTimeout(&e, cursorTime * 2));
-	uint32_t end = SDL_GetTicks();
+	EXPECT_EQ(old_time, static_cast<uint16_t>(VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_NORMAL));
+	SDL_FlushEvents(0, 0xFFFFFFFF);
+	// Discard first "blink" as it could be the default one
+	EXPECT_EQ(1, SDL_WaitEventTimeout(&e, cursorWaitTime));
+	uint64_t start = SDL_GetPerformanceCounter();
+	ASSERT_EQ(1, SDL_WaitEventTimeout(&e, cursorWaitTime));
+	uint64_t end = SDL_GetPerformanceCounter();
 
 	EXPECT_EQ(e.type, SDL_USEREVENT);
 	EXPECT_EQ(e.window.windowID, term.getWindowId());
@@ -389,16 +399,19 @@ TEST_P(CursorBlinkingTests, cursorBlinking)
 	EXPECT_TRUE(NULL == e.user.data2);
 	EXPECT_EQ(e.user.type, SDL_USEREVENT); // ???
 	EXPECT_EQ(e.user.windowID, term.getWindowId());
-	// give a tollerance of 1% 
+	// give some tollerance (~2%)
+#ifndef NO_PRECISE_TIMER
 	cmpTicks(start, end, cursorTime);
-	cmpTicks(init, start, old_time);
+#endif
 }
 INSTANTIATE_TEST_SUITE_P(
 	VgaTerminal,
 	CursorBlinkingTests,
 	::testing::Values(
 		500,
-		VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_NORMAL
+		VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_NORMAL,
+		VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_SLOW,
+		VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_FAST
 	)
 );
 

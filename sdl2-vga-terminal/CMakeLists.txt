@@ -18,6 +18,11 @@ if (WIN32)
     set(LIB_SDL2main SDL2::SDL2main)
 endif()
 
+if(HAVE_PRECISE_TIMER)
+else()
+    add_compile_definitions(NO_PRECISE_TIMER)
+endif()
+
 ########################### Static Lib #######################################
 set(LIB_NAME vga-terminal-static)
 set(LIB_CONF ${LIB_NAME}-config)

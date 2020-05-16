@@ -85,6 +85,8 @@ stages:
 - stage: matrix_macos
   displayName: Matrix MacOS
   dependsOn: Dep
+  variables:
+    HAVE_PRECISE_TIMER: OFF
   jobs:    
     - template: 'templates/matrix-job.yml'
       parameters:
