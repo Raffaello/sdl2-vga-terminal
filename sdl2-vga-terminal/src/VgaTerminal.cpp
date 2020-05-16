@@ -473,18 +473,19 @@ void VgaTerminal::_scrollDownGrid() noexcept
     }
 }
 
-void VgaTerminal::clearLine(const uint8_t y) noexcept
+void VgaTerminal::clearLine(const uint8_t y, const uint8_t bgCol) noexcept
 {
     if (y >= _viewPortHeight) {
         SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "[%s] %s: y outside viewport", typeid(*this).name(), __func__);
         return;
     }
 
-    std::lock_guard lck(_pGridMutex);
-
+    const _terminalChar_t tc = { 0, 0, bgCol, false };
     const int j2 = (y + _viewPortY) * mode.tw + _viewPortX;
+
+    std::lock_guard lck(_pGridMutex);
     for (int i = 0; i < _viewPortWidth; i++) {
-        _pGrid[static_cast<uint64_t>(i) + j2] = _defaultNullChar;
+        _pGrid[static_cast<uint64_t>(i) + j2] = tc;
     }
 }
 
