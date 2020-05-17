@@ -21,7 +21,7 @@ macro(macro_example) # ${ARGN} link libraries
     add_dependencies(${EXAMPLE_EXE} ${EXAMPLE_DEPS}) 
     target_link_libraries(${EXAMPLE_EXE} ${EXAMPLE_LINKS})
     if(${EXAMPLE_COPY_LIB})
-        message("===============EXAMPLE COPY LIB")
+        #message("===============EXAMPLE COPY LIB")
         foreach(TF IN ITEMS ${EXAMPLE_DEPS})
             #message("++++ TF= ${TF} ++++")
             add_custom_command(

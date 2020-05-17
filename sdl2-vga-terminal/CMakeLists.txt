@@ -30,6 +30,7 @@ set(LIB_VER ${LIB_CONF}-version)
 include(CMakePackageConfigHelpers)
 
 add_library(${LIB_NAME} STATIC)
+set_target_properties(${LIB_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 install(
     TARGETS ${LIB_NAME}
     EXPORT ${LIB_CONF}
@@ -165,7 +166,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
         )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic #-fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
@@ -192,7 +193,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
         message(STATUS ${LINK_SUBSYS_WIN})
         target_link_options(vga-terminal-static PUBLIC ${LINK_SUBSYS_WIN})
     elseif(UNIX)
-        target_compile_options(vga-terminal-static PRIVATE -fPIC 
+        target_compile_options(vga-terminal-static PRIVATE #-fPIC 
             $<$<CONFIG:DEBUG>: -g;>
             $<$<CONFIG:RELEASE>:-O2;>
         )
