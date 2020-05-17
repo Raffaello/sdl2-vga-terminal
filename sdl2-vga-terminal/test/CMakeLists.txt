@@ -27,6 +27,17 @@ else()
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runVgaTerminalTests>
     )
 
+ 
+
+    ### tui::utils Tests ###
+    add_executable(runUtilsTests "tui/utilsTest.cpp")
+    add_test(UtilsTest runUtilsTests)
+    target_link_libraries(runUtilsTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock)
+    add_custom_command(TARGET runUtilsTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runUtilsTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runUtilsTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runUtilsTests>
+    )
     
     ### Shared Lib tests ###
     if (BUILD_SHARED_LIBS)
@@ -45,14 +56,26 @@ endif()
 if (BUILD_SNAPSHOT)
     find_package(SDL2-image CONFIG REQUIRED)
     
-    add_executable(runSnapshotTests "snapshotTest.cpp")
-    target_link_libraries(runSnapshotTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image)
-    add_test(SnapshotTestsInMain runSnapshotTests)
-    add_custom_command(TARGET runSnapshotTests POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runSnapshotTests>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runSnapshotTests>
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runSnapshotTests>
-        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/snapshot $<TARGET_FILE_DIR:runSnapshotTests>/snapshot
+    ### VgaTerminal Snapshot Tests ###
+    add_executable(runVgaTerminalSnapshotTests "VgaTerminalSnapshotTest.cpp")
+    target_link_libraries(runVgaTerminalSnapshotTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image)
+    add_test(VgaTerminalSnapshotTestsInMain runVgaTerminalSnapshotTests)
+    add_custom_command(TARGET runVgaTerminalSnapshotTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runVgaTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runVgaTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runVgaTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/snapshot $<TARGET_FILE_DIR:runVgaTerminalSnapshotTests>/snapshot
+    )
+
+    ### TuiTerminal Snapshot Tests ###
+    add_executable(runTuiTerminalSnapshotTests "TuiTerminalSnapshotTest.cpp")
+    add_test(TuiTerminalSnapshotTest runTuiTerminalSnapshotTests)
+    target_link_libraries(runTuiTerminalSnapshotTests PRIVATE ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image)
+    add_custom_command(TARGET runTuiTerminalSnapshotTests POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:runTuiTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:runTuiTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gmock> $<TARGET_FILE_DIR:runTuiTerminalSnapshotTests>
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/snapshot $<TARGET_FILE_DIR:runTuiTerminalSnapshotTests>/snapshot
     )
 endif()
 

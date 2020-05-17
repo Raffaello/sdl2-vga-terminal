@@ -41,6 +41,15 @@ macro_example(
     NONE
 )
 
+############################### TUI Example ###################################
+macro_example(
+    EXE "${PROJECT_NAME}-tui"
+    FILE "sdl2-tui-terminal.cpp"
+    DEPS vga-terminal-static
+    LINKS ${LIB_SDL2main} vga-terminal-static
+    NONE
+)
+
 if (BUILD_SHARED_LIBS)
 ################## C example using SO/DLL with lazy loading ##################
     macro_example(

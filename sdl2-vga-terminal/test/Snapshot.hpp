@@ -1,10 +1,29 @@
+#pragma once
+
+#include "Environment.hpp"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
-#include <VgaTerminal.hpp>
-#include <SDL2/SDL_image.h>
 #include <algorithm>
 #include <cstring>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
+class SnapshotEnvironment : public Environment
+{
+	// Override this to define how to set up the environment.
+	void SetUp() override
+	{
+		Environment::setUp();
+		ASSERT_NE(0, IMG_Init(IMG_INIT_PNG));
+	}
+
+	// Override this to define how to tear down the environment.
+	void TearDown() override
+	{
+		IMG_Quit();
+		Environment::tearDown();
+	}
+};
 
 std::string generateSnapshotFilename()
 {
@@ -13,29 +32,30 @@ std::string generateSnapshotFilename()
 	snapshotFilename += ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	snapshotFilename += ".png";
 	std::replace(snapshotFilename.begin(), snapshotFilename.end(), '/', '-');
+	
 	return snapshotFilename;
 }
 
-SDL_Surface* getScreenshot(const VgaTerminal& term)
+SDL_Surface* getScreenshot(SDL_Window* window, SDL_Renderer* renderer)
 {
-	int w = 0, h = 0;
-	const uint32_t format = SDL_PIXELFORMAT_ABGR8888;
+	int w = 0;
+	int h = 0;
+	constexpr uint32_t format = SDL_PIXELFORMAT_ABGR8888;
+	constexpr int depth = 32;
 
-	SDL_GetWindowSize(term.getWindow(), &w, &h);
-	SDL_Surface* snapshot = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, format);
+	SDL_GetWindowSize(window, &w, &h);
+	SDL_Surface* snapshot = SDL_CreateRGBSurfaceWithFormat(0, w, h, depth, format);
 
-	if (SDL_RenderReadPixels(term.getRenderer(), NULL, format, snapshot->pixels, snapshot->pitch) != 0) {
+	if (SDL_RenderReadPixels(renderer, nullptr, format, snapshot->pixels, snapshot->pitch) != 0) {
 		GTEST_LOG_(ERROR) << "Unable to take screenshoot:" << SDL_GetError();
 	}
 
 	return snapshot;
 }
 
-void snapShotTest(VgaTerminal& term, const std::string& snapshotFilename)
+void snapShotTest(SDL_Window* window, SDL_Renderer* renderer, const std::string& snapshotFilename)
 {
-	term.render();
-
-	SDL_Surface* snapshot = getScreenshot(term);
+	SDL_Surface* snapshot = getScreenshot(window,renderer);
 
 #ifdef TEST_DUMP_SNAPSHOT
 	GTEST_LOG_(INFO) << "Dumping snapshot: " << snapshotFilename;
@@ -68,58 +88,8 @@ void snapShotTest(VgaTerminal& term, const std::string& snapshotFilename)
 	SDL_FreeSurface(snapshot);
 }
 
-TEST(VgaTerminal, Snapshot)
+int snapshotMain(int argc, char** argv)
 {
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO));
-	ASSERT_NE(0, IMG_Init(IMG_INIT_PNG));
-	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
-	term.showCursor = false;
-	std::string snapshotFilename = generateSnapshotFilename();
-
-	for (int i = 0; i < 256; i++) {
-		term.write(static_cast<char>(i), i, 255 - i);
-	}
-
-	term.writeXY(32, 11, "ษอออออออออออออออป", 14, 1);
-	term.writeXY(32, 12, "บ Hello World!! บ", 14, 1);
-	term.writeXY(32, 13, "ศอออออออออออออออผ", 14, 1);
-	
-	snapShotTest(term, snapshotFilename);
-
-	IMG_Quit();
-	SDL_Quit();
-}
-
-class  CursorShapeTests: public ::testing::TestWithParam<VgaTerminal::CURSOR_MODE> {};
-TEST_P(CursorShapeTests, CursorShapeSnapshot)
-{
-	VgaTerminal::CURSOR_MODE cursorMode = GetParam();
-	ASSERT_EQ(0, SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS));
-	ASSERT_NE(0, IMG_Init(IMG_INIT_PNG));
-	std::string snapshotFilename = generateSnapshotFilename();
-	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name(); 
-	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
-	term.cursor_mode = cursorMode;
-	term.write(title, 7, 0);
-	
-	snapShotTest(term, snapshotFilename);
-
-	IMG_Quit();
-	SDL_Quit();
-}
-INSTANTIATE_TEST_SUITE_P(
-	VgaTerminal,
-	CursorShapeTests,
-	::testing::Values(
-		VgaTerminal::CURSOR_MODE::CURSOR_MODE_NORMAL,
-		VgaTerminal::CURSOR_MODE::CURSOR_MODE_FAT,
-		VgaTerminal::CURSOR_MODE::CURSOR_MODE_BLOCK,
-		VgaTerminal::CURSOR_MODE::CURSOR_MODE_VERTICAL
-	)
-);
-
-int main(int argc, char** argv) {
 #ifdef TEST_DUMP_SNAPSHOT
 	std::cout
 		<< "******************************************************************************************************" << std::endl
@@ -131,5 +101,6 @@ int main(int argc, char** argv) {
 		<< std::endl;
 #endif
 	::testing::InitGoogleTest(&argc, argv);
+	::testing::AddGlobalTestEnvironment(new Environment());
 	return RUN_ALL_TESTS();
 }

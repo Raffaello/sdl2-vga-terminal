@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 #include <Window.hpp>
-#include <SDL2/SDL_image.h>
-#include <cmath>
 #include "Environment.hpp"
-#include <cstring>
 
 TEST(Window, cannotInit)
 {

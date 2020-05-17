@@ -40,6 +40,7 @@ install(
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.hpp
     DESTINATION static/include
 )
 
@@ -70,6 +71,8 @@ target_include_directories(${LIB_NAME} PUBLIC
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/utils.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2})

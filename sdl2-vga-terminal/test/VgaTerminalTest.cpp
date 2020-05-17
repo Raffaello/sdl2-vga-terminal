@@ -28,7 +28,7 @@ void cmpTicks(const uint64_t start, const uint64_t end, const uint16_t value)
 	double te = ceil(static_cast<double>(value) * 0.10);
 	double diff = static_cast<double>(end - start)/ (SDL_GetPerformanceFrequency()/1000.0);
 	double dt = abs(diff - static_cast<double>(value));
-	std::cout << "value=" << value << " --- diff=" << diff << " --- te=" << te << " --- dt=" << dt << std::endl;
+	GTEST_LOG_(INFO) << "value=" << value << " --- diff=" << diff << " --- te=" << te << " --- dt=" << dt;
 	EXPECT_LE(dt, te);
 }
 
@@ -64,10 +64,16 @@ TEST(VgaTerminal, TimerNotInitedWarning)
 	Environment::setUp();
 }
 
+TEST(VgaTerminal, HelloWorldWindowMinimal)
+{
+	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
+	VgaTerminal term = VgaTerminal(title);
+	ASSERT_EQ(SDL_GetWindowTitle(term.getWindow()), title);
+}
+
 TEST(VgaTerminal, HelloWorldWindow) {
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
 	VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
-	
 	ASSERT_EQ(SDL_GetWindowTitle(term.getWindow()), title);
 }
 

@@ -42,12 +42,17 @@ VgaTerminal::~VgaTerminal()
     }
 }
 
-VgaTerminal::VgaTerminal(const std::string &title, const int winFlags, const int drvIndex, const int renFlags) :
+VgaTerminal::VgaTerminal(const std::string& title) :
+    VgaTerminal(title, 0, -1, 0)
+{
+}
+
+VgaTerminal::VgaTerminal(const std::string& title, const int winFlags, const int drvIndex, const int renFlags) :
     VgaTerminal(title, mode3.tw * mode3.cw, mode3.th * mode3.ch, winFlags, drvIndex, renFlags)
 {
 }
 
-VgaTerminal::VgaTerminal(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
+VgaTerminal::VgaTerminal(const std::string& title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
     : VgaTerminal(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, winFlags, drvIndex, renFlags)
 {
 }
@@ -170,6 +175,11 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
     tc.bgCol = bgCol;  tc.c = c; tc.col = col; tc.rendered = false;
     _setCharAtCursorPosition(tc);
     _incrementCursorPosition();
+}
+
+void VgaTerminal::write(const terminalChar_t tc) noexcept
+{
+    write(tc.c, tc.col, tc.bgCol);
 }
 
 void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept
@@ -398,7 +408,7 @@ uint32_t VgaTerminal::_timerCallBack(uint32_t interval)
 {
     // @TODO review the user event
     // @BODY at the moment is just using `SDL_USEREVENT`, should be something more specific and unique.
-    if (blinkCursor) {
+    if (showCursor && blinkCursor) {
         SDL_Event event;
         SDL_UserEvent userevent;
 

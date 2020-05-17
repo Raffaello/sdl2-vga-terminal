@@ -115,6 +115,22 @@ The filename generated are based on the test that are running, ideally: `[Test-s
 
 Just as a convention.
 
+## Tui Terminal (Experimental)
+
+This is just a show case and has not to be considered following the semantic versioning of the project,
+it implies things might change with no objective reason at all.
+
+It might could be detached completely and be its own library using this one.
+
+At the moment is really very basic, error-prone and not well designed neither.
+
+There is an example too among the examples.
+
+### Screenshot
+
+This is a TUI screenshot used in the snapshot test too.
+
+![alt text](./sdl2-vga-terminal/test/snapshot/TuiTerminal.Snapshot.png "Title")
 
 ## Projects Idea to be done in the future
 
