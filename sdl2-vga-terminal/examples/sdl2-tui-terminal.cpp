@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 
 	TuiTerminal tui = TuiTerminal("Tui Example", "a retro TUI style emulator");
 	int pb1 = 0;
-	int pb1Max = 10;
+	int pb1Max = 50;
 	int pb2 = 0;
 	int pb2Max = 3;
 	bool quit = false;
@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
 
 	while (!quit)
 	{
-		tui.progressBar(true, false, 24, 11, 10, pb2, pb2Max);
-		tui.progressBar(false, true, 24, 13, 10, pb1, pb1Max);
+		tui.progressBar(false, false, 24, 11, 20, pb2, pb2Max);
+		tui.progressBar(true, true, 24, 13, 20, pb1, pb1Max);
 		tui.render();
 
 		pb1++;

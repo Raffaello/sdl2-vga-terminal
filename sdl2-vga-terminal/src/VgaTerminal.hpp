@@ -105,7 +105,7 @@ public:
     CURSOR_SPEED getCursorSpeed() const noexcept;
     // TODO not really sure what is this for anymore...
     uint8_t cursorDefaultCol = 7;
-    // @deprecated to be remove in 1
+    // @deprecated to be removed in 1
     std::atomic<uint16_t> cursor_time = static_cast<uint16_t>(CURSOR_SPEED::CURSOR_SPEED_NORMAL); /// ms
     bool showCursor = true;
     bool blinkCursor = true;

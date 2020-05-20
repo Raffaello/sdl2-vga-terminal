@@ -4,7 +4,7 @@
 
 
 TuiTerminal::TuiTerminal(const std::string& title, const std::string& description) :
-	_title(title), _desc(description)
+	_title(title), _desc(description), _term(VgaTerminal(title))
 {
 	_term.autoScroll = false;
 	_term.showCursor = false;
@@ -41,9 +41,6 @@ void TuiTerminal::_drawBackGround() noexcept
 
 void TuiTerminal::_drawHeader()
 {
-	// TODO aligment
-	// split in 3 parts, left, middle, right
-	// 3 rows, columns = 
 	constexpr uint8_t x = 4;
 	constexpr uint8_t y = 0;
 	constexpr uint8_t w = 72;
@@ -51,7 +48,6 @@ void TuiTerminal::_drawHeader()
 	constexpr uint8_t col = 14;
 	constexpr uint8_t bgCol = 1;
 	constexpr SDL_Rect r{ x, y, w, h };
-	
 	
 	const std::string version = std::string("Version ") + VERSION;
 	auto [lmark, rmark] = tui::align3Strings(_title, _desc, version, w);
@@ -164,26 +160,41 @@ void TuiTerminal::drawDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, cons
 }
 
 // progress [0, max]
-void TuiTerminal::progressBar(const bool colored, const bool showProgress, const uint8_t x, const uint8_t y, const uint8_t length, const size_t progress, const size_t max)
+void TuiTerminal::progressBar(const bool colored, const bool showProgress, const uint8_t x, const uint8_t y, const uint8_t width, const size_t progress, const size_t max)
 {
+	// TODO progressBar algorithm is not optimal
+	// BODY there are wasting operations in
+	// BODY drawing the same cell each call.
+	// BODY
+	// BODY ---
+	// BODY
+	// BODY - clear the line should not required.
+	// BODY - if not colored, just check if need to fill the "next cell"
+	// BODY - if colored redraw only when there is a change in color from previous call.
+	// BODY - rewrite always the showProgress (promote to a label and here generate an event?)
+	// -----------------
+	
 	// red until 33%
-	// yellow until 66%
+	// yellow until 67%
 	// green until 100%
 
-	// TODO as parameter, 
-	// TODO ... from parent container..
+	// TODO as parameter,
+	// BODY ... from parent container..
 	constexpr uint8_t _col = 15;
 	constexpr uint8_t bgCol = 1;
 	constexpr int bufSize = 5;
 	uint8_t _length;
+	
+	// width > bufsize if colored && _length >= 3 
 	if (showProgress) {
-		_length = length - bufSize;
+		_length = width - bufSize;
 	}
 	else {
-		_length = length;
+		_length = width;
 	}
 
-	_drawHBorder(x, y, length, _col, bgCol, ' ');
+	// this is sub-optimal, it is drawing twice, can be done exactly once
+	_drawHBorder(x, y, width, _col, bgCol, ' ');
 	_term.gotoXY(x, y);
 	// X = X:length = progress:max => x*max/100 = progress => X = progress*100/max
 	const double ratio = progress / static_cast<double>(max);
@@ -221,7 +232,6 @@ void TuiTerminal::progressBar(const bool colored, const bool showProgress, const
 	}
 
 	if (showProgress) {
-
 		char buf[bufSize];
 
 		snprintf(buf, bufSize, "%3.0f%%", 100.0 * ratio);

@@ -42,11 +42,10 @@ public:
     void drawSingleBorderDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, const std::string& title, const std::string& body);
     void drawDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, const std::string& header, const std::string& body);
     // progress bar, todo as a component
-    void progressBar(const bool colored, const bool showProgress, const uint8_t x, const uint8_t y, const uint8_t length, const size_t progress, const size_t max);
+    void progressBar(const bool colored, const bool showProgress, const uint8_t x, const uint8_t y, const uint8_t width, const size_t progress, const size_t max);
 protected:
 private:
-    // TODO review later on...
-    VgaTerminal _term = VgaTerminal("VgaTerminal TUI mode");
+    VgaTerminal _term;
     const std::string _title;
     const std::string _desc;
     
