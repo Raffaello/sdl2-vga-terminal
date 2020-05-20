@@ -25,7 +25,7 @@
 class TuiTerminal
 {
 public:
-    static constexpr char* VERSION = "0.1";
+    static constexpr const char* VERSION = "0.1";
 
     TuiTerminal(const std::string& title, const std::string& description);
     // TODO wrappers to getWindow and renderer
@@ -33,7 +33,7 @@ public:
     SDL_Window* getWindow();
     SDL_Renderer* getRenderer();
     void draw();
-    void render();
+    void render(const bool force = false);
     VgaTerminal::terminalChar_t background_tc = { 177, 8, 9 };
     VgaTerminal::terminalChar_t footer_tc = { 219, 15, 1};
     static constexpr uint8_t defaultCol = 15;

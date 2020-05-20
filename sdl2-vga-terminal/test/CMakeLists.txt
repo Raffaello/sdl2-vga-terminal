@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.16)
 find_package(GTest 1.10 CONFIG REQUIRED)
 
 macro(macro_test) # ${ARGN} link libraries
-    include(GoogleTest)
+    
     set(prefix TEST)
     set(flags SNAPSHOT DEFAULT SHARELIB)
     set(singleValues EXE FILE)
@@ -19,8 +19,6 @@ macro(macro_test) # ${ARGN} link libraries
     #message("NEED SHARELIB: ${TEST_SHARELIB}")
     #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILE})
-    #add_test(TEST_${TEST_EXE} ${TEST_EXE})
-    gtest_add_tests(TARGET ${TEST_EXE})
     target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
     add_custom_command(TARGET ${TEST_EXE} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:${TEST_EXE}>
@@ -41,6 +39,9 @@ macro(macro_test) # ${ARGN} link libraries
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vga-terminal> $<TARGET_FILE_DIR:${TEST_EXE}>
         )
     endif()
+
+    include(GoogleTest)
+    gtest_discover_tests(${TEST_EXE})
 endmacro()
 
 if (TEST_DUMP_SNAPSHOT)

@@ -14,7 +14,7 @@ TEST(TuiTerminal, Snapshot)
 	tui.drawDialog({ 20, 5, 20, 10 }, 15, 1, "Header", "Body");
 	tui.progressBar(false, true, 22, 10, 15, 50, 100);
 	tui.progressBar(true, false, 22, 12, 15, 50, 100);
-	tui.render();
+	tui.render(true);
 
 	snapShotTest(tui.getWindow(), tui.getRenderer(), snapshotFilename);
 }

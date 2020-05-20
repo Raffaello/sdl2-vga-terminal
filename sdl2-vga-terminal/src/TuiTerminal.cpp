@@ -29,9 +29,9 @@ void TuiTerminal::draw()
 	_term.setViewPort(0, 5, _term.getMode().tw, _term.getMode().th - 5);
 }
 
-void TuiTerminal::render()
+void TuiTerminal::render(const bool force)
 {
-	_term.render();
+	_term.render(force);
 }
 
 void TuiTerminal::_drawBackGround() noexcept

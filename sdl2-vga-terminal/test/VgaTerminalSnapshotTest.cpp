@@ -12,7 +12,7 @@ void vgaTerminalSnapShotTest(VgaTerminal& term, const std::string& snapshotFilen
 {
 	// TODO this line smells
 	// BODY a common beaviour of a renderer interface has to be considered now
-	term.render();
+	term.render(true);
 
 	snapShotTest(term.getWindow(), term.getRenderer(), snapshotFilename);
 }
@@ -43,6 +43,7 @@ TEST_P(CursorShapeTests, CursorShapeSnapshot)
 	std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name(); 
 	VgaTerminal term = VgaTerminal(title, 0, -1, 0);
 	term.cursor_mode = cursorMode;
+	term.blinkCursor = false;
 	term.write(title, 7, 0);
 	
 	vgaTerminalSnapShotTest(term, snapshotFilename);
