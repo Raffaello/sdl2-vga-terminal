@@ -1,5 +1,6 @@
 #include "Window.hpp"
-#include <stdexcept>
+#include "exceptions/exceptions.hpp"
+
 
 Window::Window(const std::string &title, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
 	: Window(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, winFlags, drvIndex, renFlags)
@@ -9,7 +10,7 @@ Window::Window(const std::string &title, const int width, const int height, cons
 Window::Window(const std::string& title, const int x, const int y, const int width, const int height, const int winFlags, const int drvIndex, const int renFlags)
 {
 	if (SDL_WasInit(SDL_INIT_VIDEO) != SDL_INIT_VIDEO) {
-		throw std::runtime_error(std::string("video wasn't inited. Error: ") + SDL_GetError());
+		throw exceptions::SdlWasNotInit(std::string("video wasn't inited. Error: ") + SDL_GetError());
 	}
 
 	if ((winFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP) {
@@ -22,15 +23,13 @@ Window::Window(const std::string& title, const int x, const int y, const int wid
 	_pWindow = SDL_CreateWindow(title.c_str(), x, y, width, height, winFlags);
 
 	if (!_pWindow) {
-		std::string str = SDL_GetError();
-		throw std::runtime_error("Cannot create Window: " + str);
+		throw exceptions::WindowError("Cannot create Window: " + std::string(SDL_GetError()));
 	}
 
 	_pRenderer = SDL_CreateRenderer(_pWindow, drvIndex, renFlags);
 
 	if (!_pRenderer) {
-		std::string str = SDL_GetError();
-		throw std::runtime_error("Cannot create Renderer: " + str);
+		throw exceptions::RendererError("Cannot create Renderer: " + std::string(SDL_GetError()));
 	}
 
 	_windowId = SDL_GetWindowID(getWindow());

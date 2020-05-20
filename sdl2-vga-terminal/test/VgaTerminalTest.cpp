@@ -5,6 +5,7 @@
 #include <cmath>
 #include "Environment.hpp"
 #include <cstring>
+#include <exceptions/exceptions.hpp>
 
 
 void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
@@ -44,6 +45,7 @@ TEST(VgaTerminal, CannotInit)
 	//       so created 2 static wrapper.
 	Environment::tearDown();
 	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
+	ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), exceptions::SdlWasNotInit);
 	Environment::setUp();
 }
 

@@ -1,11 +1,10 @@
 #include "VgaTerminal.hpp"
 #include <typeinfo>
-#include <stdexcept>
 #include "vgafonts.h"
 #include "vgapalette.h"
 #include <version.h>
 #include <algorithm>
-
+#include "exceptions/exceptions.hpp"
 
 template<typename T> 
 constexpr auto RESIZE_VGA_PALETTE(T x) { return (x * 255 / 0x3F); }
@@ -64,7 +63,7 @@ VgaTerminal::VgaTerminal(const std::string& title, const int x, const int y, con
     resetViewport();
 
     if (SDL_RenderSetLogicalSize(getRenderer(), mode.tw * mode.cw, mode.th * mode.ch) < 0) {
-        throw std::runtime_error(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
+        throw exceptions::LogicalRenderError(std::string("unable to set logical rendering. Error: ") + SDL_GetError());
     }
 
     _pal.ncolors = mode.numColors;

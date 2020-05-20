@@ -41,6 +41,7 @@ install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/exceptions/exceptions.hpp
     DESTINATION static/include
 )
 
