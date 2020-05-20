@@ -185,7 +185,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
      target_compile_options(vga-terminal-static PRIVATE
         $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>
     )
-    target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+    target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
     target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
