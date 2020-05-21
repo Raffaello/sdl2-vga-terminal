@@ -12,7 +12,7 @@
  *** - no access to Window                                 ***
  *** - working with default palette colors only            ***
  *** - Header display a title, description and TUI Version ***
- *** - background                                          *** 
+ *** - background                                          ***
  *** - fix Footer                                          ***
  *** - no access to Window or VgaTerminal                  ***
  *** ===================================================== ***
@@ -48,7 +48,7 @@ private:
     VgaTerminal _term;
     const std::string _title;
     const std::string _desc;
-    
+
     void _drawBackGround() noexcept;
     void _drawHeader();
     // helpers functions
@@ -65,6 +65,6 @@ private:
     // footer
     void _drawFooter() noexcept;
     // dialog
-    
-    
+
+
 };

@@ -65,11 +65,11 @@ public:
 
     void gotoXY(const uint8_t x, const uint8_t y) noexcept;
     void gotoXY(const position_t &position) noexcept;
-  
+
     position_t getXY() const noexcept;
     uint8_t getX() const noexcept;
     uint8_t getY() const noexcept;
-    
+
     void write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void write(const terminalChar_t tc) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
@@ -80,7 +80,7 @@ public:
     void clear() noexcept;
     void clearLine(const uint8_t y, const uint8_t bgCol = 0) noexcept;
     void fill(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
-  
+
     void moveCursorLeft() noexcept;
     void moveCursorRight() noexcept;
     void moveCursorUp() noexcept;
@@ -96,7 +96,7 @@ public:
 
     const videoMode_t getMode() const noexcept;
     bool isIdle() const noexcept;
-    
+
     // NOTE: if you are using the methods do not use cursor_time field.
     void setCursorSpeed(const CURSOR_SPEED speed) noexcept;
     CURSOR_SPEED getCursorSpeed() const noexcept;
@@ -126,7 +126,7 @@ private:
     std::mutex _pGridMutex;
     const _terminalChar_t _defaultNullChar = _terminalChar_t({ 0, 0, 0, false });
     std::mutex _renderMutex;
-    
+
     std::atomic<uint8_t> _curX = 0;
     std::atomic<uint8_t> _curY = 0;
     std::atomic<uint8_t> _viewPortX;
@@ -135,10 +135,10 @@ private:
     std::atomic<uint8_t> _viewPortHeight;
     std::atomic<uint8_t> _viewPortX2;     /// _viewportX + _viewportWidth derived value
     std::atomic<uint8_t> _viewPortY2;     /// _viewportY + _viewportHeight derived value
-  
+
     CURSOR_SPEED _cursor_speed = CURSOR_SPEED::CURSOR_SPEED_NORMAL;
     //std::atomic<uint16_t> _cursor_time = static_cast<uint16_t>(_cursor_speed); /// ms
-    std::atomic<bool> _drawCursor = true; 
+    std::atomic<bool> _drawCursor = true;
     SDL_TimerID _cursorTimerId = 0;
     std::atomic<bool> _onIdle = true;
     void _setBusy() noexcept;
