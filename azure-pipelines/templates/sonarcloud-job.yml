@@ -130,8 +130,7 @@ jobs:
   - template: 'cmake-test-steps.yml'
     parameters:
       build_type: ${{ parameters.build_type }}
-    
-  
+      
   - bash: |
       echo '#!/bin/bash' > g.sh
       echo 'exec /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov gcov "$@"' >> g.sh

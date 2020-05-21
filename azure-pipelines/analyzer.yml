@@ -66,3 +66,21 @@ stages:
         sonar_wrapper_url: 'https://sonarcloud.io/static/cpp/build-wrapper-macosx-x86.zip'
         build_wrapper: 'build-wrapper-macosx-x86/build-wrapper-macosx-x86'
         build_wrapper_path: build/build-wrapper-macosx-x86
+
+    ### the cmake-gen-build-steps should be geneneralized to accept different
+    ### arguments from the build-wrapper, and the build wrapper in this case
+    ### is scan-build tool, at the moment make it working, 2nd iteration
+    ### generalize that themplate.
+    - job: cpplint
+      pool:
+        vmImage: ${{ variables.mac_image }}
+      steps:
+        - script: chmod +x cpplint.sh && ./cpplint.sh
+          displayName: cpplint 2> cpplint.log
+          continueOnError: true
+        # Publish (upload) a file or directory as a named artifact for the current run
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: cpplint.log
+            artifactName: 'cpplint.log'
+    
