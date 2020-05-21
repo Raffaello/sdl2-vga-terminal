@@ -4,7 +4,8 @@
 #include <gmock/gmock.h>
 #include <SDL2/SDL.h>
 
-class Environment : public ::testing::Environment {
+class Environment : public ::testing::Environment
+{
 public:
     ~Environment() override {}
 

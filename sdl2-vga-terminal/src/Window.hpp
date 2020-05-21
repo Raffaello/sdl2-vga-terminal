@@ -18,7 +18,7 @@ public:
     SDL_Window* getWindow() const noexcept;
     SDL_Renderer* getRenderer() const noexcept;
 
-    void setRendererDrawColor(const uint8_t r,const uint8_t g, const  uint8_t b, const  uint8_t a) const noexcept;
+    void setRendererDrawColor(const uint8_t r, const uint8_t g, const  uint8_t b, const  uint8_t a) const noexcept;
     void renderDrawPoints(const SDL_Color& color, const SDL_Point points[], int count) const noexcept;
 
     void renderClear() const noexcept;

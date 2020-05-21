@@ -75,12 +75,16 @@ stages:
       pool:
         vmImage: ${{ variables.mac_image }}
       steps:
-        - script: chmod +x cpplint.sh && ./cpplint.sh
-          displayName: cpplint 2> cpplint.log
+        - script: pip install cpplint
+          displayName: install cpplint
+        - script: chmod +x cpplint.sh && ./cpplint.sh 2> cpplint.log || echo "-==*** ignoring linting warnings ***==-"
+          displayName: cpplint
           continueOnError: true
         # Publish (upload) a file or directory as a named artifact for the current run
         - task: PublishPipelineArtifact@1
           inputs:
             targetPath: cpplint.log
             artifactName: 'cpplint.log'
-    
+        - script: cat cpplint.log
+          displayName: cpplint result
+

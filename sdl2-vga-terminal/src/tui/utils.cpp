@@ -45,4 +45,4 @@ std::string alignString(const std::string& str, const uint8_t pad, const uint8_t
 
     return std::string(p2, fill) + str + std::string(static_cast<uint8_t>(p2 + pr), fill);
 }
-}
+} // namespace tui

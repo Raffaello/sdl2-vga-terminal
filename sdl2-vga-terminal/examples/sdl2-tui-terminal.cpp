@@ -42,9 +42,9 @@ int main(int argc, char* argv[])
         SDL_Delay(10);
     }
 
-    tui.drawSingleBorderDialog({ 30, 10, 20,3 }, 15, 1, "", "Press any key...");
+    tui.drawSingleBorderDialog({ 30, 10, 20, 3 }, 15, 1, "", "Press any key...");
     tui.render();
-    //press a key...
+    // press a key...
     SDL_Event event;
     bool keypressed = false;
     while (!keypressed) {

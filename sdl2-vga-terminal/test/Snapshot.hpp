@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "Environment.hpp"
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -7,6 +8,8 @@
 #include <cstring>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <string>
+
 
 class SnapshotEnvironment : public Environment
 {

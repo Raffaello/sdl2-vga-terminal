@@ -1,8 +1,8 @@
 #include <iostream>
 #include <VgaTerminal.hpp>
 #include <cstdlib>
+#include <random>
 
-using namespace std;
 
 int main(int argc, char* args[])
 {

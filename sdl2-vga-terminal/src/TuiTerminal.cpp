@@ -156,7 +156,6 @@ void TuiTerminal::drawDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, cons
     _drawHBorder(r.x + 1, r.y + r.h - 1, r.w, col, bgCol, 205);
     _term.write(188, col, bgCol);
     _drawShadow(r);
-
 }
 
 // progress [0, max]
@@ -263,7 +262,6 @@ void TuiTerminal::_drawBorder(const SDL_Rect& r, const uint8_t col, const uint8_
     _term.gotoXY(r.x, r.y + r.h - 1);
     _term.write(bc, col, bgCol);
     _drawHBorder(r.x + 1, r.y + r.h - 1, r.w, col, bgCol, 205);
-
 }
 
 void TuiTerminal::_drawLeftBorder(const SDL_Rect& r, const uint8_t col, const uint8_t bgCol, const std::string& str)

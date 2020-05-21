@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     term2.render();
     SDL_Delay(1000);
 
-    VgaTerminal term1 = VgaTerminal("VgaTerminal",720,400, 0, -1, 0);
+    VgaTerminal term1 = VgaTerminal("VgaTerminal", 720, 400, 0, -1, 0);
     if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2") == SDL_FALSE) {
         cerr << "SetHint failed" << endl;
     }
@@ -137,10 +137,10 @@ int main(int argc, char* argv[])
             //  at some point a better event name should be used
             if (userevent.type == SDL_USEREVENT && userevent.code == 0) {
                 // the commented code below is intended as an example
-                //std::cout << "cursor event!" << endl;
+                // std::cout << "cursor event!" << endl;
             }
             else {
-                //cout << userevent.code << endl;
+                // cout << userevent.code << endl;
             }
             break;
         }
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 
     term2.handler = f;
     term2.cursor_time = 100;
-    //term2.setCursorSpeed(VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_FAST);
+    // term2.setCursorSpeed(VgaTerminal::CURSOR_SPEED::CURSOR_SPEED_FAST);
 
     string keyname;
     while (!quit) {
@@ -172,7 +172,6 @@ int main(int argc, char* argv[])
         }
 
         switch (event.type) {
-
         case SDL_QUIT:
             quit = true;
             break;

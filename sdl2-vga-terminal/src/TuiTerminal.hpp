@@ -20,7 +20,10 @@
  *************************************************************/
 #pragma once
 
+
 #include "VgaTerminal.hpp"
+#include <string>
+
 
 class TuiTerminal
 {
@@ -64,7 +67,4 @@ private:
     void _drawShadow(const SDL_Rect& r) noexcept;
     // footer
     void _drawFooter() noexcept;
-    // dialog
-
-
 };

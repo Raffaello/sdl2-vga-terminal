@@ -5,11 +5,14 @@
 #include <version.h>
 #include <algorithm>
 #include "exceptions/exceptions.hpp"
+#include <utility>
+
 
 template<typename T>
 constexpr auto RESIZE_VGA_PALETTE(T x) {
     return (x * 255 / 0x3F);
 }
+
 
 const VgaTerminal::videoMode_t VgaTerminal::mode3 = {
     static_cast <uint8_t>(0x003), // mode
@@ -127,9 +130,8 @@ void VgaTerminal::_renderCharLine(const std::bitset<8>& line, const int dstx, co
 void VgaTerminal::_renderCursor(const SDL_Point& dst, const _terminalChar_t& tc)
 {
     const uint8_t col = tc.col == tc.bgCol ?
-                        cursorDefaultCol :
-                        tc.col
-                        ;
+        cursorDefaultCol :
+        tc.col;
 
     const int dstx = dst.x + mode.cw;
     const uint8_t* font = &mode.font[static_cast<int>(tc.c) * mode.ch];
@@ -295,7 +297,7 @@ void VgaTerminal::moveCursorLeft() noexcept
     if (_curX > _viewPortX) {
         --_curX;
     }
-    else if(_curY > _viewPortY) {
+    else if (_curY > _viewPortY) {
         --_curY;
         _curX = _viewPortX2 - 1;
     }
@@ -374,11 +376,10 @@ bool VgaTerminal::setViewPort(const uint8_t x, const uint8_t y, const uint8_t wi
 bool VgaTerminal::setViewPort(const SDL_Rect& r) noexcept
 {
     return setViewPort(
-               static_cast<uint8_t>(r.x),
-               static_cast<uint8_t>(r.y),
-               static_cast<uint8_t>(r.w),
-               static_cast<uint8_t>(r.h)
-           );
+        static_cast<uint8_t>(r.x),
+        static_cast<uint8_t>(r.y),
+        static_cast<uint8_t>(r.w),
+        static_cast<uint8_t>(r.h));
 }
 
 SDL_Rect VgaTerminal::getViewport() const noexcept

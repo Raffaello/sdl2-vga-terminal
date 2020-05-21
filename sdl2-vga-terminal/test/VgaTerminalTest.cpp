@@ -137,7 +137,7 @@ TEST(VgaTerminal, clearLineViewport)
     EXPECT_TRUE(term.setViewPort(10, 2, 10, 2));
     term.write(title, 7, 1);
     term.clearLine(0);
-    cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 0,0, 0 }));
+    cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 0, 0, 0 }));
     term.resetViewport();
     cmpTerminalChar(term.at(9, 2), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
     cmpTerminalChar(term.at(21, 2), VgaTerminal::terminalChar_t({ 'X', 7, 1 }));
@@ -153,7 +153,6 @@ TEST(VgaTerminal, clearLineOutsideViewport)
     std::string output = testing::internal::GetCapturedStderr();
     EXPECT_THAT(output, testing::HasSubstr("WARN: ["));
     EXPECT_THAT(output, testing::EndsWith("VgaTerminal] clearLine: y outside viewport\n"));
-
 }
 
 TEST(VgaTerminal, fill)
@@ -328,7 +327,7 @@ TEST(VgaTerminal, resetViewport)
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
     VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
     auto vp = term.getViewport();
-    SDL_Rect vp2 = { 10, 10,10, 10 };
+    SDL_Rect vp2 = { 10, 10, 10, 10 };
     ASSERT_TRUE(term.setViewPort(vp2));
     cmpViewportCheck(vp2, term.getViewport());
     term.resetViewport();

@@ -7,6 +7,7 @@
 #include <bitset>
 #include <atomic>
 #include <mutex>
+#include <utility>
 
 
 class VgaTerminal : public Window
@@ -108,7 +109,6 @@ public:
     bool blinkCursor = true;
     bool autoScroll = true;
 protected:
-
 private:
     typedef struct _terminalChar_t : terminalChar_t
     {
