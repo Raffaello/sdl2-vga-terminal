@@ -8,6 +8,7 @@ steps:
     displayName: cmake test (ctest)
     workingDirectory: build
   - task: PublishTestResults@2
+    condition: succeededOrFailed()
     inputs:
       testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
       testResultsFiles: '**/Test.xml' 

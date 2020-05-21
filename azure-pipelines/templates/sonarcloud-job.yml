@@ -130,6 +130,7 @@ jobs:
   - template: 'cmake-test-steps.yml'
     parameters:
       build_type: ${{ parameters.build_type }}
+    
   
   - bash: |
       echo '#!/bin/bash' > g.sh
@@ -158,17 +159,17 @@ jobs:
   - bash: bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80s
     displayName: codeCov
     workingDirectory: build
+    continueOnError: true
   - bash: |
       curl https://raw.githubusercontent.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py -o lcov_cobertura.py 
       python lcov_cobertura.py coverage.info -o cobertura.xml
     displayName: gen cobertura.xml
+    continueOnError: true
     workingDirectory: build
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:
       pollingTimeoutSec: ${{ parameters.publish_timeout }}
-  # Publish code coverage results
-  # Publish Cobertura or JaCoCo code coverage results from a build
   - task: PublishCodeCoverageResults@1
     inputs:
       codeCoverageTool: 'cobertura' #'JaCoCo' # Options: cobertura, jaCoCo
