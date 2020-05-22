@@ -155,7 +155,7 @@ jobs:
     displayName: collect coverage data
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
-  - bash: bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80s
+  - bash: bash <(curl -s https://codecov.io/bash) -f coverage.info
     displayName: codeCov
     workingDirectory: build
     continueOnError: true
