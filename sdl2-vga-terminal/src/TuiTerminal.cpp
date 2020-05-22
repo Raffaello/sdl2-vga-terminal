@@ -4,7 +4,7 @@
 
 
 TuiTerminal::TuiTerminal(const std::string& title, const std::string& description) :
-    _title(title), _desc(description), _term(VgaTerminal(title))
+    _term(VgaTerminal(title)), _title(title), _desc(description)
 {
     _term.autoScroll = false;
     _term.showCursor = false;
@@ -76,21 +76,21 @@ void TuiTerminal::drawSingleBorderDialog(const SDL_Rect& r, uint8_t col, uint8_t
     }
 
 
-    std::string padTitle = tui::alignString(title, r.w - 2 - title.size(), 196);
-    std::string padBody = tui::alignString(body, r.w - 2 - body.size(), ' ');
+    std::string padTitle = tui::alignString(title, static_cast<uint8_t>(r.w - 2 - title.size()), 196);
+    std::string padBody = tui::alignString(body, static_cast<uint8_t>(r.w - 2 - body.size()), ' ');
     // Top
-    _term.gotoXY(r.x, r.y);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y));
     _term.write(218, col, bgCol);
     _term.write(padTitle, col, bgCol);
     _term.write(191, col, bgCol);
     // Middle
-    _term.gotoXY(r.x, r.y + 1);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + 1));
     _term.write(179, col, bgCol);
     _term.write(padBody, col, bgCol);
     _term.write(179, col, bgCol);
     for (int i = 2; i < r.h - 1; i++)
     {
-        _term.gotoXY(r.x, r.y + i);
+        _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + i));
         _term.write(179, col, bgCol);
         for (int j = 2; j < r.w; j++) {
             _term.write(' ', col, bgCol);
@@ -98,9 +98,9 @@ void TuiTerminal::drawSingleBorderDialog(const SDL_Rect& r, uint8_t col, uint8_t
         _term.write(179, col, bgCol);
     }
     // Bottom
-    _term.gotoXY(r.x, r.y + r.h - 1);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + r.h - 1));
     _term.write(192, col, bgCol);
-    _drawHBorder(r.x + 1, r.y + r.h - 1, r.w, col, bgCol, 196);
+    _drawHBorder(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y + r.h - 1), static_cast<uint8_t>(r.w), col, bgCol, 196);
     _term.write(217, col, bgCol);
     _drawShadow(r);
 }
@@ -119,31 +119,31 @@ void TuiTerminal::drawDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, cons
         throw std::invalid_argument("body too long");
     }
 
-    std::string padTitle = tui::alignString(header, r.w - 2 - header.size(), 196);
-    std::string padBody = tui::alignString(body, r.w - 2 - body.size(), ' ');
+    std::string padTitle = tui::alignString(header, static_cast<uint8_t>(r.w - 2 - header.size()), 196);
+    std::string padBody = tui::alignString(body, static_cast<uint8_t>(r.w - 2 - body.size()), ' ');
 
     // Header
     // Top
-    _term.gotoXY(r.x, r.y);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y));
     _term.write(218, col, bgCol);
     _term.write(padTitle, col, bgCol);
     _term.write(183, col, bgCol);
     // Middle
-    _term.gotoXY(r.x, r.y + 1);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + 1));
     _term.write(179, col, bgCol);
     _term.write(padBody, col, bgCol);
     _term.write(186, col, bgCol);
     // Bottom
-    _term.gotoXY(r.x, r.y + 2);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + 2));
     _term.write(195, col, bgCol);
-    _drawHBorder(r.x + 1, r.y + 2, r.w, col, bgCol, 196);
+    _drawHBorder(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y + 2), static_cast<uint8_t>(r.w), col, bgCol, 196);
     _term.write(182, col, bgCol);
     // End Header
 
     // Body
     for (int i = 3; i < r.h - 1; i++)
     {
-        _term.gotoXY(r.x, r.y + i);
+        _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + i));
         _term.write(179, col, bgCol);
         for (int j = 2; j < r.w; j++) {
             _term.write(' ', col, bgCol);
@@ -151,9 +151,9 @@ void TuiTerminal::drawDialog(const SDL_Rect& r, uint8_t col, uint8_t bgCol, cons
         _term.write(186, col, bgCol);
     }
     // Bottom
-    _term.gotoXY(r.x, r.y + r.h - 1);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + r.h - 1));
     _term.write(212, col, bgCol);
-    _drawHBorder(r.x + 1, r.y + r.h - 1, r.w, col, bgCol, 205);
+    _drawHBorder(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y + r.h - 1), static_cast<uint8_t>(r.w), col, bgCol, 205);
     _term.write(188, col, bgCol);
     _drawShadow(r);
 }
@@ -246,22 +246,23 @@ void TuiTerminal::_drawBorder(const SDL_Rect& r, const uint8_t col, const uint8_
     }
 
     // Top
-    _term.gotoXY(r.x, r.y);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y));
     _term.write(tc, col, bgCol);
-    _drawHBorder(r.x + 1, r.y, r.w, col, bgCol, 205);
+    _drawHBorder(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y), static_cast<uint8_t>(r.w), col, bgCol, 205);
     // Middle
     for (uint8_t i = 1; i < r.h - 1; i++) {
-        _term.gotoXY(r.x, r.y + i);
+        _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + i));
         _term.write(mc, col, bgCol);
     }
 
     // at the moment only on the 2nd row other are just "padding"
-    _term.writeXY(r.x + 1, r.y + 1, tui::alignString(str, r.w - 2 - str.size(), ' '), col, bgCol);
+    _term.writeXY(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y + 1),
+        tui::alignString(str, static_cast<uint8_t>(r.w - 2 - str.size()), ' '), col, bgCol);
 
     // Bottom
-    _term.gotoXY(r.x, r.y + r.h - 1);
+    _term.gotoXY(static_cast<uint8_t>(r.x), static_cast<uint8_t>(r.y + r.h - 1));
     _term.write(bc, col, bgCol);
-    _drawHBorder(r.x + 1, r.y + r.h - 1, r.w, col, bgCol, 205);
+    _drawHBorder(static_cast<uint8_t>(r.x + 1), static_cast<uint8_t>(r.y + r.h - 1), static_cast<uint8_t>(r.w), col, bgCol, 205);
 }
 
 void TuiTerminal::_drawLeftBorder(const SDL_Rect& r, const uint8_t col, const uint8_t bgCol, const std::string& str)
@@ -278,14 +279,14 @@ void TuiTerminal::_drawRightBorder(const SDL_Rect& r, const uint8_t col, const u
 {
     _drawMiddleBorder(r, col, bgCol, str);
 
-    uint8_t xw = r.x + r.w - 1;
-    _term.gotoXY(xw, r.y);
+    uint8_t xw = static_cast<uint8_t>(r.x + r.w - 1);
+    _term.gotoXY(xw, static_cast<uint8_t>(r.y));
     _term.write(187, col, bgCol);
     for (uint8_t i = 1; i < r.h - 1; i++) {
-        _term.gotoXY(xw, r.y + i);
+        _term.gotoXY(xw, static_cast<uint8_t>(r.y + i));
         _term.write(186, col, bgCol);
     }
-    _term.gotoXY(xw, r.y + r.h - 1);
+    _term.gotoXY(xw, static_cast<uint8_t>(r.y + r.h - 1));
     _term.write(188, col, bgCol);
 }
 
@@ -332,7 +333,7 @@ void TuiTerminal::_shadowColor(VgaTerminal::terminalChar_t& tc)
 
 void TuiTerminal::_drawShadow(const SDL_Rect& r) noexcept
 {
-    _term.gotoXY(r.x + 2, r.y + r.h);
+    _term.gotoXY(static_cast<uint8_t>(r.x + 2), static_cast<uint8_t>(r.y + r.h));
     for (int i = 0; i < r.w; i++) {
         auto tc = _term.at(_term.getX(), _term.getY());
         _shadowColor(tc);
@@ -340,7 +341,7 @@ void TuiTerminal::_drawShadow(const SDL_Rect& r) noexcept
     }
 
     for (int i = 1; i < r.h; i++) {
-        _term.gotoXY(r.x + r.w, r.y + i);
+        _term.gotoXY(static_cast<uint8_t>(r.x + r.w), static_cast<uint8_t>(r.y + i));
         for (int j = 0; j < 2; j++) {
             auto tc = _term.at(_term.getX(), _term.getY());
             _shadowColor(tc);

@@ -40,6 +40,7 @@ there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for
   The test results are published in Azure Devops through `ctest -T Test` flag.
 
 - The Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud.
+  it also performing a `cpplint` job and publish as artifact the result.
 - The Matrix pipeline is an overkill so it is just triggered manually when required.
   It is reflecting this table:
 
@@ -71,13 +72,11 @@ It should be on 16 colors in the classic way, but can support more thanks to SDL
 
 It is just a matter of fonts and a terminal grid for displaying texts.
 
-
 ## Requirements
 
 - `SDL2`
 
 ## Compiling
-
 
 These are the requirements to compile the project from source:
 
