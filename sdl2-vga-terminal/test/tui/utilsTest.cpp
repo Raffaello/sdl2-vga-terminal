@@ -65,7 +65,7 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_tuple("a", "b", "c", 3, 6, " a |b |c "),                                                              // 5
         std::make_tuple("a", "b", "c", 3, 7, " a | b |c "),                                                             // 6
         std::make_tuple("a", "b", "c", 3, 7, " a | b | c "),                                                            // 7
-        //012345678901234567890123456789012345678901234567890
+                                                                    //012345678901234567890123456789012345678901234567890
         std::make_tuple("TITLE", "DESCRIPTION", "VERSION", 07, 21, " TITLE | DESCRIPTION | VERSION "),                  // 8
         std::make_tuple("TITLE", "DESCRIPTION", "VERSION", 12, 31, "   TITLE    |   DESCRIPTION    |   VERSION   ")     // 9
     )
