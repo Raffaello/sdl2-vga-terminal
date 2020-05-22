@@ -43,6 +43,8 @@ stages:
 - stage: CI
   jobs:
     - job: macOS
+      variables:
+        HAVE_PRECISE_TIMER: OFF
       strategy:
         matrix:
           Debug:

@@ -127,11 +127,10 @@ jobs:
       arch: ${{ parameters.arch }}
       build_wrapper: "${{ parameters.build_wrapper }} --out-dir bw-output"
   
-  - ${{ if eq(parameters.test, true) }}:  
-    - script: ctest -C ${{ parameters.build_type }}
-      displayName: ctest
-      workingDirectory: build
-  # /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov
+  - template: 'cmake-test-steps.yml'
+    parameters:
+      build_type: ${{ parameters.build_type }}
+      
   - bash: |
       echo '#!/bin/bash' > g.sh
       echo 'exec /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov gcov "$@"' >> g.sh
@@ -146,20 +145,35 @@ jobs:
   #  condition: ne(variables['Agent.OS'], 'Windows_NT')
   - bash: |
       echo $OSTYPE
-      test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov 
-      #brew install lcov
-      #echo "finding..."
-      #find . -name *.gcda
-      #echo "...."
+      test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
       ./g.sh -f -b -u $(find . -name *.gcda)
       lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
       lcov --remove cov.info '/Applications/*' --output-file coverage.info
       lcov --list coverage.info
-      bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80
+      #gcovr -r ../ --filter ../sdl2-vga-terminal/src -o sonarcube.xml --sonarqube
+      #gcovr -r ../ --filter ../sdl2-vga-terminal/src -o cobertura.xml --cobertura
     displayName: collect coverage data
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
+  - bash: bash <(curl -s https://codecov.io/bash) -f coverage.info -t b8f07100-6985-49f7-aa4c-14e36f29ac80s
+    displayName: codeCov
+    workingDirectory: build
+    continueOnError: true
+  - bash: |
+      curl https://raw.githubusercontent.com/eriwen/lcov-to-cobertura-xml/master/lcov_cobertura/lcov_cobertura.py -o lcov_cobertura.py 
+      python lcov_cobertura.py coverage.info -o cobertura.xml
+    displayName: gen cobertura.xml
+    continueOnError: true
+    workingDirectory: build
   - task: SonarCloudAnalyze@1
   - task: SonarCloudPublish@1
     inputs:
       pollingTimeoutSec: ${{ parameters.publish_timeout }}
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura' #'JaCoCo' # Options: cobertura, jaCoCo
+      summaryFileLocation: build/cobertura.xml
+      pathToSources: sdl2-vga-terminal/src # Optional
+      #reportDirectory: build # Optional
+      #additionalCodeCoverageFiles: # Optional
+      #failIfCoverageEmpty: false # Optional

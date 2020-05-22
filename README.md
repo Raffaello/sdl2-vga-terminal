@@ -33,13 +33,16 @@
 
 there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for matrix build.
 
-- the CI pipelines related to each OS are building multiple times based on the below matrix.
-  The result of the tests are published in Azure Devops as well through `ctest -T Test` flag.
+- The CI pipelines related to each OS are building and generating the artifacts.
+  
+  Only Linux is not runnig the tests due to missing video driver on CI.
+  
+  The test results are published in Azure Devops through `ctest -T Test` flag.
 
-- the Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud
-- the Matrix pipeline is an overkill so it is just triggered manually when required.
-
-The Matrix build is reflecting this table:
+- The Analysis pipeline is analyzing the code, generating coverage and publish to codecov and SonarCloud.
+  it also performing a `cpplint` job and publish as artifact the result.
+- The Matrix pipeline is an overkill so it is just triggered manually when required.
+  It is reflecting this table:
 
 | FLAGS\OS             | Windows            | Linux              | macos              |
 |:--------------------:|:------------------:|:------------------:|:------------------:|
@@ -69,13 +72,11 @@ It should be on 16 colors in the classic way, but can support more thanks to SDL
 
 It is just a matter of fonts and a terminal grid for displaying texts.
 
-
 ## Requirements
 
 - `SDL2`
 
 ## Compiling
-
 
 These are the requirements to compile the project from source:
 
@@ -113,9 +114,25 @@ The filename generated are based on the test that are running, ideally: `[Test-s
 
 Just as a convention.
 
+## Tui Terminal (Experimental)
+
+This is just a show case and has not to be considered following the semantic versioning of the project,
+it implies things might change with no objective reason at all.
+
+It might could be detached completely and be its own library using this one.
+
+At the moment is really very basic, error-prone and not well designed neither.
+
+There is an example too among the examples.
+
+### Screenshot
+
+This is a TUI screenshot used in the snapshot test too.
+
+![alt text](./sdl2-vga-terminal/test/snapshot/TuiTerminal.Snapshot.png "Title")
 
 ## Projects Idea to be done in the future
 
--   `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
--   `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
--   `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)
+- `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
+- `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
+- `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)

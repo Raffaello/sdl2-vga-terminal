@@ -1,0 +1,21 @@
+parameters:
+  - name: build_type
+    displayName: Build Type
+    type: string
+    
+steps:
+  - script: ctest -C ${{ parameters.build_type }} -v -V -T Test
+    displayName: cmake test (ctest)
+    workingDirectory: build
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: 'cTest' # Options: JUnit, NUnit, VSTest, xUnit, cTest
+      testResultsFiles: '**/Test.xml' 
+      searchFolder: build # Optional
+      #mergeTestResults: false # Optional
+      #failTaskOnFailedTests: false # Optional
+      #testRunTitle: # Optional
+      #buildPlatform: # Optional
+      #buildConfiguration: # Optional
+      #publishRunAttachments: true # Optional

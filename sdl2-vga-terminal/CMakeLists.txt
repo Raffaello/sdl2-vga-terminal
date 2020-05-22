@@ -18,6 +18,11 @@ if (WIN32)
     set(LIB_SDL2main SDL2::SDL2main)
 endif()
 
+if(HAVE_PRECISE_TIMER)
+else()
+    add_compile_definitions(NO_PRECISE_TIMER)
+endif()
+
 ########################### Static Lib #######################################
 set(LIB_NAME vga-terminal-static)
 set(LIB_CONF ${LIB_NAME}-config)
@@ -25,6 +30,7 @@ set(LIB_VER ${LIB_CONF}-version)
 include(CMakePackageConfigHelpers)
 
 add_library(${LIB_NAME} STATIC)
+set_target_properties(${LIB_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 install(
     TARGETS ${LIB_NAME}
     EXPORT ${LIB_CONF}
@@ -34,6 +40,8 @@ install(
 install(FILES 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/exceptions/exceptions.hpp
     DESTINATION static/include
 )
 
@@ -64,6 +72,8 @@ target_include_directories(${LIB_NAME} PUBLIC
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tui/utils.cpp
 )
 
 target_link_libraries(${LIB_NAME} PUBLIC ${LIB_SDL2})
@@ -160,7 +170,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
         )
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic -fPIC 
+    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic #-fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
@@ -175,7 +185,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
      target_compile_options(vga-terminal-static PRIVATE
         $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>
     )
-    target_link_options(vga-terminal-static PRIVATE $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+    target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
     target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
@@ -187,7 +197,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
         message(STATUS ${LINK_SUBSYS_WIN})
         target_link_options(vga-terminal-static PUBLIC ${LINK_SUBSYS_WIN})
     elseif(UNIX)
-        target_compile_options(vga-terminal-static PRIVATE -fPIC 
+        target_compile_options(vga-terminal-static PRIVATE #-fPIC 
             $<$<CONFIG:DEBUG>: -g;>
             $<$<CONFIG:RELEASE>:-O2;>
         )
@@ -212,15 +222,13 @@ message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
 unset(vga-terminal-static_copts)
 
 
-
-
-
 ################################ Examples ####################################
 if(BUILD_EXAMPLES)
     add_subdirectory("examples")
 endif()
 
+
 ############################### tests ########################################
 if(BUILD_TESTING)
-add_subdirectory("test")
+    add_subdirectory("test")
 endif()
