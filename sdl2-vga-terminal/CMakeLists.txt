@@ -158,19 +158,11 @@ endif()
 ######################## add compiler options ################################
 if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
-
-    target_compile_options(vga-terminal-static PRIVATE /W4  #/WX
+    set(CXX_OPTS PRIVATE /W4  #/WX
         $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
-        $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
-    )
-    if (BUILD_SHARED_LIBS)
-        target_compile_options(vga-terminal PRIVATE /W4 #/WX
-            $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
-            $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>
-        )
-    endif()
+        $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
-    target_compile_options(vga-terminal-static PRIVATE -Wall -Wextra -pedantic #-fPIC 
+    set(CXX_OPTS PRIVATE -Wall -Wextra -pedantic #-fPIC 
         $<$<CONFIG:DEBUG>:
             -O0;-D_GLIBCXX_DEBUG;-D_GLIBCXX_ASSERTIONS;-fexceptions;
             -W; -Wshadow; -Wunused-variable;
@@ -178,37 +170,32 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
             -Wno-deprecated; -Woverloaded-virtual; -Wwrite-strings;
         >
         #$<$<CONFIG:RELEASE>:-O2;-fexceptions;-fstack-clash-protection;-D_FORTIFY_SOURCE=2>
-        $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>
-    ) #-Werror)
+        $<$<CONFIG:RELEASE>:-O2;-fexceptions;-D_FORTIFY_SOURCE=2>)    
 
     if (ENABLE_CODE_COVERAGE)
-     target_compile_options(vga-terminal-static PRIVATE
-        $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>
-    )
-    target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
+        set(CXX_COV_OPTS PRIVATE
+            $<$<CONFIG:DEBUG>: -fprofile-arcs; -ftest-coverage;>)
+        target_link_options(vga-terminal-static PUBLIC PUBLIC $<$<CONFIG:DEBUG>:-fprofile-arcs; -ftest-coverage; --coverage;>)
     endif()
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^(Apple)?Clang")
-    target_compile_options(vga-terminal-static PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
-            -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
-    )
+    set(CXX_OPTS PRIVATE -WCL4  -Wabstract-vbase-init -Wassign-enum
+        -Watomic-implicit-seq-cst -Watomic-properties -Wbad-function-cast -Wbinary-literal
+         $<$<CONFIG:DEBUG>: -g;>
+        $<$<CONFIG:RELEASE>:-O2;>)
+
+    if(ENABLE_CODE_COVERAGE)
+        set(CXX_COV_OPTS PRIVATE
+            $<$<CONFIG:DEBUG>:-c;-fprofile-arcs; -ftest-coverage;>)
+
+        #target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -fprofile-instr-generate; -fcoverage-mapping;>)
+        target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -ftest-coverage;-fprofile-arcs; --coverage;>)
+    endif()
 
     if (WIN32)
         set(LINK_SUBSYS_WIN /subsystem:windows)
         message(STATUS ${LINK_SUBSYS_WIN})
         target_link_options(vga-terminal-static PUBLIC ${LINK_SUBSYS_WIN})
     elseif(UNIX)
-        target_compile_options(vga-terminal-static PRIVATE #-fPIC 
-            $<$<CONFIG:DEBUG>: -g;>
-            $<$<CONFIG:RELEASE>:-O2;>
-        )
-        
-        if(ENABLE_CODE_COVERAGE)
-            target_compile_options(vga-terminal-static PRIVATE
-                $<$<CONFIG:DEBUG>:-c;-fprofile-arcs; -ftest-coverage;>
-            )
-            target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -ftest-coverage;-fprofile-arcs; --coverage;>)
-        #target_link_options(vga-terminal-static PUBLIC $<$<CONFIG:DEBUG>: -fprofile-instr-generate; -fcoverage-mapping;>)
-        endif()
     else()
         message(ERROR "Unknown OS")
     endif()
@@ -216,10 +203,14 @@ else()
     message(WARNING ${CMAKE_CXX_COMPILER_ID})
 endif()
 
-message("target interface compiler options:")
-get_target_property(vga-terminal-static_copts vga-terminal-static COMPILE_OPTIONS)
-message(STATUS "vga-terminal-static " ${vga-terminal-static_copts})
-unset(vga-terminal-static_copts)
+message("target compiler options: " ${CXX_OPTS} ${CXX_COV_OPTS})
+target_compile_options(vga-terminal-static ${CXX_OPTS} ${CXX_COV_OPTS}) #-Werror)
+if (BUILD_SHARED_LIBS)
+    target_compile_options(vga-terminal PRIVATE ${CXX_OPTS} ${CXX_COV_OPTS})
+endif()
+
+unset(CXX_OPTS)
+unset(CXX_COV_OPTS)
 
 
 ################################ Examples ####################################
