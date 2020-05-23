@@ -5,10 +5,12 @@ trigger:
   paths:
     exclude:
     #- .gitignore
-    - .github/*
+    - .github/
     - README.md
     - appveyor.yml
+    - LICENSE
     - codecov.yml
+
   tags:
     include:
     - '*'
@@ -20,7 +22,7 @@ pr:
   paths:
     exclude:
     #- .gitignore
-    - .github/*
+    - .github/config.yml
     - README.md
     - appveyor.yml
     - LICENSE
