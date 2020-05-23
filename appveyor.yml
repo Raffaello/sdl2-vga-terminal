@@ -69,6 +69,7 @@ skip_commits:
     - azure-pipelines/*
     - LICENSE
     - codecov.yml
+    - lgtm.yml
 
 cache:
     - C:\tools\vcpkg\installed

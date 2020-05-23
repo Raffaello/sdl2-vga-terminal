@@ -8,7 +8,10 @@ trigger:
     - .github/*
     - README.md
     - appveyor.yml
+    - LICENSE
     - codecov.yml
+    - lgtm.yml
+
   tags:
     include:
     - '*'
