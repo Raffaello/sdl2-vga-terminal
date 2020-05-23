@@ -1,28 +1,35 @@
-trigger:
-  branches:
-    include:
-    - master
-  paths:
-    exclude:
-    #- .gitignore
-    - .github/*
-    - README.md
-    - appveyor.yml
-  tags:
-    include:
-    - '*'
+# trigger:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     exclude:
+#     #- .gitignore
+#     - .github/*
+#     - README.md
+#     - appveyor.yml
+#   tags:
+#     include:
+#     - '*'
 
-pr:
-  branches:
-    include:
-    - master
-  paths:
-    exclude:
-    #- .gitignore
-    - .github/*
-    - README.md
-    - appveyor.yml
-    - LICENSE
+# pr:
+#   branches:
+#     include:
+#     - master
+#   paths:
+#     exclude:
+#     #- .gitignore
+#     - .github/*
+#     - README.md
+#     - appveyor.yml
+#     - LICENSE
+
+trigger: none
+pr: none
+resources:
+  pipelines:
+    - pipeline: vcpkg
+      source: 'Raffaello.sdl2-vga-terminal.vcpkg'
 
 variables:
   - template: variables/global.yml
@@ -41,11 +48,13 @@ stages:
       pool:
         vmImage: $(imageName)
       steps:
-      - template: templates/dep-vcpkg-steps.yml
-        parameters:
-          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-          triplet: $(TRIPLET)
-          arch: $(ARCH)
+      # - template: templates/dep-vcpkg-steps.yml
+      #   parameters:
+      #     vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+      #     triplet: $(TRIPLET)
+      #     arch: $(ARCH)
+      - download: Raffaello.sdl2-vga-terminal.vcpkg
+        artifact: dep-vcpkg
 
 
 - stage: Analyzer
