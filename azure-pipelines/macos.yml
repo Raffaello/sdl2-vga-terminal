@@ -26,6 +26,8 @@ pr:
     - README.md
     - appveyor.yml
     - LICENSE
+    - codecov.yml
+
 variables:
   - template: variables/global.yml
   - template: variables/images.yml

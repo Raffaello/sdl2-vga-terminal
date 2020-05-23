@@ -7,7 +7,7 @@ trigger:
     #- .gitignore
     - .github/
     - README.md
-    - appveyor.yml
+    - ../appveyor.yml
     - LICENSE
     - codecov.yml
 
@@ -24,8 +24,9 @@ pr:
     #- .gitignore
     - .github/config.yml
     - README.md
-    - appveyor.yml
+    - ../appveyor.yml
     - LICENSE
+    - codecov.yml
 
 variables:
   - template: variables/global.yml
