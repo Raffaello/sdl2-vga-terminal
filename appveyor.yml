@@ -65,7 +65,6 @@ skip_commits:
     - .github/*
     #- .gitignore
     - README.md
-    - azure-pipelines.yml
     - azure-pipelines/*
     - LICENSE
     - codecov.yml
