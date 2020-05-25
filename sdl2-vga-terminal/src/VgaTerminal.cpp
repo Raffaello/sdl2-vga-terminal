@@ -195,10 +195,26 @@ void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t
     }
 }
 
+void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
+{
+    gotoXY(x, y);
+    write(c, col, bgCol);
+}
+
+void VgaTerminal::writeXY(const position_t& pos, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
+{
+    writeXY(pos.first, pos.second, c, col, bgCol);
+}
+
 void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept
 {
     gotoXY(x, y);
     write(str, col, bgCol);
+}
+
+void VgaTerminal::writeXY(const position_t& pos, const std::string& str, const uint8_t col, const uint8_t bgCol) noexcept
+{
+    writeXY(pos.first, pos.second, str, col, bgCol);
 }
 
 /**
