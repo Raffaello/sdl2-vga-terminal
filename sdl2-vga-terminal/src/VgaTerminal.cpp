@@ -576,7 +576,13 @@ VgaTerminal::_terminalChar_t VgaTerminal::_getCursorChar() noexcept
 void VgaTerminal::_setCharAtCursorPosition(const _terminalChar_t& tc) noexcept
 {
     std::lock_guard lck(_pGridMutex);
-    _pGrid[_getCursorPosition()] = tc;
+    _terminalChar_t _tc = _pGrid[_getCursorPosition()];
+    // TODO define an operator to simply this expression
+    // BODY what is compared here is the terminalchar_t not the _terminalChar_t
+    // BODY rendered flag in this case is ignored.
+    if (!(_tc.c == tc.c && _tc.col == tc.col && _tc.bgCol == tc.bgCol)) {
+        _pGrid[_getCursorPosition()] = tc;
+    }
 }
 
 void VgaTerminal::_setCursorNotRendered() noexcept
