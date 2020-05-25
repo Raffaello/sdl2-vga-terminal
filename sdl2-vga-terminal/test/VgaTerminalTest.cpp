@@ -36,7 +36,7 @@ void cmpTicks(const uint64_t start, const uint64_t end, const uint16_t value)
 TEST(VgaTerminal, checkVersion)
 {
     VgaTerminal t("", 0, -1, 0);
-    ASSERT_STRCASEEQ("0.3.0", t.getVersion().c_str());
+    ASSERT_STRCASEEQ("0.4.0", t.getVersion().c_str());
 }
 
 TEST(VgaTerminal, CannotInit)
