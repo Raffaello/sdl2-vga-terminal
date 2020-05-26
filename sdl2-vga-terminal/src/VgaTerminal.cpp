@@ -183,7 +183,7 @@ void VgaTerminal::write(const uint8_t c, const uint8_t col, const uint8_t bgCol)
     _incrementCursorPosition();
 }
 
-void VgaTerminal::write(const terminalChar_t tc) noexcept
+void VgaTerminal::write(const terminalChar_t& tc) noexcept
 {
     write(tc.c, tc.col, tc.bgCol);
 }
@@ -215,6 +215,16 @@ void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const std::string &s
 void VgaTerminal::writeXY(const position_t& pos, const std::string& str, const uint8_t col, const uint8_t bgCol) noexcept
 {
     writeXY(pos.first, pos.second, str, col, bgCol);
+}
+
+void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const terminalChar_t& tc) noexcept
+{
+    writeXY(x, y, tc.c, tc.col, tc.bgCol);
+}
+
+void VgaTerminal::writeXY(const position_t& pos, const terminalChar_t& tc) noexcept
+{
+    writeXY(pos, tc.c, tc.col, tc.bgCol);
 }
 
 /**
@@ -576,13 +586,7 @@ VgaTerminal::_terminalChar_t VgaTerminal::_getCursorChar() noexcept
 void VgaTerminal::_setCharAtCursorPosition(const _terminalChar_t& tc) noexcept
 {
     std::lock_guard lck(_pGridMutex);
-    _terminalChar_t _tc = _pGrid[_getCursorPosition()];
-    // TODO define an operator to simply this expression
-    // BODY what is compared here is the terminalchar_t not the _terminalChar_t
-    // BODY rendered flag in this case is ignored.
-    if (!(_tc.c == tc.c && _tc.col == tc.col && _tc.bgCol == tc.bgCol)) {
-        _pGrid[_getCursorPosition()] = tc;
-    }
+    _pGrid[_getCursorPosition()] = tc;
 }
 
 void VgaTerminal::_setCursorNotRendered() noexcept
