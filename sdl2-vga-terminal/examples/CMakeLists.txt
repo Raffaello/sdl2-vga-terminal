@@ -58,7 +58,7 @@ if (BUILD_SHARED_LIBS)
         DEPS  vga-terminal
         LINKS ${LIB_SDL2main} vga-terminal
         COPY_LIB
-	)
+    )
     
     if(MSVC)
         target_link_options(${PROJECT_NAME}-so PRIVATE 
@@ -75,6 +75,6 @@ if (BUILD_SHARED_LIBS)
      FILE "sdl2-vga-terminal-load-so.c"
      DEPS vga-terminal
      LINKS PUBLIC ${LIB_SDL2main} ${LIB_SDL2} ${CMAKE_DL_LIBS}
-	)
+    )
     target_link_options(${PROJECT_NAME}-load-so PUBLIC ${LINK_SUBSYS_WIN})
 endif()

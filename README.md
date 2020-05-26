@@ -131,8 +131,11 @@ This is a TUI screenshot used in the snapshot test too.
 
 ![alt text](./sdl2-vga-terminal/test/snapshot/TuiTerminal.Snapshot.png "Title")
 
+## Done with
+
+- [VT-snake](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/VT-snake) retro-gaming style snake in an emulated DOS Text Mode
+
 ## Projects Idea to be done in the future
 
-- `VT Snake`  (retro-gaming style snake in an emulated DOS Text Mode)
 - `VT Tetris` (retro-gaming style Tetris in an emulated DOS Text Mode)
 - `VT Pong`   (retro-gaming style Pong in an emulated DOS Text Mode)

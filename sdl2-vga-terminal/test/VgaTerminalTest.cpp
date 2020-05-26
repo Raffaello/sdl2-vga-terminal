@@ -8,6 +8,10 @@
 #include <exceptions/exceptions.hpp>
 
 
+// TODO this could be an "utility method" itself
+// BODY consider to create in VgaTerminal class 
+// BODY an operator/method to implement the same functionality here.
+// BODY Probably, not just the same if want to keep the fine element level checks like below.
 void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
 {
     EXPECT_EQ(vp.x, exp.x);
@@ -16,6 +20,10 @@ void cmpViewportCheck(const SDL_Rect& vp, const SDL_Rect& exp)
     EXPECT_EQ(vp.h, exp.h);
 }
 
+// TODO this could be an "utility method" itself
+// BODY consider to create in VgaTerminal class 
+// BODY an operator/method to implement the same functionality here.
+// BODY Probably, not just the same if want to keep the fine element level checks like below.
 void cmpTerminalChar(const VgaTerminal::terminalChar_t& tc1, const VgaTerminal::terminalChar_t& tc2)
 {
     EXPECT_EQ(tc1.bgCol, tc2.bgCol);
@@ -36,7 +44,7 @@ void cmpTicks(const uint64_t start, const uint64_t end, const uint16_t value)
 TEST(VgaTerminal, checkVersion)
 {
     VgaTerminal t("", 0, -1, 0);
-    ASSERT_STRCASEEQ("0.3.0", t.getVersion().c_str());
+    ASSERT_STRCASEEQ("0.4.0", t.getVersion().c_str());
 }
 
 TEST(VgaTerminal, CannotInit)
@@ -45,7 +53,7 @@ TEST(VgaTerminal, CannotInit)
     //       so created 2 static wrapper.
     Environment::tearDown();
     ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), std::runtime_error);
-    ASSERT_THROW(VgaTerminal term = VgaTerminal("", 0, -1, 0), exceptions::SdlWasNotInit);
+    ASSERT_THROW(VgaTerminal term("", 0, -1, 0), exceptions::SdlWasNotInit);
     Environment::setUp();
 }
 
@@ -57,7 +65,7 @@ TEST(VgaTerminal, TimerNotInitedWarning)
     {
         testing::internal::CaptureStderr();
         std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-        VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+        VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
         std::string output = testing::internal::GetCapturedStderr();
         EXPECT_THAT(output, testing::EndsWith("TIMER or EVENTS not inited.\n"));
         EXPECT_THAT(output, testing::HasSubstr("WARN:"));
@@ -80,8 +88,8 @@ TEST(VgaTerminal, HelloWorldWindow) {
 }
 
 TEST(VgaTerminal, HelloWorldText) {
-    std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    std::string title = Environment::getTitle();
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     term.write(title, 7, 0);
     uint8_t termTitleLength = static_cast<uint8_t>(title.size());
@@ -92,7 +100,7 @@ TEST(VgaTerminal, HelloWorldText) {
 
 TEST(VgaTerminal, ScrollDown) {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     term.writeXY(term.getMode().tw - 1, term.getMode().th - 1, title, 7, 1);
     uint8_t titleLength = static_cast<uint8_t>(title.size());
@@ -107,7 +115,7 @@ TEST(VgaTerminal, scrollDownReusingSameGridChar)
     // TODO how to verify?
     // BODY mocks and call some private method once?
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
     term.writeXY(0, 24, "a", 7, 1);
     term.writeXY(0, 23, "a", 7, 1);
     VgaTerminal::terminalChar_t tc = term.at(0, 23);
@@ -119,7 +127,7 @@ TEST(VgaTerminal, scrollDownReusingSameGridChar)
 TEST(VgaTerminal, clearLine)
 {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     term.write(title, 7, 1);
     cmpTerminalChar(term.at(0, 0), VgaTerminal::terminalChar_t({ 'c', 7, 1 }));
@@ -130,7 +138,7 @@ TEST(VgaTerminal, clearLine)
 TEST(VgaTerminal, clearLineViewport)
 {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     term.writeXY(9, 2, "X", 7, 1);
     term.writeXY(21, 2, "X", 7, 1);
@@ -146,7 +154,7 @@ TEST(VgaTerminal, clearLineViewport)
 TEST(VgaTerminal, clearLineOutsideViewport)
 {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     testing::internal::CaptureStderr();
     term.clearLine(100);
@@ -158,7 +166,7 @@ TEST(VgaTerminal, clearLineOutsideViewport)
 TEST(VgaTerminal, fill)
 {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     EXPECT_TRUE(term.setViewPort(1, 1, 5, 2));
     term.fill('X', 7, 1);
@@ -170,7 +178,7 @@ TEST(VgaTerminal, fill)
 TEST(VgaTerminal, fillRestoreAndNoAutoScroll)
 {
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
 
     term.autoScroll = false;
     term.fill('X', 7, 1);
@@ -183,7 +191,7 @@ TEST(VgaTerminal, doNotRenderTwiceIfAlreadyRendered)
     // TODO: how to verify without mocking?
     // BODY only with mocking at the moment i have a solution but require some restructure...
     std::string title = ::testing::UnitTest::GetInstance()->current_test_info()->name();
-    VgaTerminal term = VgaTerminal(title, SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal term(title, SDL_WINDOW_HIDDEN, -1, 0);
     term.write("Hello", 7, 1);
     term.render();
     // here the expect internal method should not be used...
@@ -376,6 +384,57 @@ TEST(VgaTerminal, cursorNoBlinking)
     SDL_FlushEvents(0, 0xFFFFFFFF);
     EXPECT_EQ(0, SDL_WaitEventTimeout(&e, cursorWaitTime));
     EXPECT_EQ(e.type, 0);
+}
+
+TEST(VgaTerminal, MethodWrite)
+{
+    VgaTerminal term(Environment::getTitle(), SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal::terminalChar_t tc = { 'X', 7, 0 };
+    VgaTerminal::terminalChar_t t2;
+
+    term.write("X", tc.col, tc.bgCol);
+    t2 = term.at(term.getX() - 1, term.getY());
+    cmpTerminalChar(tc, t2);
+
+    term.write(tc);
+    t2 = term.at(term.getX() - 1, term.getY());
+    cmpTerminalChar(tc, t2);
+
+    term.write(tc.c, tc.col, tc.bgCol);
+    t2 = term.at(term.getX() - 1, term.getY());
+    cmpTerminalChar(tc, t2);
+}
+
+TEST(VgaTerminal, MethodWriteXY)
+{
+    VgaTerminal term(Environment::getTitle(), SDL_WINDOW_HIDDEN, -1, 0);
+    VgaTerminal::terminalChar_t tc = { 'X', 7, 0 };
+    VgaTerminal::terminalChar_t t2;
+    VgaTerminal::position_t p = { 0, 0 };
+
+    term.writeXY(p, tc);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
+
+    term.writeXY(0, 0, tc);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
+
+    term.writeXY(p, "X", tc.col, tc.bgCol);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
+
+    term.writeXY(0, 0, "X", tc.col, tc.bgCol);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
+
+    term.writeXY(p, tc.c, tc.col, tc.bgCol);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
+
+    term.writeXY(0, 0, tc.c, tc.col, tc.bgCol);
+    t2 = term.at(p.first, p.second);
+    cmpTerminalChar(tc, t2);
 }
 
 class  CursorBlinkingTests: public ::testing::TestWithParam<uint16_t> {};

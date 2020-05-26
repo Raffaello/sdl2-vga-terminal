@@ -33,6 +33,9 @@ public:
         uint8_t bgCol;
     } terminalChar_t;
 
+    // TODO major version refactor to a struct
+    // BODY instead of having first and second
+    // BODY have a struct with x, y.
     typedef std::pair<uint8_t, uint8_t> position_t;
 
     enum class CURSOR_MODE : uint8_t {
@@ -72,9 +75,16 @@ public:
     uint8_t getY() const noexcept;
 
     void write(const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
-    void write(const terminalChar_t tc) noexcept;
+    void write(const terminalChar_t& tc) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
+    
+    void writeXY(const uint8_t x, const uint8_t y, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
+    void writeXY(const position_t& pos, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
+    void writeXY(const position_t& pos, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
+    void writeXY(const uint8_t x, const uint8_t y, const terminalChar_t& tc) noexcept;
+    void writeXY(const position_t& pos, const terminalChar_t& tc) noexcept;
+
     terminalChar_t at(const uint8_t x, const uint8_t y) noexcept;
 
     void render(const bool force = false);

@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.16)
 
 find_package(GTest 1.10 CONFIG REQUIRED)
+include(GoogleTest)
+include(CMakeParseArguments)
 
 macro(macro_test) # ${ARGN} link libraries
     
@@ -8,8 +10,7 @@ macro(macro_test) # ${ARGN} link libraries
     set(flags SNAPSHOT DEFAULT SHARELIB)
     set(singleValues EXE FILE)
     set(multiValues LINKS)
-
-    include(CMakeParseArguments)
+    
     cmake_parse_arguments(${prefix} "${flags}" "${singleValues}" "${multiValues}" ${ARGN})
     #message("${EXE} - ${FILE} - ${LINKS}")
     #message("EXE: ${TEST_EXE}")
@@ -39,8 +40,7 @@ macro(macro_test) # ${ARGN} link libraries
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vga-terminal> $<TARGET_FILE_DIR:${TEST_EXE}>
         )
     endif()
-
-    include(GoogleTest)
+    
     gtest_discover_tests(${TEST_EXE})
 endmacro()
 
@@ -54,7 +54,7 @@ else()
         EXE runWindowTests
         FILE "WindowTest.cpp"
         LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
-	)
+    )
 
     ### VgaTerminal tests ###
     macro_test(
@@ -62,7 +62,7 @@ else()
         EXE runVgaTerminalTests
         FILE "VgaTerminalTest.cpp"
         LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
-	)
+    )
  
     ### tui::utils Tests ###
     macro_test(
@@ -70,7 +70,7 @@ else()
         EXE runUtilsTests
         FILE "tui/utilsTest.cpp"
         LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
-	)
+    )
     
     ### Shared Lib tests ###
     if (BUILD_SHARED_LIBS)
@@ -79,7 +79,7 @@ else()
             EXE runSOTest
             FILE "so-test.cpp"
             LINKS ${LIB_SDL2main} vga-terminal GTest::gtest
-		)
+        )
     endif()
 endif()
 
@@ -93,7 +93,7 @@ if (BUILD_SNAPSHOT)
         EXE runVgaTerminalSnapshotTests
         FILE "VgaTerminalSnapshotTest.cpp"
         LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image
-	)
+    )
 
     ### TuiTerminal Snapshot Tests ###
     macro_test(
@@ -101,7 +101,7 @@ if (BUILD_SNAPSHOT)
         EXE runTuiTerminalSnapshotTests
         FILE "TuiTerminalSnapshotTest.cpp"
         LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image
-	)
+    )
 endif()
 
 ### Valgrind tests ###
