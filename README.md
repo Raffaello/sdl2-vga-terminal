@@ -133,7 +133,7 @@ This is a TUI screenshot used in the snapshot test too.
 
 ## Done with
 
-- [VT-snake](https://raffaellobertini@dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/VT-snake) retro-gaming style snake in an emulated DOS Text Mode
+- [VT-snake](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_git/VT-snake) retro-gaming style snake in an emulated DOS Text Mode
 
 ## Projects Idea to be done in the future
 
