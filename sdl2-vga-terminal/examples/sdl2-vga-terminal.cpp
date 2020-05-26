@@ -97,9 +97,22 @@ int main(int argc, char* argv[])
     term1.writeXY(40, 12, "Again!", 9, 15);
     term1.render();
     SDL_Delay(500);
-    term1.writeXY(10, 15, "ÉÍÍÍÍÍÍÍÍÍ»", 14, 2);
-    term1.writeXY(10, 16, "º         º", 14, 2);
-    term1.writeXY(10, 17, "ÈÍÍÍÍÍÍÍÍÍ¼", 14, 2);
+    term1.writeXY(10, 15, 201, 14, 2);
+    for (int i = 0; i < 9; i++) {
+        term1.write(205, 14, 2);
+    }
+    term1.write(187, 14, 2);
+    term1.writeXY(10, 16, 186, 14, 2);
+    for (int i = 0; i < 9; i++) {
+        term1.write(' ', 14, 2);
+    }
+    term1.write(186, 14, 2);
+    term1.writeXY(10, 17, 200, 14, 2);
+    for (int i = 0; i < 9; i++) {
+        term1.write(205, 14, 2);
+    }
+    term1.write(188, 14, 2);
+
     term1.gotoXY(12, 16);
     term1.write(3, 4, 15);
     term1.gotoXY(14, 16);
