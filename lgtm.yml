@@ -1,0 +1,25 @@
+#path_classifiers:
+#	test:
+#		- "test"
+#queries:
+
+extraction:
+    cpp:
+        prepare:
+            script:
+                - cd $LGTM_WORKSPACE
+                - git clone https://github.com/Microsoft/vcpkg.git
+                - ls -la
+                - cd vcpkg
+                - ls -la
+                - ./bootstrap-vcpkg.sh
+                - ./vcpkg install sdl2 sdl2-image gtest # --triplet ???
+        configure:
+            command:
+                - cd $LGTM_SRC && mkdir build && cd build
+                # -DVCPKG_TARGET_TRIPLET=${{ parameters.triplet }}
+                - cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=$LGTM_WORKSPACE/vcpkg/scripts/buildsystems/vcpkg.cmake -DWITH_SDL2_STATIC=ON -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_EXAMPLES=OFF -DBUILD_SNAPSHOT=OFF -DENABLE_CODE_COVERAGE=OFF ..
+        index:
+            build_command:
+                - cd $LGTM_SRC/build
+                - cmake --build .
