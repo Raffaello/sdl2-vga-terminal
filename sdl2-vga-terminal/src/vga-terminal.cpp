@@ -20,7 +20,7 @@ VGA_Terminal* VGA_TERMINAL_init()
     try {
        term = new VgaTerminal("test", 0, -1, 0);
     }
-    catch (exception e) {
+    catch (exception &e) {
         cerr << "Error: " << e.what() << endl;
     }
 
