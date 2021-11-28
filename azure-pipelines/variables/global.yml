@@ -1,5 +1,5 @@
 variables:
-  CACHE_VCPKG_KEY: v4 | vcpkg-root
+  CACHE_VCPKG_KEY: v4-1 | vcpkg-root
   VCPKG_CMAKE: "$(Build.SourcesDirectory)/vcpkg/scripts/buildsystems/vcpkg.cmake"
   CMAKE_ARGS:  -DWITH_SDL2_STATIC=$(SDL2_STATIC) -DBUILD_TESTING=$(BUILD_TESTING) -DBUILD_SHARED_LIBS=$(BUILD_SHARED_LIBS) -DBUILD_EXAMPLES=$(BUILD_EXAMPLES) -DBUILD_SNAPSHOT=$(BUILD_SNAPSHOT) -DENABLE_CODE_COVERAGE=$(ENABLE_CODE_COVERAGE) -DHAVE_PRECISE_TIMER=$(HAVE_PRECISE_TIMER)
   CMAKE_IGNORE_PATH_WIN: "C:/MinGW/bin;C:/Strawberry/c/bin;C:/Program Files (x86)/LLVM/bin;C:/ProgramData/chocolatey/bin"
