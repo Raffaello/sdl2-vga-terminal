@@ -137,6 +137,7 @@ jobs:
       
       chmod +x g.sh
       cat g.sh
+      pwd
     displayName: llvm-cov gcov wrapper
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
