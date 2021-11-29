@@ -142,15 +142,15 @@ jobs:
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
   
-  - bash: env
-    displayName: DEBUG display environment
+  #- bash: env
+  #  displayName: DEBUG display environment
   #- bash: sudo find / -name llvm-cov 2> /dev/null
   #  displayName: DEBUG find llvm-cov 
   #  condition: ne(variables['Agent.OS'], 'Windows_NT')
   
   - bash: |
       echo $OSTYPE
-      test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
+      #test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
       ./g.sh -f -b -u $(find . -name *.gcda)
       lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
       lcov --remove cov.info '/Applications/*' --output-file coverage.info
