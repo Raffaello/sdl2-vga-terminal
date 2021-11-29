@@ -154,7 +154,7 @@ jobs:
       echo $OSTYPE
       test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
       ./g.sh -f -b -u $(find . -name *.gcda)
-      lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
+      lcov --directory . --base-directory . --gcov-tool /Users/runner/work/1/s/build/g.sh --capture -o cov.info
       lcov --remove cov.info '/Applications/*' --output-file coverage.info
       lcov --list coverage.info
       #gcovr -r ../ --filter ../sdl2-vga-terminal/src -o sonarcube.xml --sonarqube
