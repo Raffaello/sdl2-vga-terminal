@@ -50,8 +50,8 @@ for:
         TRIPLET: $PLATFORM-osx
         HAVE_PRECISE_TIMER: OFF
     cache:
-        #- $WS/vcpkg
-        - $WS/vcpkg/installed
+        ##- $WS/vcpkg
+        #- $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
         - sh: brew install p7zip #lcov
