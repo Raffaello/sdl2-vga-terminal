@@ -5,7 +5,7 @@
 
 | Monolithic CI | Note |
 |:-------------:|-----:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| secondary check|
+|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| disabled |
 |[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=4&branchName=master)| disabled|
 
 | Linux (x64) | Windows (x86, x64) | macOS (x64) | Analyzer  |
