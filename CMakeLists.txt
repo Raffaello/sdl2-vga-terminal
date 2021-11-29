@@ -4,7 +4,7 @@ if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 endif()
 
-project ("sdl2-vga-terminal" VERSION 0.4.0 DESCRIPTION "Vga Terminal on SDL2")
+project ("sdl2-vga-terminal" VERSION 0.4.1 DESCRIPTION "Vga Terminal on SDL2")
 
 
 ################################ Packages ####################################
@@ -33,7 +33,9 @@ option(BUILD_SNAPSHOT "build snapshot test" OFF)
 include(CMakeDependentOption)
 CMAKE_DEPENDENT_OPTION(TEST_DUMP_SNAPSHOT "build test to dump the expected output instead of verifing it" OFF
 "BUILD_SNAPSHOT" OFF)
-option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
+### Disabling SDL2-static as it requires to use the x64-windows-static
+### and therefore all the libs must be static.
+#option(WITH_SDL2_STATIC "linking STATIC LIB with SDL2 STATIC" OFF)
 option(HAVE_PRECISE_TIMER "if SDL2 timers are precise" ON)
 
 add_subdirectory ("sdl2-vga-terminal")

@@ -1,6 +1,13 @@
 #include <vga-terminal.h>
-#include "VgaTerminal.hpp"
+#include <VgaTerminal.hpp>
 #include <version.h>
+#include <stdexcept>
+#include <iostream>
+
+
+using std::cerr;
+using std::endl;
+using std::exception;
 
 const char* VGA_TERMINAL_version()
 {
@@ -9,8 +16,15 @@ const char* VGA_TERMINAL_version()
 
 VGA_Terminal* VGA_TERMINAL_init()
 {
-    VgaTerminal* _term = new VgaTerminal("test", 0, -1, 0);
-    return reinterpret_cast<VGA_Terminal*>(_term);
+    VgaTerminal* term = nullptr;
+    try {
+       term = new VgaTerminal("test", 0, -1, 0);
+    }
+    catch (const exception &e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+
+    return reinterpret_cast<VGA_Terminal*>(term);
 }
 
 void VGA_TERMINAL_destroy(VGA_Terminal* term)

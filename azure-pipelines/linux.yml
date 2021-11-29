@@ -41,6 +41,7 @@ stages:
         parameters:
           vcpkg_key_cache: $(CACHE_VCPKG_KEY)
           triplet: x64-linux
+          packages: 'sdl2 sdl2[x11] sdl2-image gtest'
 
 - stage: CI
   jobs:

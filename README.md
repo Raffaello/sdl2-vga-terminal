@@ -5,7 +5,7 @@
 
 | Monolithic CI | Note |
 |:-------------:|-----:|
-|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| secondary check|
+|[![Build status](https://ci.appveyor.com/api/projects/status/67mildjynhnlekk5/branch/master?svg=true)](https://ci.appveyor.com/project/Raffaello/sdl2-vga-terminal/branch/master)| disabled |
 |[![Build Status](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_apis/build/status/Raffaello.sdl2-vga-terminal?branchName=master)](https://dev.azure.com/raffaellobertini/sdl2-vga-terminal/_build/latest?definitionId=4&branchName=master)| disabled|
 
 | Linux (x64) | Windows (x86, x64) | macOS (x64) | Analyzer  |
@@ -49,7 +49,7 @@ there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for
 | Debug                | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | Release              | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | BUILD_SHARED_LIBS    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| WITH_SDL2_STATIC     | :heavy_check_mark: | only               | only               |
+| ~~WITH_SDL2_STATIC~~     | :heavy_check_mark: | only               | only               |
 | BUILD_TESTING        | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | BUILD_EXAMPLES       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | BUILD_SNAPSHOT       | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
@@ -59,6 +59,14 @@ there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for
 - code coverage available only with LLVM and GCC in `cmake`, on CI working only on macos
 - `TEST_DUMP_SNAPSHOT` is "forbidden" to test for the build as an helper flag only.
 
+### Linux Note
+
+It is required to install `sdl[x11]` along side `sdl` pacakge otherwise linking error.
+
+### SDL2-static switch
+It has been disabled as it has been moved to a different triplet `x64-windows-static` and just makes it annoying to test for it as it requires to have also a VCPKG_TARGET_TRIPLET to be changed and so it should be used as a different job itself rather than a switch, even though the switch in CMAKE is required to link the proper `SDL2::SDL2` or `SDL2::SDL2-static`.
+
+At the moment the `WITH_SDL2_STATIC` option in CMAKE has been disabled.
 
 ## Synopsis
 

@@ -133,21 +133,28 @@ jobs:
       
   - bash: |
       echo '#!/bin/bash' > g.sh
-      echo 'exec /usr/local/Cellar/llvm/10.0.0_3/bin/llvm-cov gcov "$@"' >> g.sh
+      echo 'exec /usr/local/Cellar/llvm/13.0.0_1/bin/llvm-cov gcov "$@"' >> g.sh
+      
       chmod +x g.sh
       cat g.sh
+      pwd
     displayName: llvm-cov gcov wrapper
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
-    
+  
+  #- bash: env
+  #  displayName: DEBUG display environment
   #- bash: sudo find / -name llvm-cov 2> /dev/null
-  #  displayName: llvm-cov DEBUG
+  #  displayName: DEBUG find llvm-cov 
   #  condition: ne(variables['Agent.OS'], 'Windows_NT')
+  
   - bash: |
+      pwd
+      ls
       echo $OSTYPE
       test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
       ./g.sh -f -b -u $(find . -name *.gcda)
-      lcov --directory . --base-directory . --gcov-tool ./g.sh --capture -o cov.info
+      lcov --directory . --base-directory . --gcov-tool /Users/runner/work/1/s/build/g.sh --capture -o cov.info
       lcov --remove cov.info '/Applications/*' --output-file coverage.info
       lcov --list coverage.info
       #gcovr -r ../ --filter ../sdl2-vga-terminal/src -o sonarcube.xml --sonarqube
