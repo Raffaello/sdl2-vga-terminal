@@ -50,7 +50,7 @@ for:
         TRIPLET: $PLATFORM-osx
         HAVE_PRECISE_TIMER: OFF
     cache:
-        #- $WS/vcpkg
+        ##- $WS/vcpkg
         - $WS/vcpkg/installed
     init:
         - sh: if [ $PLATFORM = "x86" ]; then exit 1; fi
@@ -82,8 +82,10 @@ before_build:
     - cmd: cd C:\tools\vcpkg
     - sh : cd $WS/vcpkg
     - git pull
-    - cmd: IF NOT EXIST vcpkg.exe .\bootstrap-vcpkg.bat
-    - sh : test -f vcpkg || ./bootstrap-vcpkg.sh
+    #- cmd: IF NOT EXIST vcpkg.exe .\bootstrap-vcpkg.bat
+    #- sh : test -f vcpkg || ./bootstrap-vcpkg.sh
+    - cmd: .\bootstrap-vcpkg.bat
+    - sh : ./bootstrap-vcpkg.sh
     - cmd: vcpkg install sdl2 sdl2-image gtest --triplet %PLATFORM%-windows
     - sh : ./vcpkg install sdl2 sdl2-image gtest --triplet $TRIPLET
     - cmd: cd %APPVEYOR_BUILD_FOLDER%
