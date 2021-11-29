@@ -140,9 +140,9 @@ jobs:
     workingDirectory: build
     condition: ne(variables['Agent.OS'], 'Windows_NT')
     
-  #- bash: sudo find / -name llvm-cov 2> /dev/null
-  #  displayName: llvm-cov DEBUG
-  #  condition: ne(variables['Agent.OS'], 'Windows_NT')
+  - bash: sudo find / -name llvm-cov 2> /dev/null
+    displayName: DEBUG find llvm-cov 
+    condition: ne(variables['Agent.OS'], 'Windows_NT')
   - bash: |
       echo $OSTYPE
       test $OSTYPE = "darwin19" && brew install lcov || apt-get install -y lcov
