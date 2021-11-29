@@ -85,7 +85,7 @@ steps:
     condition: contains(variables['Build.SourceBranch'], 'refs/tags/')
   - task: GitHubRelease@0
     inputs:
-      gitHubConnection: 'github connection 1'
+      gitHubConnection: 'github.com_Raffaello'
       repositoryName: '$(Build.Repository.Name)' 
       action: 'edit' #'create' # Options: create, edit, delete
       target: '$(Build.SourceVersion)' # Required when action == Create || Action == Edit
