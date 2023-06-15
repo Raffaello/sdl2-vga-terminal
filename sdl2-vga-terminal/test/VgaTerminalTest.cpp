@@ -381,7 +381,9 @@ TEST(VgaTerminal, cursorNoBlinking)
     uint16_t cursorWaitTime = static_cast<uint32_t>(term.getCursorSpeed()) * 2;
 
     // flush the SDL_event queue too...
+
     SDL_FlushEvents(0, 0xFFFFFFFF);
+    EXPECT_EQ(e.type, 0);
     EXPECT_EQ(0, SDL_WaitEventTimeout(&e, cursorWaitTime));
     EXPECT_EQ(e.type, 0);
 }
