@@ -382,10 +382,12 @@ TEST(VgaTerminal, cursorNoBlinking)
 
     // flush the SDL_event queue too...
 
+    EXPECT_EQ(e.type, 0);
     SDL_FlushEvents(0, 0xFFFFFFFF);
-    EXPECT_EQ(e.type, 0);
     EXPECT_EQ(0, SDL_WaitEventTimeout(&e, cursorWaitTime));
-    EXPECT_EQ(e.type, 0);
+    auto s = SDL_GetError();
+    EXPECT_STRCASEEQ("", SDL_GetError());
+    EXPECT_EQ(e.type, SDL_POLLSENTINEL);
 }
 
 TEST(VgaTerminal, MethodWrite)
