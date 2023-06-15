@@ -1,0 +1,75 @@
+### reusable workflow can't be called with a strategy matrix
+### and so are not used as a workflow without a strategy matrix
+### to feed in inputs parameters is useless in my case.
+
+### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
+### so can't be cached.
+
+name: ci-mac
+on:
+  push:
+    paths-ignore:
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+    branches-ignore:
+      - master
+  release:
+    types: [created]
+
+  #pull_request:
+  #  branches: [ master ]
+
+#permissions: read-all
+
+jobs:
+  build:
+    name: Build Mac
+    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        triplet: [ x64-osx ]
+        build_type: [ Debug, Release ]
+    steps:
+      - name: set-up environment variables
+        run: |
+          echo "ARCH=64" >> $GITHUB_ENV
+          #echo "CMAKE_A=x64" >> $GITHUB_ENV
+      - name: fetch vcpkg
+        run: |
+          cd /usr/local/share/vcpkg && git fetch
+      - uses: actions/checkout@v2
+      - name: create build dir
+        run: mkdir build
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: build/vcpkg_installed
+            key: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
+      - name: cmake generator
+        run: |
+          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        working-directory: build
+      - name: cmake build
+        run: |
+          cmake --build . --config=${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: CTest
+        run: ctest --output-on-failure -j4
+        working-directory: build
+      - name: cmake install
+        run: sudo cmake --build . --target install --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: cmake package
+        run: sudo cmake --build . --target package --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+            generate_release_notes: true
+            prerelease: false
+            files: "build/*.zip"
