@@ -110,7 +110,8 @@ if (BUILD_SHARED_LIBS)
     )
     install(FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/include/${LIB_NAME}.h
-        $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h
+        #$<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-export.h  # This is because of MSBuild, Ninja works better, but GitHub hasn't Ninja by default
         DESTINATION include
     )
     if (NOT (WITH_SDL2_STATIC))
