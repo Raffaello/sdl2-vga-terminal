@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include <vga-terminal-export.h>
+#include "vga-terminal-export.h"
 #include <stdint.h>
 
 #ifdef __cplusplus

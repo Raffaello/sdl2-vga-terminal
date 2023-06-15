@@ -58,11 +58,14 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
     DESTINATION static/cmake
 )
-target_include_directories(${LIB_NAME} PUBLIC 
+target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
+PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
+
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -105,9 +108,9 @@ if (BUILD_SHARED_LIBS)
         DESTINATION lib
         PUBLIC_HEADER DESTINATION include
     )
-    install(FILES 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
-        $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h 
+    install(FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${LIB_NAME}.h
+        $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h
         DESTINATION include
     )
     if (NOT (WITH_SDL2_STATIC))
@@ -123,7 +126,7 @@ if (BUILD_SHARED_LIBS)
       COMPATIBILITY AnyNewerVersion
     )
 
-    export(TARGETS vga-terminal 
+    export(TARGETS vga-terminal
         FILE ${CMAKE_BINARY_DIR}/${LIB_NAME}.cmake
     )
     install(EXPORT
@@ -134,10 +137,11 @@ if (BUILD_SHARED_LIBS)
         ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
         DESTINATION cmake
     )
-    target_include_directories(${LIB_NAME} PUBLIC 
+    target_include_directories(${LIB_NAME} PUBLIC
         $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     )
     target_sources(${LIB_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp

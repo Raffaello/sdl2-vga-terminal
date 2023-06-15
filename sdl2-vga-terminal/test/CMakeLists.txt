@@ -85,7 +85,7 @@ endif()
 
 ### Snapshot tests ####
 if (BUILD_SNAPSHOT)
-set (CMAKE_DEBUG_POSTFIX d)
+    #set (CMAKE_DEBUG_POSTFIX d)
     find_package(SDL2_image CONFIG REQUIRED)
     SET(sdl2_image $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
     ### VgaTerminal Snapshot Tests ###

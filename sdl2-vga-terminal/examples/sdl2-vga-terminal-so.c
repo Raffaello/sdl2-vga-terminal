@@ -3,7 +3,7 @@
  * The DLL/SO is linked at compile time.    *
  ********************************************/
 
-#include <vga-terminal.h>
+#include "vga-terminal.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
