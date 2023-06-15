@@ -55,7 +55,7 @@ jobs:
       - name: publishVersion
         # if: ${{ github.ref == 'refs/heads/master' }}
         env:
-          GH_TOKEN: ${{ secrets.GH_WORKFLOW }}
+          GH_TOKEN: ${{ secrets.GH_WORKFLOW2 }}
         run: |
           set -e
           VER=$(cat CMakeLists.txt  | grep " VERSION " | cut -d ' ' -f 4)
