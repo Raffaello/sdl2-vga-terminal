@@ -33,7 +33,7 @@ on:
 jobs:
   sonarcloud:
     name: SonarCloud Analysis (x64-windows, Debug)
-    runs-on: windows-2019
+    runs-on: windows-2022
     env:
       SONAR_SCANNER_VERSION: 4.4.0.2170
       SONAR_SERVER_URL: "https://sonarcloud.io"
