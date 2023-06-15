@@ -3,9 +3,9 @@ parameters:
     displayName: Image Name
     type: string
     values:
-      - 'windows-2019'
-      - 'ubuntu-18.04'
-      - 'macOS-10.15'
+      - 'windows-2022'
+      - 'ubuntu-22.04'
+      - 'macOS-13'
   
   - name: jobName
     displayName: Job Name

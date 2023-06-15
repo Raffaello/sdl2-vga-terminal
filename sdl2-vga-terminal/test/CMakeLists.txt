@@ -20,7 +20,7 @@ macro(macro_test) # ${ARGN} link libraries
     #message("NEED SHARELIB: ${TEST_SHARELIB}")
     #message("LINKS: ${TEST_LINKS}")
     add_executable (${TEST_EXE} ${TEST_FILE})
-    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS})
+    target_link_libraries(${TEST_EXE} PRIVATE ${TEST_LINKS} GTest::gtest GTest::gmock)
     add_custom_command(TARGET ${TEST_EXE} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest_main> $<TARGET_FILE_DIR:${TEST_EXE}>
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:GTest::gtest> $<TARGET_FILE_DIR:${TEST_EXE}>
@@ -53,7 +53,7 @@ else()
         DEFAULT
         EXE runWindowTests
         FILE "WindowTest.cpp"
-        LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
+        LINKS vga-terminal-static
     )
 
     ### VgaTerminal tests ###
@@ -61,7 +61,7 @@ else()
         DEFAULT
         EXE runVgaTerminalTests
         FILE "VgaTerminalTest.cpp"
-        LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
+        LINKS vga-terminal-static
     )
  
     ### tui::utils Tests ###
@@ -69,7 +69,7 @@ else()
         DEFAULT
         EXE runUtilsTests
         FILE "tui/utilsTest.cpp"
-        LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock
+        LINKS vga-terminal-static
     )
     
     ### Shared Lib tests ###
@@ -78,21 +78,22 @@ else()
             SHARELIB
             EXE runSOTest
             FILE "so-test.cpp"
-            LINKS ${LIB_SDL2main} vga-terminal GTest::gtest
+            LINKS vga-terminal
         )
     endif()
 endif()
 
 ### Snapshot tests ####
 if (BUILD_SNAPSHOT)
-    find_package(SDL2-image CONFIG REQUIRED)
-    
+    #set (CMAKE_DEBUG_POSTFIX d)
+    find_package(SDL2_image CONFIG REQUIRED)
+    SET(sdl2_image $<IF:$<TARGET_EXISTS:SDL2_image::SDL2_image>,SDL2_image::SDL2_image,SDL2_image::SDL2_image-static>)
     ### VgaTerminal Snapshot Tests ###
     macro_test(
         SNAPSHOT
         EXE runVgaTerminalSnapshotTests
         FILE "VgaTerminalSnapshotTest.cpp"
-        LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image
+        LINKS vga-terminal-static sdl2_image
     )
 
     ### TuiTerminal Snapshot Tests ###
@@ -100,14 +101,14 @@ if (BUILD_SNAPSHOT)
         SNAPSHOT
         EXE runTuiTerminalSnapshotTests
         FILE "TuiTerminalSnapshotTest.cpp"
-        LINKS ${LIB_SDL2main} vga-terminal-static GTest::gtest GTest::gmock SDL2::SDL2_image
+        LINKS vga-terminal-static sdl2_image
     )
 endif()
 
 ### Valgrind tests ###
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_executable(runHelgrindTests "valgrind/helgrind.cpp")
-    target_link_libraries(runHelgrindTests PRIVATE ${LIB_SDL2main} vga-terminal-static)
+    target_link_libraries(runHelgrindTests PRIVATE vga-terminal-static)
     add_executable(runMultiThreadFuzzTests "valgrind/multithreading.cpp")
-    target_link_libraries(runMultiThreadFuzzTests PRIVATE ${LIB_SDL2main} vga-terminal-static)
+    target_link_libraries(runMultiThreadFuzzTests PRIVATE vga-terminal-static)
 endif()

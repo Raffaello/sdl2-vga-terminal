@@ -1,0 +1,93 @@
+
+### reusable workflow can't be called with a strategy matrix
+### and so are not used as a workflow without a strategy matrix
+### to feed in inputs parameters is useless in my case.
+
+### Sonar cloud job the cache in $HOME/.sonar doesn't save sub-dirs
+### so can't be cached.
+
+name: ci-windows
+on:
+  push:
+    paths-ignore:
+      - 'doc/**'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'README.md'
+      - 'LICENSE'
+    branches-ignore:
+      - master
+  release:
+    types: [created]
+  #pull_request:
+  #  branches: [ master ]
+
+#permissions: read-all
+
+jobs:
+  build:
+    strategy:
+        fail-fast: false
+        matrix:
+            triplet: [ x86-windows, x64-windows ]
+            build_type: [ Debug, Release ]
+            os: [ '2022' ]
+    name: Build Windows
+    runs-on: windows-${{ matrix.os }}
+    steps:
+      - name: set-up environment variables
+        run: |
+          if ( "${{ matrix.triplet }}".startsWith('x86')) {
+            #echo "ARCH=32" >> $GITHUB_ENV
+            echo "ARCH=32" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "CMAKE_A=Win32" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } else {
+            #echo "ARCH=64" >> $GITHUB_ENV
+            echo "ARCH=64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            echo "CMAKE_A=x64" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+
+          if ( "${{ matrix.os}}".startsWith('2019')) {
+            echo "VS_PATH=C:\Program Files (x86)\Microsoft Visual Studio\${{ matrix.os}}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          } else {
+            echo "VS_PATH=C:\Program Files\Microsoft Visual Studio\${{ matrix.os }}\Enterprise" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          }
+      - name: fetch vcpkg
+        run: |
+          cd C:\vcpkg
+          git fetch
+      - uses: actions/checkout@v2
+      - name: create build dir
+        run: mkdir build
+      - uses: actions/cache@v2
+        id: dep-cache
+        with:
+            path: build\vcpkg_installed
+            key: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache-${{ hashFiles('**/*') }}
+            restore-keys: ${{ runner.os }}-${{ matrix.os }}-${{ matrix.triplet }}-dep-cache
+      - name: cmake generator
+        run: |
+          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -A ${{ env.CMAKE_A }} -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+        working-directory: build
+      - name: cmake build
+        run: |
+          . "${{ env.VS_PATH }}\VC\Auxiliary\Build\vcvars${{ env.ARCH }}.bat"
+          cmake --build . --config=${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: CTest
+        run: ctest --output-on-failure -j4
+        working-directory: build
+      - name: cmake install
+        run: cmake --build . --target install --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: cmake package
+        run: cmake --build . --target package --config ${{ matrix.build_type }} -j4
+        working-directory: build
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == '2019' }}
+        with:
+            generate_release_notes: true
+            prerelease: false
+            files: "build/*.zip"

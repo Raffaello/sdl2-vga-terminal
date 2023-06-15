@@ -1,0 +1,12 @@
+{
+  "name": "sdl2-vga-terminal",
+  "version-string": "0.1.0",
+  "builtin-baseline": "662dbb50e63af15baa2909b7eac5b1b87e86a0aa",
+  "dependencies": [
+    "sdl2",
+    "sdl2-image",
+    "gtest"
+  ],
+  "overrides": [
+  ]
+}

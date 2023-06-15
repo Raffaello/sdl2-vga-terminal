@@ -8,15 +8,9 @@ find_package(SDL2 CONFIG REQUIRED)
 
 configure_file(version.h.in version.h)
 
-if(WITH_SDL2_STATIC)
-    set(LIB_SDL2 SDL2::SDL2-static)
-else()
-    set(LIB_SDL2 SDL2::SDL2)
-endif()
-
-if (WIN32)
-    set(LIB_SDL2main SDL2::SDL2main)
-endif()
+set(LIB_SDL2 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+             $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
+)
 
 if(HAVE_PRECISE_TIMER)
 else()
@@ -37,7 +31,7 @@ install(
     DESTINATION static/lib
     PUBLIC_HEADER DESTINATION static/include
 )
-install(FILES 
+install(FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TuiTerminal.hpp
@@ -64,11 +58,14 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
     DESTINATION static/cmake
 )
-target_include_directories(${LIB_NAME} PUBLIC 
+target_include_directories(${LIB_NAME} PUBLIC
     $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:static/include>
+PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
 )
+
 target_sources(${LIB_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Window.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VgaTerminal.cpp
@@ -106,14 +103,15 @@ if (BUILD_SHARED_LIBS)
         STATIC_DEFINE ${LIB_NAME}-lib_BUILD_AS_STATIC
     )
     install(
-        TARGETS ${LIB_NAME} 
+        TARGETS ${LIB_NAME}
         EXPORT  ${LIB_CONF}
         DESTINATION lib
         PUBLIC_HEADER DESTINATION include
     )
-    install(FILES 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/vga-terminal.h
-        $<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h 
+    install(FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/${LIB_NAME}.h
+        #$<TARGET_FILE_DIR:vga-terminal>/${LIB_NAME}-export.h
+        ${CMAKE_CURRENT_BINARY_DIR}/${LIB_NAME}-export.h  # This is because of MSBuild, Ninja works better, but GitHub hasn't Ninja by default
         DESTINATION include
     )
     if (NOT (WITH_SDL2_STATIC))
@@ -129,7 +127,7 @@ if (BUILD_SHARED_LIBS)
       COMPATIBILITY AnyNewerVersion
     )
 
-    export(TARGETS vga-terminal 
+    export(TARGETS vga-terminal
         FILE ${CMAKE_BINARY_DIR}/${LIB_NAME}.cmake
     )
     install(EXPORT
@@ -140,10 +138,11 @@ if (BUILD_SHARED_LIBS)
         ${CMAKE_CURRENT_BINARY_DIR}/${LIB_VER}.cmake
         DESTINATION cmake
     )
-    target_include_directories(${LIB_NAME} PUBLIC 
+    target_include_directories(${LIB_NAME} PUBLIC
         $<BUILD_INTERFACE:$<TARGET_FILE_DIR:${LIB_NAME}>>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     )
     target_sources(${LIB_NAME} PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/vga-terminal.cpp
@@ -159,7 +158,7 @@ endif()
 if(CMAKE_CXX_COMPILER_ID MATCHES "^MSVC")
 # @see https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-by-category?view=vs-2019
     set(CXX_OPTS PRIVATE /W4  #/WX
-        $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /guard:cf /RTC1c /D_ALLOW_RTCc_IN_STL>
+        $<$<CONFIG:DEBUG>:/Od /GR /GS /Gs /RTC1c /D_ALLOW_RTCc_IN_STL>
         $<$<CONFIG:RELEASE>:/O2 /Ot /GA /GL /Gw>)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "^GNU")
     set(CXX_OPTS PRIVATE -Wall -Wextra -pedantic #-fPIC 

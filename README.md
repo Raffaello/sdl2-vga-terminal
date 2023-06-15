@@ -29,7 +29,13 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Raffaello_sdl2-vga-terminal&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Raffaello_sdl2-vga-terminal)
 
 
+
+
 ## Azure Pipelines
+
+NOTE: unmaintained pipelines, it looks like something changed in azure pipelines, i don't have the interest to fix it at the moment. 
+      (replaced with simpler basic GitHub workflows instead, to do the CI build&testing&install, then release the pacakge)
+
 
 there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for matrix build.
 
@@ -61,7 +67,8 @@ there are 5 pipelines, 1 for each OS and one dedicated to "Analysis", plus 1 for
 
 ### Linux Note
 
-It is required to install `sdl[x11]` along side `sdl` pacakge otherwise linking error.
+It is required to install `sdl[x11]` along side `sdl` package otherwise linking error.
+NOTE: it looks like not anymore true using `vcpkg.json`
 
 ### SDL2-static switch
 It has been disabled as it has been moved to a different triplet `x64-windows-static` and just makes it annoying to test for it as it requires to have also a VCPKG_TARGET_TRIPLET to be changed and so it should be used as a different job itself rather than a switch, even though the switch in CMAKE is required to link the proper `SDL2::SDL2` or `SDL2::SDL2-static`.

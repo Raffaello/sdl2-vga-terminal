@@ -52,7 +52,7 @@ stages:
   variables:
     BUILD_EXAMPLES: OFF
     BUILD_SHARED_LIBS: ON
-    ENABLE_CODE_COVERAGE: ON    
+    ENABLE_CODE_COVERAGE: ON
     HAVE_PRECISE_TIMER: OFF
   jobs: 
     - template: 'templates/sonarcloud-job.yml'

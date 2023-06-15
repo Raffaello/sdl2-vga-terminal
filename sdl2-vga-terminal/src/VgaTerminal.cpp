@@ -1,10 +1,10 @@
-#include "VgaTerminal.hpp"
+#include <VgaTerminal.hpp>
 #include <typeinfo>
-#include "vgafonts.h"
-#include "vgapalette.h"
+#include <vgafonts.h>
+#include <vgapalette.h>
 #include <version.h>
 #include <algorithm>
-#include "exceptions/exceptions.hpp"
+#include <exceptions/exceptions.hpp>
 #include <utility>
 
 

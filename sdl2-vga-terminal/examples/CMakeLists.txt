@@ -37,7 +37,7 @@ macro_example(
     EXE "${PROJECT_NAME}"
     FILE "sdl2-vga-terminal.cpp"
     DEPS vga-terminal-static
-    LINKS ${LIB_SDL2main} vga-terminal-static
+    LINKS vga-terminal-static
     NONE
 )
 
@@ -46,7 +46,7 @@ macro_example(
     EXE "${PROJECT_NAME}-tui"
     FILE "sdl2-tui-terminal.cpp"
     DEPS vga-terminal-static
-    LINKS ${LIB_SDL2main} vga-terminal-static
+    LINKS vga-terminal-static
     NONE
 )
 
@@ -56,7 +56,7 @@ if (BUILD_SHARED_LIBS)
         EXE ${PROJECT_NAME}-so
         FILE "sdl2-vga-terminal-so.c"
         DEPS  vga-terminal
-        LINKS ${LIB_SDL2main} vga-terminal
+        LINKS vga-terminal
         COPY_LIB
     )
     
@@ -74,7 +74,7 @@ if (BUILD_SHARED_LIBS)
      EXE ${PROJECT_NAME}-load-so
      FILE "sdl2-vga-terminal-load-so.c"
      DEPS vga-terminal
-     LINKS PUBLIC ${LIB_SDL2main} ${LIB_SDL2} ${CMAKE_DL_LIBS}
+     LINKS PUBLIC ${LIB_SDL2} ${CMAKE_DL_LIBS}
     )
     target_link_options(${PROJECT_NAME}-load-so PUBLIC ${LINK_SUBSYS_WIN})
 endif()
