@@ -31,25 +31,25 @@ variables:
   - template: variables/build_switches.yml
 
 stages:
-#- stage: Dep
-#  jobs:
-#    - job: vcpkg
-#      strategy:
-#        matrix:
-#          Win 32 bits:
-#            TRIPLET: x86-windows
-#            ARCH: 32
-#          Win 64 bits:
-#            TRIPLET: x64-windows
-#            ARCH: 64
-#      pool:
-#        vmImage: ${{ variables.windows_image }}
-#      steps:
-#      - template: templates/dep-vcpkg-steps.yml
-#        parameters:
-#          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
-#          triplet: $(TRIPLET)
-#          arch: $(ARCH)
+- stage: Dep
+  jobs:
+    - job: vcpkg
+      strategy:
+        matrix:
+          Win 32 bits:
+            TRIPLET: x86-windows
+            ARCH: 32
+          Win 64 bits:
+            TRIPLET: x64-windows
+            ARCH: 64
+      pool:
+        vmImage: ${{ variables.windows_image }}
+      steps:
+      - template: templates/dep-vcpkg-steps.yml
+        parameters:
+          vcpkg_key_cache: $(CACHE_VCPKG_KEY)
+          triplet: $(TRIPLET)
+          arch: $(ARCH)
 
 - stage: CI
   jobs:
