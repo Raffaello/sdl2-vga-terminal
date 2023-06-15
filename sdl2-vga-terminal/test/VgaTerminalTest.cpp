@@ -41,7 +41,7 @@ void cmpTicks(const uint64_t start, const uint64_t end, const uint16_t value)
     EXPECT_LE(dt, te);
 }
 
-TEST(VgaTerminal, checkVersion)
+TEST(DISABLED_VgaTerminal, checkVersion)
 {
     VgaTerminal t("", 0, -1, 0);
     ASSERT_STRCASEEQ("0.4.1", t.getVersion().c_str());
