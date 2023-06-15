@@ -51,7 +51,7 @@ jobs:
             restore-keys: ${{ runner.os }}-${{ matrix.triplet }}-dep-cache
       - name: cmake generator
         run: |
-          cmake -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          cmake -DHAVE_PRECISE_TIMER=OFF -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
         working-directory: build
       - name: cmake build
         run: |
