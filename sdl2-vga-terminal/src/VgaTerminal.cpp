@@ -195,6 +195,12 @@ void VgaTerminal::write(const std::string &str, const uint8_t col, const uint8_t
     }
 }
 
+void VgaTerminal::writeLine(const std::string& str, const uint8_t col, const uint8_t bgCol) noexcept
+{
+    write(str, col, bgCol);
+    newLine();
+}
+
 void VgaTerminal::writeXY(const uint8_t x, const uint8_t y, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept
 {
     gotoXY(x, y);

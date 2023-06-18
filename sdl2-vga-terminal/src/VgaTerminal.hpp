@@ -78,6 +78,8 @@ public:
     void write(const terminalChar_t& tc) noexcept;
     void write(const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
     
+    void writeLine(const std::string& str, const uint8_t col, const uint8_t bgCol) noexcept;
+    
     void writeXY(const uint8_t x, const uint8_t y, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const position_t& pos, const uint8_t c, const uint8_t col, const uint8_t bgCol) noexcept;
     void writeXY(const uint8_t x, const uint8_t y, const std::string &str, const uint8_t col, const uint8_t bgCol) noexcept;
