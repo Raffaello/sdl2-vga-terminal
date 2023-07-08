@@ -10,7 +10,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("sdl2-vga-terminal" VERSION 0.5.0 DESCRIPTION "Vga Terminal on SDL2")
+project ("sdl2-vga-terminal" VERSION 0.5.1 DESCRIPTION "Vga Terminal on SDL2")
 
 
 ################################ Packages ####################################
